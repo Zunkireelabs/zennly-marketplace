@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
+/*
+  Zen Marketplace design tokens.
+  Source of truth: MASTER.md (project root). Do not hand-edit values here
+  without updating MASTER.md to match — this file exists to make those
+  tokens consumable as Tailwind utilities (bg-background, text-primary, etc).
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fefdfb;
+  --foreground: #23211d;
+  --muted: #ede9e0;
+  --muted-foreground: #6b6255;
+  --border: #e6e1d6;
+  --card: #ffffff;
+  --card-foreground: #23211d;
+  --primary: #5b6e56;
+  --primary-hover: #4a5a46;
+  --primary-foreground: #ffffff;
+  --accent: #5e86a0;
+  --accent-foreground: #ffffff;
+  --success: #4a5a46;
+  --warning: #c08a3e;
+  --error: #b23b33;
+  --info: #5e86a0;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+
+  --shadow-low: 0 1px 2px rgba(35, 33, 29, 0.05);
+  --shadow-floating: 0 4px 20px rgba(35, 33, 29, 0.08);
+  --shadow-modal: 0 12px 32px rgba(35, 33, 29, 0.14);
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --easing-standard: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+
+  --font-sans: var(--font-outfit);
+  --font-mono: var(--font-space-mono);
+  --font-serif: var(--font-instrument-serif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Dark mode not yet decided for this product — deferred, see MASTER.md. */
+
+/* Tailwind v4's preflight resets buttons to the default arrow cursor. Restore the pointer for
+   everything clickable in one place (base layer, so utilities like cursor-not-allowed still win). */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  select,
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }

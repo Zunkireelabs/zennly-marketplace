@@ -1,0 +1,135 @@
+// Zennly marketplace database (Supabase Postgres).
+// Storefront content lives here. Live availability, prices and capacity come from the booking
+// engine later; `engineProviderId` is the link, empty until a provider is connected.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Provider {
+  slug              String   @id
+  name              String
+  city              String
+  region            String
+  location          String
+  modality          String
+  modalities        String[]
+  rating            Float
+  reviewCount       Int      @default(0) @map("review_count")
+  isNew             Boolean  @default(false) @map("is_new")
+  isRecommended     Boolean  @default(false) @map("is_recommended")
+  tone              String
+  image             String
+  gallery           String[]
+  tour              Json?
+  intro             String[]
+  greatFor          String[] @map("great_for")
+  features          Json
+  serviceCategories String[] @map("service_categories")
+  services          Json
+  included          String[]
+  addOns            Json     @map("add_ons")
+  amenities         String[]
+  address           String
+  hours             Json
+  nearby            Json
+  reviewSummary     String   @default("") @map("review_summary")
+  reviews           Json
+  fromPrice         Float    @default(0) @map("from_price")
+  /// Map position. Null until a studio is geocoded; such studios still list, they just have no pin.
+  lat               Float?
+  lng               Float?
+  engineProviderId  String?  @unique @map("engine_provider_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  collections CollectionProvider[]
+
+  @@map("providers")
+}
+
+/// A themed, ordered list of studios. Homepage tile fields and the collection page's intro.
+model Collection {
+  slug        String @id
+  label       String
+  title       String
+  description String
+  intro       String
+  tone        String
+  image       String
+  imageAlt    String @map("image_alt")
+  sortOrder   Int    @default(0) @map("sort_order")
+
+  providers CollectionProvider[]
+
+  @@map("collections")
+}
+
+/// Membership of a studio in a collection. `position` is the editorial order.
+model CollectionProvider {
+  collectionSlug String @map("collection_slug")
+  providerSlug   String @map("provider_slug")
+  position       Int
+
+  collection Collection @relation(fields: [collectionSlug], references: [slug], onDelete: Cascade)
+  provider   Provider   @relation(fields: [providerSlug], references: [slug], onDelete: Cascade)
+
+  @@id([collectionSlug, providerSlug])
+  @@index([providerSlug])
+  @@map("collection_providers")
+}
+
+// ---- Accounts (Phase 2) ----
+// Keyed by the Supabase auth user id (uuid). No Prisma relation to auth.users: that schema is
+// owned by Supabase. Prisma bypasses RLS, so every query on these tables must be scoped by the
+// verified session user id; RLS is also enabled with no public policies as a safety net.
+
+model Profile {
+  id        String   @id @db.Uuid
+  name      String?
+  avatar    String?
+  country   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("profiles")
+}
+
+model SavedStudio {
+  userId       String   @map("user_id") @db.Uuid
+  providerSlug String   @map("provider_slug")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@id([userId, providerSlug])
+  @@map("saved_studios")
+}
+
+model Consent {
+  id      String   @id @default(uuid()) @db.Uuid
+  userId  String   @map("user_id") @db.Uuid
+  purpose String
+  granted Boolean
+  source  String
+  at      DateTime @default(now())
+
+  @@index([userId])
+  @@map("consents")
+}
+
+model Event {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String?  @map("user_id") @db.Uuid
+  anonId       String   @map("anon_id")
+  event        String
+  providerSlug String?  @map("provider_slug")
+  props        Json     @default("{}")
+  at           DateTime @default(now())
+
+  @@index([userId])
+  @@index([event, at])
+  @@map("events")
+}
