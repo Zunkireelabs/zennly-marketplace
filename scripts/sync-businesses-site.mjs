@@ -52,6 +52,7 @@ const EXCLUDED_ROOT_FILES = new Set([
   "robots.txt",
   "llms.txt",
   "llms-full.txt",
+  "feed.xml", // RSS/Atom feed, same absolute-URL-canonical-surface category as the above
 ]);
 
 const REWRITE_EXTENSIONS = new Set([".html", ".css"]);

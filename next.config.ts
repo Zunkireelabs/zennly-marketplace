@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
 import type { NextConfig } from "next";
 
 // Baseline security headers for every route. A full script-src Content-Security-Policy needs a
@@ -16,27 +18,70 @@ const securityHeaders = [
 ];
 
 // web-zenly's marketing site used to own the root of zennly.io; it now lives under
-// /businesses. Every one of the 34 relocating sitemap URLs sits under one of these
-// eleven top-level prefixes, and the marketplace owns a disjoint set of paths
-// (api, auth, collections, providers, saved, search), so a prefix mapping is lossless.
-// Both trailing-slash shapes are in the wild — the old sitemap published `/pricing/`
-// while web-zenly's own nav linked `/pricing` — and both resolve. Next's trailing-slash
-// normalization runs *before* redirects, so `/pricing/` 308s to `/pricing` first and then
-// matches the rule below; a rule for the slashed shape would be dead code. Verified: both
-// shapes end at /businesses/pricing, the slashed one via one extra hop.
-const MOVED_MARKETING_PREFIXES = [
-  "about",
-  "blog",
-  "case-study",
-  "demo",
-  "features",
-  "glossary",
-  "how-it-works",
-  "pricing",
-  "privacy-policy",
-  "solutions",
-  "terms-of-service",
-];
+// /businesses. Both trailing-slash shapes are in the wild — the old sitemap published
+// `/pricing/` while web-zenly's own nav linked `/pricing` — and both resolve. Next's
+// trailing-slash normalization runs *before* redirects, so `/pricing/` 308s to `/pricing`
+// first and then matches the rule below; a rule for the slashed shape would be dead code.
+// Verified: both shapes end at /businesses/pricing, the slashed one via one extra hop.
+//
+// The prefix list used to be a hand-maintained array here. It drifted the first time
+// web-zenly added or removed a top-level section (ten sections — compare, contact,
+// cookie-policy, daily-close-checklist, faq, feed, global, nepal, press, and more —
+// appeared with zero signal here, while how-it-works was deleted and the stale entry
+// would have kept 308ing to a page that no longer exists). Deriving it from the actual
+// mirrored tree means a new web-zenly section is covered automatically on the next sync,
+// with no edit to this file — the same reasoning src/app/sitemap.ts already uses for the
+// marketing half of the sitemap.
+//
+// This reads public/businesses/ synchronously at config-eval time, which depends on the
+// mirror already existing on disk. That ordering is guaranteed by npm's script lifecycle,
+// not by anything in Next itself: `npm run build` always runs the `prebuild` script (which
+// runs scripts/sync-businesses-site.mjs) to completion in its own process *before* starting
+// the `build` script (`next build`), which is what loads and evaluates this file. Same for
+// `predev` before `next dev`. Verified empirically, not just assumed: deleted
+// public/businesses/, ran `npm run build` end-to-end, and confirmed the derived prefix set
+// was non-empty and correct in the resulting route table — if the ordering didn't hold, this
+// would throw (see the missing-mirror branch below) rather than silently building with zero
+// marketing redirects.
+function deriveMarketingPrefixes(): string[] {
+  const businessesDir = path.join(process.cwd(), "public", "businesses");
+  if (!existsSync(businessesDir)) {
+    throw new Error(
+      "public/businesses/ not found while deriving marketing-site redirect prefixes in " +
+        "next.config.ts. This should only happen if next build/dev was invoked without its " +
+        "npm script (prebuild/predev runs scripts/sync-businesses-site.mjs first). Run " +
+        "`npm run sync:businesses` and retry, or use the npm script instead of calling the " +
+        "Next CLI directly."
+    );
+  }
+
+  // "assets" has its own dedicated rule below (assetRedirect) with its own reasoning —
+  // excluded here so it isn't redirected twice.
+  const prefixes = readdirSync(businessesDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name !== "assets")
+    .map((entry) => entry.name);
+
+  // The marketplace owns these top-level segments (plus /businesses itself). If web-zenly
+  // ever ships a top-level section with one of these names, a derived redirect would SHADOW
+  // a real marketplace route — e.g. a web-zenly "/search" page would silently 308 every
+  // search request into the marketing mirror. That is a far worse failure than a 404, and a
+  // silent one, so this fails the build loudly instead of skipping or overriding. The sets
+  // are disjoint today; this guard is for when that stops being true.
+  const reservedByMarketplace = new Set(["api", "auth", "businesses", "collections", "providers", "saved", "search"]);
+  const collisions = prefixes.filter((prefix) => reservedByMarketplace.has(prefix));
+  if (collisions.length > 0) {
+    throw new Error(
+      `web-zenly now ships a top-level section (${collisions.join(", ")}) whose name collides ` +
+        "with a marketplace route. A derived redirect would shadow that route. Resolve the " +
+        "naming collision (rename the web-zenly section, or carve out an exception here) " +
+        "before building."
+    );
+  }
+
+  return prefixes;
+}
+
+const MOVED_MARKETING_PREFIXES = deriveMarketingPrefixes();
 
 // `permanent: true` is a 308, not a 301: it is the permanent redirect that preserves the
 // request method. Search engines treat it the same as a 301 for canonicalization.
