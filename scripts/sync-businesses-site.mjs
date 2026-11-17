@@ -5,9 +5,19 @@
 // script only ever reads its build output (_site/) and never writes into
 // that repo. Re-run this whenever web-zenly's content/design changes.
 //
+// The contract is "ensure a fresh mirror exists", not "always rebuild the source".
+// When the web-zenly source is unavailable but public/businesses/ is already
+// populated, this exits 0 with a notice — that is the CI/Docker case, where the
+// mirror is staged into the build context before the image build. It only fails
+// when neither the source nor an existing mirror is present.
+//
 // Usage:
-//   node scripts/sync-businesses-site.mjs             # builds web-zenly, then mirrors
+//   node scripts/sync-businesses-site.mjs              # builds web-zenly, then mirrors
 //   node scripts/sync-businesses-site.mjs --skip-build # mirrors an already-built _site/
+//   node scripts/sync-businesses-site.mjs --if-missing  # no-op when the mirror exists
+//
+// Env:
+//   WEB_ZENLY_DIR — path to the web-zenly checkout (default: ../web-zenly)
 
 import { execSync } from "node:child_process";
 import {
@@ -24,7 +34,9 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..");
-const WEB_ZENLY_DIR = path.resolve(REPO_ROOT, "..", "web-zenly");
+const WEB_ZENLY_DIR = process.env.WEB_ZENLY_DIR
+  ? path.resolve(REPO_ROOT, process.env.WEB_ZENLY_DIR)
+  : path.resolve(REPO_ROOT, "..", "web-zenly");
 const SITE_DIR = path.join(WEB_ZENLY_DIR, "_site");
 const DEST_DIR = path.join(REPO_ROOT, "public", "businesses");
 const PREFIX = "/businesses";
@@ -153,9 +165,37 @@ function copyAndRewrite() {
 const skipBuild = process.argv.includes("--skip-build");
 const ifMissing = process.argv.includes("--if-missing");
 
-if (ifMissing && existsSync(DEST_DIR) && readdirSync(DEST_DIR).length > 0) {
-  console.log(`public/businesses already populated, skipping (--if-missing). Run without the flag to refresh.`);
+function mirrorIsPopulated() {
+  return existsSync(DEST_DIR) && readdirSync(DEST_DIR).length > 0;
+}
+
+/**
+ * What this run needs from web-zenly: the whole checkout when it is going to build,
+ * just the existing build output when --skip-build says someone else already did.
+ */
+function sourceIsAvailable() {
+  return skipBuild ? existsSync(SITE_DIR) : existsSync(WEB_ZENLY_DIR);
+}
+
+if (ifMissing && mirrorIsPopulated()) {
+  console.log(`public/businesses already populated, skipping (--if-missing). Run \`npm run sync:businesses\` to refresh.`);
   process.exit(0);
+}
+
+if (!sourceIsAvailable()) {
+  const missing = skipBuild ? SITE_DIR : WEB_ZENLY_DIR;
+  if (mirrorIsPopulated()) {
+    // The CI/Docker case: the build context carries the mirror, not the source repo.
+    console.log(`web-zenly source not found at ${missing}.`);
+    console.log(`public/businesses is already populated, so using the existing mirror as-is.`);
+    console.log(`(Set WEB_ZENLY_DIR to point at a web-zenly checkout if you meant to regenerate it.)`);
+    process.exit(0);
+  }
+  throw new Error(
+    `web-zenly source not found at ${missing} and public/businesses is empty, so there is ` +
+      `nothing to serve under /businesses. Clone web-zenly as a sibling of this repo, set ` +
+      `WEB_ZENLY_DIR to its path, or stage a prebuilt public/businesses/ into the build context.`
+  );
 }
 
 if (!skipBuild) buildWebZenly();
