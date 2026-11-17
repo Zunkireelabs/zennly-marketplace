@@ -44,7 +44,11 @@ export interface AuthAdapter {
   readonly name: string;
   /** Set only by demo adapters. Shown in the login UI; real adapters leave it undefined. */
   readonly demoHint?: string;
-  /** False when phone sign in isn't offered yet; the login screen then shows email and Google only. */
+  /**
+   * False hides the Phone tab entirely (email and Google only). The Supabase adapter currently
+   * leaves this true but disables the tab in the UI instead (login-dialog.tsx) — phone is a
+   * known-coming method, worth showing as planned, not just absent.
+   */
   readonly supportsPhone?: boolean;
   /** "link": email sends a sign-in link (no code to type). Default "code". */
   readonly emailMethod?: "code" | "link";

@@ -259,25 +259,39 @@ function LoginForm({
                 aria-label="Sign in with"
                 className="grid grid-cols-2 rounded-full bg-muted p-1 text-sm font-medium"
               >
-                {(["phone", "email"] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    role="tab"
-                    aria-selected={method === m}
-                    onClick={() => {
-                      setMethod(m);
-                      setError(null);
-                    }}
-                    className={`h-10 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                      method === m
-                        ? "bg-card text-foreground shadow-[var(--shadow-low)]"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {m === "phone" ? "Phone" : "Email"}
-                  </button>
-                ))}
+                {(["phone", "email"] as const).map((m) => {
+                  // Phone sign-in isn't wired yet (supabase-adapter.ts's signInWithPhone always
+                  // returns "unavailable") — shown so people know it's planned, but disabled
+                  // rather than letting them fill in a number and fail at submit.
+                  const comingSoon = m === "phone";
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      role="tab"
+                      aria-selected={method === m}
+                      disabled={comingSoon}
+                      onClick={() => {
+                        setMethod(m);
+                        setError(null);
+                      }}
+                      className={`flex h-10 items-center justify-center gap-1.5 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        method === m
+                          ? "bg-card text-foreground shadow-[var(--shadow-low)]"
+                          : comingSoon
+                            ? "cursor-not-allowed text-muted-foreground/40"
+                            : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {m === "phone" ? "Phone" : "Email"}
+                      {comingSoon && (
+                        <span className="rounded-[var(--radius-full)] bg-accent px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.04em] text-accent-foreground">
+                          Soon
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
 
