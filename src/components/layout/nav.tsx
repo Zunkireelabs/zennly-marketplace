@@ -8,6 +8,7 @@ import type { Destination, SearchIndex } from "@/lib/home-rails";
 import { SearchBar } from "@/components/search/search-bar";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { maskTarget } from "@/lib/auth/normalize";
+import { MARKETING_SITE_HOME } from "@/lib/marketing-links";
 import { CurrencyChip, CurrencyRow } from "./currency-picker";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
@@ -31,7 +32,7 @@ export function Nav({
   search?: { destinations: Destination[]; searchIndex: SearchIndex };
 }) {
   const solid = variant === "solid";
-  const providersHref = "https://zennly.io/";
+  const providersHref = MARKETING_SITE_HOME;
   const ink = solid ? "text-foreground" : "text-white";
   const edge = solid ? "border-foreground/25 hover:border-foreground" : "border-white/40 hover:border-white";
   const bar = solid ? "bg-foreground" : "bg-white";

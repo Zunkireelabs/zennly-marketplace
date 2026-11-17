@@ -76,7 +76,7 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
 
           <RelatedProviders related={related} />
         </main>
-        <Footer providersHref="https://zennly.io/" />
+        <Footer />
       </div>
       <MobileBookBar />
     </ProviderShell>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { MARKETING_SITE_HOME } from "@/lib/marketing-links";
 import { providerPitch } from "@/lib/placeholder-data";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
@@ -74,7 +75,7 @@ export function ProviderPitch() {
           </p>
 
           <a
-            href="#"
+            href={MARKETING_SITE_HOME}
             className="mt-7 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {providerPitch.ctaLabel}

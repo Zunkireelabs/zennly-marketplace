@@ -59,7 +59,7 @@ export default async function SavedPage() {
           <SavedList items={items} />
         </div>
       </main>
-      <Footer providersHref="https://zennly.io/" />
+      <Footer />
     </div>
   );
 }

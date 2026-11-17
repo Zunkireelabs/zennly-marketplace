@@ -1,18 +1,31 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MARKETING_ABOUT, MARKETING_SITE_HOME } from "@/lib/marketing-links";
 
+// Discover links are placeholders for future /search?modality= filters, unrelated to the
+// marketing site — left as "#" (out of this sweep's scope: it's an internal-routing gap, not
+// a stale marketing link). "Careers" has no destination yet; also left as "#".
 const FOOTER_COLUMNS = [
   {
     title: "Discover",
-    links: ["Massage", "Facials", "Yoga & Movement", "Recovery"],
+    links: [
+      { label: "Massage", href: "#" },
+      { label: "Facials", href: "#" },
+      { label: "Yoga & Movement", href: "#" },
+      { label: "Recovery", href: "#" },
+    ],
   },
   {
     title: "Company",
-    links: ["About", "For Providers", "Careers"],
+    links: [
+      { label: "About", href: MARKETING_ABOUT },
+      { label: "For Providers", href: MARKETING_SITE_HOME },
+      { label: "Careers", href: "#" },
+    ],
   },
 ];
 
-export function Footer({ providersHref = "#" }: { providersHref?: string }) {
+export function Footer() {
   return (
     // Scoped tint (not bg-muted directly) so lightening the footer doesn't also lighten
     // the toggle pill/chip borders/card backgrounds that share the --muted token elsewhere.
@@ -41,12 +54,12 @@ export function Footer({ providersHref = "#" }: { providersHref?: string }) {
               </p>
               <ul className="mt-3 flex flex-col gap-2">
                 {column.links.map((link) => (
-                  <li key={link}>
+                  <li key={link.label}>
                     <Link
-                      href={link === "For Providers" ? providersHref : "#"}
+                      href={link.href}
                       className="text-sm text-muted-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:text-foreground"
                     >
-                      {link}
+                      {link.label}
                     </Link>
                   </li>
                 ))}
