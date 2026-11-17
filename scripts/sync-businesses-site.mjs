@@ -87,7 +87,84 @@ function rewriteUrl(url) {
   return url; // relative paths, anchors already handled above
 }
 
+function looksLikeUrl(value) {
+  return value.startsWith("/") || /^https?:\/\//i.test(value);
+}
+
+// JSON-LD node identifiers (`@id`) that are pure fragments against the site origin, e.g.
+// "https://zennly.io/#organization", name a site-wide schema node (Organization, WebSite,
+// SoftwareApplication) — not a fetchable page, and not one that moved to /businesses.
+// Rewriting it would be harmless (doc: integrate-zennly-phase-3.md §1) but semantically wrong:
+// deliberately left unrewritten. An @id that already carries a real path before its fragment
+// (e.g. "https://zennly.io/blog/spreadsheets-stop-working/", or
+// "https://zennly.io/glossary/#termset") identifies a node that DID move — e.g. a WebPage or
+// BreadcrumbList item for a specific relocated page — so those are rewritten normally; only the
+// pure-origin-fragment case is exempted.
+function isPureOriginFragment(value) {
+  return /^https?:\/\/zennly\.io\/(#.*)?$/i.test(value);
+}
+
+function rewriteJsonLdValue(key, value) {
+  if (typeof value === "string") {
+    if (key === "@id" && isPureOriginFragment(value)) return value;
+    return rewriteUrl(value);
+  }
+  if (Array.isArray(value)) return value.map((entry) => rewriteJsonLdNode(entry));
+  if (value && typeof value === "object") return rewriteJsonLdNode(value);
+  return value;
+}
+
+function rewriteJsonLdNode(node) {
+  if (Array.isArray(node)) return node.map((entry) => rewriteJsonLdNode(entry));
+  if (!node || typeof node !== "object") return node;
+  const out = {};
+  for (const [key, value] of Object.entries(node)) {
+    out[key] = rewriteJsonLdValue(key, value);
+  }
+  return out;
+}
+
+// Parses each JSON-LD block as JSON and rewrites URL-bearing fields (url, item, logo, image,
+// mainEntityOfPage, ...) directly on the parsed structure. A regex over the raw JSON text was
+// considered and rejected: the fields that need rewriting vary by schema type, and a regex
+// risks both missing some and corrupting escaping inside string values. If a block fails to
+// parse, it's left untouched (and logged) rather than silently dropped or corrupted.
+function rewriteJsonLdScripts(html) {
+  return html.replace(
+    /(<script[^>]+type=["']application\/ld\+json["'][^>]*>)([\s\S]*?)(<\/script>)/gi,
+    (match, openTag, body, closeTag) => {
+      let parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch (err) {
+        console.warn(`  warn  JSON-LD block failed to parse (left untouched): ${err.message}`);
+        return match;
+      }
+      const rewritten = rewriteJsonLdNode(parsed);
+      return `${openTag}\n${JSON.stringify(rewritten, null, 2)}\n${closeTag}`;
+    }
+  );
+}
+
+// <meta content="..."> carries URLs (og:image, og:url, twitter:image) AND plain text
+// (description, og:title) in the same attribute. Only rewrite values that look like a URL —
+// root-absolute or http(s) — so text content is never touched.
+function rewriteMetaTags(html) {
+  return html.replace(/<meta\b[^>]*>/gi, (tag) =>
+    tag.replace(/(\scontent=)(["'])([^"']*)\2/i, (m, prefix, quote, value) => {
+      if (!looksLikeUrl(value)) return m;
+      return `${prefix}${quote}${rewriteUrl(value)}${quote}`;
+    })
+  );
+}
+
 function rewriteHtml(html) {
+  // JSON-LD first: its string values ("url": "https://...") don't match the attribute-style
+  // regexes below, but doing this first keeps all URL-rewriting logic for a block together.
+  html = rewriteJsonLdScripts(html);
+
+  html = rewriteMetaTags(html);
+
   // href="...", src="...", action="..."
   html = html.replace(/(href|src|action)(=["'])([^"']*)(["'])/gi, (_m, attr, open, value, close) => {
     return `${attr}${open}${rewriteUrl(value)}${close}`;

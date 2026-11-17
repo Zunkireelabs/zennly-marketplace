@@ -46,13 +46,25 @@ const marketingRedirects = MOVED_MARKETING_PREFIXES.map((prefix) => ({
   permanent: true,
 }));
 
+// web-zenly's old build referenced its own CSS/JS/images at /assets/*, and those URLs are
+// already in the wild (indexed pages, cached social cards, anything that scraped the old HTML)
+// — see phase-3 doc §2. The marketplace has no /assets route today and doesn't reference one
+// anywhere in src/ (it serves its own images/videos straight from public/images, public/videos);
+// if a future marketplace feature ever wants a top-level /assets path, this redirect would need
+// to move or narrow first — flagging that dependency rather than leaving it implicit.
+const assetRedirect = {
+  source: "/assets/:path*",
+  destination: "/businesses/assets/:path*",
+  permanent: true,
+};
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
   async redirects() {
-    return marketingRedirects;
+    return [...marketingRedirects, assetRedirect];
   },
   images: {
     remotePatterns: [
