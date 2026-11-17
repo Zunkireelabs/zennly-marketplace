@@ -14,6 +14,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://zennly.io";
  * rather than hardcoding the marketing URL list — a new web-zenly page picked up by
  * `scripts/sync-businesses-site.mjs` appears here automatically, with no edit to this file.
  * `404.html` isn't named `index.html` so it's excluded by construction.
+ *
+ * No trailing slash on any entry: Next defaults to trailingSlash:false, so `/businesses/pricing/`
+ * 308s to `/businesses/pricing` before it ever reaches a page — a sitemap <loc> that 308s
+ * instead of serving 200 directly violates Google's canonical-URL guidance (see
+ * scripts/sync-businesses-site.mjs's stripTrailingSlash for the matching fix on canonical/og:url).
  */
 function listBusinessesUrls(): string[] {
   const root = path.join(process.cwd(), "public", "businesses");
@@ -26,7 +31,7 @@ function listBusinessesUrls(): string[] {
       if (entry.isDirectory()) {
         walk(full, `${relativeUrl}/${entry.name}`);
       } else if (entry.name === "index.html") {
-        urls.push(relativeUrl === "" ? "/businesses/" : `/businesses${relativeUrl}/`);
+        urls.push(relativeUrl === "" ? "/businesses" : `/businesses${relativeUrl}`);
       }
     }
   }
@@ -55,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const businessesEntries: MetadataRoute.Sitemap = listBusinessesUrls().map((urlPath) => ({
     url: `${SITE_URL}${urlPath}`,
     changeFrequency: "monthly" as const,
-    priority: urlPath === "/businesses/" ? 0.9 : 0.5,
+    priority: urlPath === "/businesses" ? 0.9 : 0.5,
   }));
 
   return [...marketplaceEntries, ...businessesEntries];

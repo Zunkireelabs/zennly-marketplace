@@ -68,9 +68,27 @@ function isRootAbsolute(url) {
   return url.startsWith("/") && !url.startsWith("//");
 }
 
+// web-zenly's Eleventy output is all trailing-slash URLs (its old nginx served them via
+// `try_files $uri $uri/`). Next defaults to trailingSlash:false and normalizes the slash away
+// via a 308 BEFORE proxy.ts ever runs — so a mirrored page that still declares its own
+// canonical/og:url/sitemap <loc> WITH the trailing slash is asserting its own URL is a
+// redirect, not a destination. Google's guidance is that canonical and sitemap entries must be
+// the final, non-redirecting URL. Strips a single trailing "/" from the path portion only
+// (never from the bare "/businesses" root collapsing to "", and never touching a query string
+// or #fragment after it) so every rewritten URL matches what the server actually serves 200
+// for. trailingSlash:true in next.config was considered and rejected — it would also slash
+// every marketplace route (/search -> /search/), a problem that only exists in this mirror.
+function stripTrailingSlash(value) {
+  const match = value.match(/^([^?#]*)([?#].*)?$/);
+  let pathPart = match[1];
+  const suffix = match[2] ?? "";
+  if (pathPart.length > 1 && pathPart.endsWith("/")) pathPart = pathPart.slice(0, -1);
+  return pathPart + suffix;
+}
+
 function rewriteUrl(url) {
   if (!url) return url;
-  if (url === PREFIX || url.startsWith(`${PREFIX}/`)) return url; // already prefixed (idempotent re-runs)
+  if (url === PREFIX || url.startsWith(`${PREFIX}/`)) return stripTrailingSlash(url); // already prefixed (idempotent re-runs)
   if (/^(#|mailto:|tel:|data:)/i.test(url)) return url;
   if (url.startsWith("//")) return url; // protocol-relative external
 
@@ -78,12 +96,13 @@ function rewriteUrl(url) {
   if (zennlyAbsolute) {
     const [, origin, rest] = zennlyAbsolute;
     const relative = rest || "/";
-    if (relative === PREFIX || relative.startsWith(`${PREFIX}/`)) return `${origin}${relative}`;
-    return `${origin}${PREFIX}${relative}`;
+    const prefixedRelative =
+      relative === PREFIX || relative.startsWith(`${PREFIX}/`) ? relative : `${PREFIX}${relative}`;
+    return `${origin}${stripTrailingSlash(prefixedRelative)}`;
   }
 
   if (/^https?:\/\//i.test(url)) return url; // other external domains, untouched
-  if (isRootAbsolute(url)) return `${PREFIX}${url}`;
+  if (isRootAbsolute(url)) return stripTrailingSlash(`${PREFIX}${url}`);
   return url; // relative paths, anchors already handled above
 }
 
