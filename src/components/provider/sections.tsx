@@ -39,8 +39,12 @@ export function Overview({ provider }: { provider: Provider }) {
           </h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5 text-foreground">
-              <StarIcon width={15} height={15} className="text-warning" />
-              <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
+              {!provider.isNew && (
+                <>
+                  <StarIcon width={15} height={15} className="text-warning" />
+                  <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
+                </>
+              )}
               <span className="text-muted-foreground">
                 {provider.isNew ? "New to Zennly" : `${provider.reviewCount} reviews`}
               </span>

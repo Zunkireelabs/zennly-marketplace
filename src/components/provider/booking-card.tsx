@@ -22,10 +22,14 @@ export function BookingCard() {
       </p>
       <p className="mt-2 text-2xl font-normal uppercase leading-tight tracking-[0.03em]">{provider.name}</p>
       <p className="mt-2 flex items-center gap-1.5 text-sm">
-        <StarIcon width={14} height={14} className="text-warning" />
-        <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
+        {!provider.isNew && (
+          <>
+            <StarIcon width={14} height={14} className="text-warning" />
+            <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
+          </>
+        )}
         <span className="text-muted-foreground">
-          {provider.isNew ? "· New to Zennly" : `· ${provider.reviewCount} reviews`}
+          {provider.isNew ? "New to Zennly" : `· ${provider.reviewCount} reviews`}
         </span>
       </p>
 

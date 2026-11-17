@@ -34,7 +34,7 @@ export function RelatedProviders({ related }: { related: Provider[] }) {
                 <span className="pointer-events-none absolute inset-0 bg-accent/12 mix-blend-multiply" />
               </span>
               <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-                ★ {p.rating.toFixed(1)}
+                {p.isNew ? "New" : `★ ${p.rating.toFixed(1)}`}
               </span>
             </span>
             <span className="text-left">

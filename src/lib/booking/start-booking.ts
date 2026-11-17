@@ -26,10 +26,11 @@ export type StartBookingResult =
   | { kind: "blocked"; reason: string };
 
 /**
- * Hosts a booking link may point to. Empty until the engine is connected (Phase 3); a link to
- * any other host is refused, so a bad or tampered database value can't send people elsewhere.
+ * Hosts a booking link may point to. A link to any other host is refused, so a bad or tampered
+ * database value can't send people elsewhere. book-spa's customer booking flow lives at
+ * app.zennly.io/:orgSlug (docs/booking-integration-plan.md, Stage 1).
  */
-const BOOKING_HOST_ALLOWLIST: readonly string[] = [];
+const BOOKING_HOST_ALLOWLIST: readonly string[] = ["app.zennly.io"];
 
 /** Builds the engine link, or null if the base isn't a plain https URL on the allowlist. */
 export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWhom): string | null {

@@ -34,6 +34,7 @@ export type SearchStudio = {
   region: string;
   image: string;
   rating: number;
+  isNew: boolean;
   modalities: string[];
 };
 export type SearchTreatment = { name: string; fromPrice: number; studios: string[] };
@@ -152,6 +153,7 @@ export async function getHomeRails(): Promise<HomeRails> {
       region: p.region,
       image: p.image,
       rating: p.rating,
+      isNew: p.isNew,
       modalities: p.modalities,
     })),
     treatments: Array.from(treatmentMap.values()),

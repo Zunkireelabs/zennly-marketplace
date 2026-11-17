@@ -42,6 +42,10 @@ function toProvider(r: ProviderRow): Provider {
     fromPrice: r.fromPrice,
     lat: r.lat ?? undefined,
     lng: r.lng ?? undefined,
+    // Stage 1 handoff (docs/booking-integration-plan.md): engineProviderId is the book-spa org
+    // slug. Connected providers get a real booking link; everyone else keeps bookingUrl
+    // undefined, which startBooking() reads as "open the demo drawer instead."
+    bookingUrl: r.engineProviderId ? `https://app.zennly.io/${r.engineProviderId}` : undefined,
   };
 }
 
