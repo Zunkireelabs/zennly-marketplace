@@ -21,18 +21,24 @@
  *    added a 60-minute buffer, and not the browser's local timezone.
  *
  * Party size: buildOccupancy/buildTherapistOccupancy/isTherapistFree are genuinely
- * party-size-agnostic — they just bucket raw booking rows into 30-min-slot maps, identical
- * whether a group feature ever calls them. computeSoloSlots below is NOT that — it is book-spa's
- * SOLO decision algorithm specifically (one gender-preference check against aggregate headcount,
- * no particular therapist identity involved unless therapistFilter is set). book-spa's group
- * flow (groupAvailability.js's allPeopleFitSlot) reuses these same three primitives but runs a
- * genuinely different decision shape: a sequential per-person claim simulation against specific
- * therapist identities, with NO gender-preference concept at all. The two are not the same
- * formula parameterized by party size — unifying them would either drop solo's gender-preference
- * matching or require inventing a gender-preference mode group never had. Built so a future
- * group decision function can reuse buildOccupancy/buildTherapistOccupancy unchanged; did not
- * attempt to unify the decision logic itself, since that wasn't this phase's job and doing it
- * wrong would be worse than not doing it.
+ * party-size-agnostic — they just bucket raw booking rows into 30-min-slot maps. computeSoloSlots
+ * below is book-spa's SOLO decision algorithm specifically (one gender-preference check against
+ * aggregate headcount), and it is what the drawer calls, because it is what localhost:4028/book/
+ * <org> (the actual comparison target for verification) itself uses for a single-customer
+ * booking.
+ *
+ * Group (party size > 1) is deliberately NOT ported here, after an earlier pass in this same
+ * file did port groupAvailability.js's allPeopleFitSlot and was then reverted. Two reasons,
+ * from book-spa's own design review: porting solo duplicates logic that already exists
+ * client-side on both ends of the real app (book-spa computes it in JS today, DB as backstop —
+ * not a new weakness). Porting group would NOT be that: groupAvailability.js has no marketplace
+ * counterpart yet, so a port creates a second JS implementation of an algorithm about to exist
+ * in two places for the first time — and the review found allPeopleFitSlot itself has a real
+ * gap (enforces room + branch-online-capacity per slot, but never checks the gender-headcount
+ * constraint solo's buildOccupancy tracks), so porting it would have carried that gap along.
+ * Group slots will instead come from a read-only book-spa RPC (public_compute_group_slots or
+ * similar) that computes this once, correctly, including the gender constraint. The data shape
+ * here stays party-size-ready for that: nothing above assumes a single person.
  */
 
 export const START_HOUR = 10;

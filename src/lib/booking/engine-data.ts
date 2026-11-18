@@ -39,6 +39,7 @@ export type EngineService = {
   name: string;
   durationMinutes: number;
   priceNpr: number;
+  priceRange?: { min: number; max: number };
   description: string | null;
   category: string;
   isCombo: boolean;
@@ -124,20 +125,67 @@ export async function fetchEngineBranches(orgId: string): Promise<EngineBranch[]
   }));
 }
 
+function toEngineService(s: Record<string, unknown>): EngineService {
+  // Tiered services cost different amounts depending on which therapist is booked — same
+  // reasoning/fields as engine-live-services.ts, kept consistent so the drawer and the
+  // provider page never disagree about whether a service's price is a range.
+  const min = Number(s.min_price);
+  const max = Number(s.max_price);
+  const tiered = s.price_type === "tiered" && Number.isFinite(min) && Number.isFinite(max) && max > min;
+  return {
+    id: String(s.id),
+    name: String(s.name),
+    durationMinutes: Number(s.duration_minutes) || 60,
+    priceNpr: Number(s.effective_price_npr ?? s.price_npr) || 0,
+    ...(tiered ? { priceRange: { min, max } } : {}),
+    description: (s.description as string | null) ?? null,
+    category: String(s.category_name ?? "Other"),
+    isCombo: Boolean(s.is_combo),
+  };
+}
+
 export async function fetchEngineServices(orgSlug: string): Promise<EngineService[]> {
   const client = getEngineClient();
   if (!client) return [];
   const { data, error } = await client.rpc("public_get_bookable_services", { p_org_slug: orgSlug });
   if (error || !data) return [];
-  return (data as Record<string, unknown>[]).map((s) => ({
-    id: String(s.id),
-    name: String(s.name),
-    durationMinutes: Number(s.duration_minutes) || 60,
-    priceNpr: Number(s.effective_price_npr ?? s.price_npr) || 0,
-    description: (s.description as string | null) ?? null,
-    category: String(s.category_name ?? "Other"),
-    isCombo: Boolean(s.is_combo),
-  }));
+  return (data as Record<string, unknown>[]).map(toEngineService);
+}
+
+/**
+ * Branch-scoped services — faithful port of fetchBookableServicesByOrgSlug(orgSlug, branchId)'s
+ * narrowing (api.js): the org-wide list minus the branch's excluded_service_categories, minus
+ * any service that's restricted to OTHER branches via branch_service_links. A service with no
+ * rows in branch_service_links at all is unrestricted everywhere; one with rows is only
+ * offered at the branches it's explicitly linked to. Getting this wrong offers a service a
+ * branch doesn't actually do.
+ */
+export async function fetchEngineBranchServices(orgSlug: string, branchId: string): Promise<EngineService[]> {
+  const client = getEngineClient();
+  if (!client) return [];
+
+  const [all, branchRes] = await Promise.all([
+    fetchEngineServices(orgSlug),
+    client.from("branches").select("excluded_service_categories").eq("id", branchId).single(),
+  ]);
+  if (all.length === 0) return [];
+
+  const excluded: string[] = branchRes.data?.excluded_service_categories ?? [];
+  const filtered = excluded.length > 0 ? all.filter((s) => !excluded.includes(s.category)) : all;
+  if (filtered.length === 0) return [];
+
+  const { data: links, error } = await client
+    .from("branch_service_links")
+    .select("service_id, branch_id")
+    .in(
+      "service_id",
+      filtered.map((s) => s.id)
+    );
+  if (error || !links || links.length === 0) return filtered;
+
+  const restrictedServiceIds = new Set(links.map((l) => l.service_id));
+  const allowedHere = new Set(links.filter((l) => l.branch_id === branchId).map((l) => l.service_id));
+  return filtered.filter((s) => !restrictedServiceIds.has(s.id) || allowedHere.has(s.id));
 }
 
 export async function fetchEngineTherapists(
