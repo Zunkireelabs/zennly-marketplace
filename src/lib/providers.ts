@@ -79,6 +79,8 @@ export type Provider = {
   lng?: number;
   /** The studio's engine booking page, once connected (Phase 3). Unset: Book opens the demo drawer. */
   bookingUrl?: string;
+  /** book-spa org slug, once connected. Drives the real-booking drawer (NEXT_PUBLIC_ENGINE_BOOKING). */
+  engineProviderId?: string;
 };
 
 export function slugify(name: string): string {

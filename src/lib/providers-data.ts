@@ -46,6 +46,7 @@ function toProvider(r: ProviderRow): Provider {
     // slug. Connected providers get a real booking link; everyone else keeps bookingUrl
     // undefined, which startBooking() reads as "open the demo drawer instead."
     bookingUrl: r.engineProviderId ? `https://app.zennly.io/${r.engineProviderId}` : undefined,
+    engineProviderId: r.engineProviderId ?? undefined,
   };
 }
 
