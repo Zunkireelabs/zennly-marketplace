@@ -31,9 +31,16 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { config as loadEnv } from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..");
+
+// This runs from predev/prebuild as a bare node process, so unlike the app it gets no .env
+// loading for free — WEB_ZENLY_DIR set there was silently ignored, and the sync fell back to
+// the sibling checkout without saying so. Load it explicitly; a real shell variable still wins.
+loadEnv({ path: path.join(REPO_ROOT, ".env"), override: false });
+
 const WEB_ZENLY_DIR = process.env.WEB_ZENLY_DIR
   ? path.resolve(REPO_ROOT, process.env.WEB_ZENLY_DIR)
   : path.resolve(REPO_ROOT, "..", "web-zenly");
