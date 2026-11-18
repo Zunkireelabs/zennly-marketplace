@@ -10,6 +10,7 @@ import { TabBar } from "@/components/provider/tab-bar";
 import { ServicesSection } from "@/components/provider/services-section";
 import { ReviewsSection } from "@/components/provider/reviews-section";
 import { LookInside } from "@/components/provider/look-inside";
+import { StudioHistory } from "@/components/provider/studio-history";
 import {
   Amenities,
   Breadcrumb,
@@ -57,6 +58,7 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
                 <Breadcrumb provider={provider} />
                 <TabBar />
                 <Overview provider={provider} />
+                <StudioHistory provider={provider} />
                 <ServicesSection />
                 <LookInside />
                 <ReviewsSection provider={provider} />
