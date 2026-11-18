@@ -54,19 +54,17 @@ export function createSupabaseAdapter(): AuthAdapter {
     // UI only for now: the Phone tab shows, but submitting says it isn't available until an SMS
     // provider is set up (see signInWithPhone below).
     supportsPhone: true,
-    // "code" requires the Magic Link template to render {{ .Token }} instead of
-    // {{ .ConfirmationURL }} — and Supabase LOCKS template editing behind custom SMTP
-    // ("Set up custom SMTP to edit templates", Authentication → Emails). On the default
-    // sender the templates are fixed and always send a link, so flipping this without SMTP
-    // first leaves the dialog asking for a code the email never contains.
+    // Depends on project-level GoTrue config, which does NOT travel with a database migration
+    // or restore — a moved project comes back on the platform defaults and starts sending
+    // links again while this still asks for a code. Two things have to hold:
+    //   1. custom SMTP configured (Supabase locks template editing behind it), and
+    //   2. the Magic Link template rendering {{ .Token }}, not {{ .ConfirmationURL }}
+    // Both are set up on this project via Resend. If sign-in emails ever arrive as links,
+    // check those before touching code here.
     //
-    // Order to switch: configure custom SMTP → edit the Magic Link template to {{ .Token }}
-    // → flip this to "code". The code-entry UI, verifyCode and /api/auth/verify already exist
-    // and need no further work.
-    //
-    // Note the template is project-level GoTrue config, not data: it does not travel with a
-    // database migration or restore, so a moved project comes back on the platform default.
-    emailMethod: "link",
+    // The digit count must also match Auth → Sign In/Providers → Email → OTP length, which
+    // the client validates strictly (normalize.ts).
+    emailMethod: "code",
     refresh,
 
     signInWithPhone: async () => unavailable("Phone sign in isn't available yet. Use email or Google."),
