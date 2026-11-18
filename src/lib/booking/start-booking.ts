@@ -32,6 +32,16 @@ export type StartBookingResult =
  */
 const BOOKING_HOST_ALLOWLIST: readonly string[] = ["app.zennly.io"];
 
+/**
+ * Local book-spa dev servers, so the whole journey stays on localhost instead of jumping to
+ * production. Allowed over http because that's all a dev server speaks — this is the ONLY
+ * exemption from the https requirement, and it's limited to loopback, which can't be reached
+ * from another machine. Every other host still needs https and a place on the allowlist above.
+ */
+function isLoopback(hostname: string): boolean {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+}
+
 /** Builds the engine link, or null if the base isn't a plain https URL on the allowlist. */
 export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWhom): string | null {
   let url: URL;
@@ -40,8 +50,11 @@ export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWho
   } catch {
     return null;
   }
-  if (url.protocol !== "https:" || url.username || url.password) return null;
-  if (!BOOKING_HOST_ALLOWLIST.includes(url.hostname)) return null;
+  if (url.username || url.password) return null;
+  const loopback = isLoopback(url.hostname);
+  if (!loopback && url.protocol !== "https:") return null;
+  if (loopback && url.protocol !== "http:" && url.protocol !== "https:") return null;
+  if (!loopback && !BOOKING_HOST_ALLOWLIST.includes(url.hostname)) return null;
   url.searchParams.set("source", "zennly");
   url.searchParams.set("handoff_id", handoffId);
   // Only the flag travels in the URL. The attendee's name stays in the app: URLs end up in

@@ -5,6 +5,16 @@ import { prisma } from "./prisma";
 import { seedProviders } from "./providers-seed";
 
 /**
+ * Where book-spa's customer booking flow lives. Production is app.zennly.io; local development
+ * points at a book-spa dev server so the whole journey stays on localhost instead of jumping to
+ * production mid-demo. Whatever this resolves to must also be on BOOKING_HOST_ALLOWLIST in
+ * src/lib/booking/start-booking.ts, which refuses any host not listed there.
+ */
+function bookingEngineOrigin(): string {
+  return process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN || "https://app.zennly.io";
+}
+
+/**
  * Server-side provider reads. Source of truth is the `providers` table (prisma/schema.prisma).
  * Until DATABASE_URL is set, falls back to the placeholder generator so local dev keeps working.
  */
@@ -45,7 +55,7 @@ function toProvider(r: ProviderRow): Provider {
     // Stage 1 handoff (docs/booking-integration-plan.md): engineProviderId is the book-spa org
     // slug. Connected providers get a real booking link; everyone else keeps bookingUrl
     // undefined, which startBooking() reads as "open the demo drawer instead."
-    bookingUrl: r.engineProviderId ? `https://app.zennly.io/${r.engineProviderId}` : undefined,
+    bookingUrl: r.engineProviderId ? `${bookingEngineOrigin()}/${r.engineProviderId}` : undefined,
     engineProviderId: r.engineProviderId ?? undefined,
   };
 }
