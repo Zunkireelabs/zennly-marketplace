@@ -66,6 +66,11 @@ export function ServicesSection() {
         ))}
       </ul>
 
+      {/* `included` and `addOns` are seeded placeholder content. book-spa's services RPC supplies
+          neither, so for engine-connected providers these would render invented extras (and in USD)
+          next to the studio's real catalogue. Hide the whole block for them rather than show
+          fabricated items on a real business's page; demo providers keep it. */}
+      {!provider.engineProviderId && (
       <div className="mt-8 grid gap-8 sm:grid-cols-2">
         <div>
           <h3 className="font-[family-name:var(--font-inter)] text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -99,6 +104,7 @@ export function ServicesSection() {
           </ul>
         </div>
       </div>
+      )}
     </section>
   );
 }
