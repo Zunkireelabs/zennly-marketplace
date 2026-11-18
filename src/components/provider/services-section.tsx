@@ -52,7 +52,19 @@ export function ServicesSection() {
               <p className="mt-1.5 max-w-prose text-sm text-muted-foreground">{service.description}</p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-3">
-              <p className="font-mono text-base font-semibold tabular-nums"><Price usd={service.price} engineProviderId={provider.engineProviderId} /></p>
+              {/* Tiered services show the spread, matching what book-spa shows the customer
+                  on the booking side. A single figure would read as a firm price it isn't. */}
+              <p className="font-mono text-base font-semibold tabular-nums">
+                {service.priceRange ? (
+                  <>
+                    <Price usd={service.priceRange.min} engineProviderId={provider.engineProviderId} />
+                    {" – "}
+                    <Price usd={service.priceRange.max} engineProviderId={provider.engineProviderId} />
+                  </>
+                ) : (
+                  <Price usd={service.price} engineProviderId={provider.engineProviderId} />
+                )}
+              </p>
               <button
                 type="button"
                 onClick={() => openBooking({ serviceId: service.id })}

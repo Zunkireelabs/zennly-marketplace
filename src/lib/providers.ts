@@ -17,6 +17,14 @@ export type Service = {
   /** Minutes. One entry = fixed length, two = a range ("60 – 90 min"). */
   durations: number[];
   price: number;
+  /**
+   * Set only when the engine prices this service per therapist tier, in which case `price` is
+   * the default rate and the customer could pay anywhere in this range depending on who they
+   * book. Showing the default alone reads as a firm price and is wrong in both directions —
+   * book-spa itself renders the range, so the marketplace must agree or the two disagree about
+   * what a treatment costs.
+   */
+  priceRange?: { min: number; max: number };
   description: string;
 };
 

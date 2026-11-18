@@ -38,18 +38,30 @@ export async function fetchLiveServices(
 
     const services: Service[] = data.map((row) => {
       const r = row as Record<string, unknown>;
+      // Tiered services cost different amounts depending on which therapist is booked. The
+      // engine sends the default rate plus the spread; book-spa shows the spread, so we must
+      // too, or the same treatment appears to cost two different things on the two sites.
+      const min = Number(r.min_price);
+      const max = Number(r.max_price);
+      const tiered =
+        r.price_type === "tiered" && Number.isFinite(min) && Number.isFinite(max) && max > min;
       return {
         id: String(r.id),
         name: String(r.name ?? "Service"),
         category: String(r.category_name ?? "Other"),
         durations: [Number(r.duration_minutes) || 60],
         price: Number(r.effective_price_npr ?? r.price_npr) || 0,
+        ...(tiered ? { priceRange: { min, max } } : {}),
         description: typeof r.description === "string" ? r.description : "",
       };
     });
 
     const serviceCategories = Array.from(new Set(services.map((s) => s.category)));
-    const fromPrice = Math.min(...services.map((s) => s.price).filter((p) => p > 0));
+    // A tiered service's real entry price is its floor, not its default rate — "from Rs 8,200"
+    // would be wrong when the same treatment starts at 1,200.
+    const fromPrice = Math.min(
+      ...services.map((s) => s.priceRange?.min ?? s.price).filter((p) => p > 0)
+    );
 
     return { services, serviceCategories, fromPrice: Number.isFinite(fromPrice) ? fromPrice : 0 };
   } catch {
