@@ -54,9 +54,17 @@ export function createSupabaseAdapter(): AuthAdapter {
     // UI only for now: the Phone tab shows, but submitting says it isn't available until an SMS
     // provider is set up (see signInWithPhone below).
     supportsPhone: true,
-    // Supabase's default email template sends a sign-in link, not a code. Switch to "code" (and
-    // edit the template to include {{ .Token }}) once custom SMTP is set up.
-    emailMethod: "link",
+    // REQUIRES the project's Magic Link email template to render {{ .Token }} rather than
+    // {{ .ConfirmationURL }} (Supabase dashboard → Authentication → Email Templates). The
+    // template is project-level GoTrue config, not data, so it does NOT travel with a database
+    // migration — a project restored from backup comes back on the platform default, which
+    // sends a link. If sign-in emails start arriving as links again, check there first: this
+    // flag would then be asking for a code the email never contains.
+    //
+    // The default SMTP sender is heavily rate-limited (a handful of emails per hour), so custom
+    // SMTP is still needed before this carries real signup volume — but it is not required for
+    // codes to work.
+    emailMethod: "code",
     refresh,
 
     signInWithPhone: async () => unavailable("Phone sign in isn't available yet. Use email or Google."),
