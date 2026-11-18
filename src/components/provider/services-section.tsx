@@ -52,7 +52,7 @@ export function ServicesSection() {
               <p className="mt-1.5 max-w-prose text-sm text-muted-foreground">{service.description}</p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-3">
-              <p className="font-mono text-base font-semibold tabular-nums"><Price usd={service.price} /></p>
+              <p className="font-mono text-base font-semibold tabular-nums"><Price usd={service.price} engineProviderId={provider.engineProviderId} /></p>
               <button
                 type="button"
                 onClick={() => openBooking({ serviceId: service.id })}
