@@ -103,6 +103,36 @@ const assetRedirect = {
   permanent: true,
 };
 
+// Proxies /book/* to a local book-spa dev server, so "Book now" stays on localhost:3001
+// instead of the address bar jumping to book-spa's own port. Opt-in and unset by default —
+// production is untouched until book-spa's own origin is wired up here deliberately.
+// book-spa serves itself at a /book/ base path (vite base + BrowserRouter basename, on its own
+// side), so its own asset requests are also /book/assets/... — the same single rule covers
+// those too, which is why the prefix is NOT stripped in the destination.
+//
+// This is next.config.ts's own `rewrites()`, not src/proxy.ts: Next's documented, supported
+// mechanism for rewriting to an *external* origin is a rewrite with an absolute-URL
+// destination (node_modules/next/dist/docs/.../rewrites.md, "Rewriting to an external URL") —
+// checked rather than assumed, since proxy.ts's NextResponse.rewrite() is a same-app,
+// same-process rewrite (how /businesses's mirrored index.html resolution works) and isn't the
+// primitive for forwarding to a different server. The two don't interact: proxy.ts never sees
+// /book/* at all, since next.config.ts's routing layer (headers -> redirects -> Proxy ->
+// beforeFiles rewrites -> ...) runs rewrites independently of it.
+const bookingEngineProxyTarget = process.env.BOOKING_ENGINE_PROXY_TARGET;
+if (bookingEngineProxyTarget) {
+  try {
+    new URL(bookingEngineProxyTarget);
+  } catch {
+    throw new Error(
+      `BOOKING_ENGINE_PROXY_TARGET is set to "${bookingEngineProxyTarget}", which isn't a valid ` +
+        "absolute URL (expected something like http://localhost:4028). Fix or unset it."
+    );
+  }
+}
+const bookingProxyRewrite = bookingEngineProxyTarget
+  ? [{ source: "/book/:path*", destination: `${bookingEngineProxyTarget}/book/:path*` }]
+  : [];
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
@@ -110,6 +140,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [...marketingRedirects, assetRedirect];
+  },
+  async rewrites() {
+    return bookingProxyRewrite;
   },
   images: {
     remotePatterns: [

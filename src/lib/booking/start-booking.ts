@@ -42,8 +42,33 @@ function isLoopback(hostname: string): boolean {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
 }
 
-/** Builds the engine link, or null if the base isn't a plain https URL on the allowlist. */
-export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWhom): string | null {
+/** A root-absolute path with no host at all ("/book/nuad-thai-spa"), not a protocol-relative "//host/...". */
+function isRelativeSameOrigin(base: string): boolean {
+  return base.startsWith("/") && !base.startsWith("//");
+}
+
+/**
+ * Builds the engine link, or null if the base is neither a same-origin relative path nor a
+ * plain https (or loopback) URL on the allowlist.
+ *
+ * The same-origin relative case (bookingProxyTarget set in providers-data.ts's toProvider —
+ * next.config.ts's /book/* rewrite is what makes this resolve to book-spa) is handled
+ * separately and FIRST, and deliberately skips every check below: a root-absolute path has no
+ * host component to validate at all, so there is nothing a tampered database value could set
+ * it to that would send someone off-site — the browser can only ever resolve it against the
+ * current page's own origin. This does not weaken the allowlist for absolute URLs; that logic
+ * is unchanged.
+ */
+export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWhom, serviceId?: string): string | null {
+  if (isRelativeSameOrigin(base)) {
+    const params = new URLSearchParams();
+    params.set("source", "zennly");
+    params.set("handoff_id", handoffId);
+    params.set("for", forWhom.kind);
+    if (serviceId) params.set("service", serviceId);
+    return `${base}?${params.toString()}`;
+  }
+
   let url: URL;
   try {
     url = new URL(base);
@@ -60,6 +85,7 @@ export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWho
   // Only the flag travels in the URL. The attendee's name stays in the app: URLs end up in
   // server logs, browser history and referrers.
   url.searchParams.set("for", forWhom.kind);
+  if (serviceId) url.searchParams.set("service", serviceId);
   return url.toString();
 }
 
@@ -89,7 +115,14 @@ export function startBooking({ provider, selection, forWhom }: StartBookingInput
   const base = provider.bookingUrl;
   if (!base) return { kind: "drawer", handoffId };
 
-  const url = buildHandoffUrl(base, handoffId, who);
+  // Only ever the first selected service, and only when the customer actually picked one — a
+  // generic "Book now" with nothing selected sends no service param at all. Whatever is in
+  // selection.serviceIds is already an engine service id for any connected provider (the
+  // page's services/booking-card source from the engine, see src/lib/booking/engine-live-
+  // services.ts), never the seed's positional `${slug}-${i}` ids, which book-spa wouldn't
+  // recognize.
+  const serviceId = selection.serviceIds[0];
+  const url = buildHandoffUrl(base, handoffId, who, serviceId);
   if (!url) return { kind: "blocked", reason: "This studio's booking link isn't available right now." };
 
   track("handoff_started", { slug: provider.slug, destination: "engine", for_whom: who.kind });
