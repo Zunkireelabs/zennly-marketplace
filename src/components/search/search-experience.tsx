@@ -372,7 +372,7 @@ function ResultCard({
             )}
           </span>
           <span className="text-muted-foreground">{r.modalities.slice(0, 2).join(" · ")}</span>
-          <span className="ml-auto font-medium text-foreground">from <Price usd={r.fromPrice} /></span>
+          <span className="ml-auto font-medium text-foreground">from <Price usd={r.fromPrice} engineProviderId={r.engineProviderId} /></span>
         </span>
       </span>
     </Link>

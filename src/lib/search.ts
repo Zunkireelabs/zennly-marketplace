@@ -24,6 +24,7 @@ export type SearchResult = {
   image: string;
   isNew: boolean;
   fromPrice: number;
+  engineProviderId?: string;
   blurb: string;
   lat?: number;
   lng?: number;
@@ -52,6 +53,7 @@ function toResult(p: Provider): SearchResult {
     image: p.image,
     isNew: p.isNew,
     fromPrice: p.fromPrice,
+    engineProviderId: p.engineProviderId,
     blurb: p.intro[0] ?? "",
     lat: p.lat,
     lng: p.lng,
