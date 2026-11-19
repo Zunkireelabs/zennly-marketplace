@@ -8,7 +8,18 @@
  */
 
 export type LookupRow = Record<string, unknown>;
-export type LookupResult = { found: boolean; bookings: LookupRow[]; membership: LookupRow | null; packages: LookupRow[] };
+export type LookupResult = {
+  found: boolean;
+  bookings: LookupRow[];
+  membership: LookupRow | null;
+  packages: LookupRow[];
+  /** All added in migration-336 alongside bookings/membership/packages, carried all the way
+   * through route.ts and this file's merge — a passthrough that drops a field compiles and runs
+   * fine while silently delivering nothing, the same failure shape as never sending it at all. */
+  vouchers: LookupRow[];
+  totalVisits: number;
+  referralEarnings: number;
+};
 
 function field(row: LookupRow, keys: string[]): unknown {
   for (const key of keys) {
@@ -59,18 +70,41 @@ export function membershipView(m: LookupRow): { tier: string; detail?: string; s
 }
 
 /**
+ * Dedupes a list of rows (bookings, packages, or vouchers — each has its own stable id field) by
+ * the given key, keeping the first occurrence. Falls back to an always-distinct key for a row
+ * missing that field (a field-rename on book-spa's side — response shapes here aren't frozen, see
+ * the file header) rather than dropping the row or risking a false collision between two rows
+ * that both happen to be missing it.
+ *
+ * `fallbackCounter` is passed in rather than module-level state so each dedupe() call across
+ * multiple row kinds in mergeLookupResults gets its own counter — sharing one wouldn't cause a
+ * real bug (two different Maps never collide with each other's keys even at the same index), but
+ * a fresh one per kind is simpler to reason about than "why do bookings and vouchers share a
+ * counter".
+ */
+function dedupeRows(rows: LookupRow[], keyField: string, into: Map<string, LookupRow>, fallbackCounter: { n: number }) {
+  for (const row of rows) {
+    const id = row[keyField];
+    const key = typeof id === "string" || typeof id === "number" ? `k:${id}` : `idx:${fallbackCounter.n++}`;
+    if (!into.has(key)) into.set(key, row);
+  }
+}
+
+/**
  * Merges several per-factor lookups at ONE org into one LookupResult — what changing a verified
  * email must not do is make a customer's history at that org vanish, so a studio page or /account
  * fans out over every verified ProfileFactor (not just the current session email) and merges here.
  *
- * Dedupes bookings/packages on `booking_number` — confirmed present in book-spa's
- * marketplace-customer-lookup field allow-list (migration-336) and what book-spa's own UI already
- * uses as a booking's id throughout. The raw `bookings.id` UUID is deliberately not exposed by
- * that allow-list. A composite key (service+date+time) was considered and rejected: it would
- * collapse two genuinely distinct bookings that happen to share all three, which booking_number
- * never does. If a row is ever missing booking_number (a field-rename on book-spa's side —
- * response shapes here aren't frozen, see the file header), it falls back to an always-distinct
- * key rather than dropping the row or risking a false collision.
+ * Bookings dedupe on `booking_number`, packages on `package_code` — confirmed present in
+ * book-spa's marketplace-customer-lookup field allow-list (migration-336) and what book-spa's own
+ * UI already uses as each row's id throughout (the raw `bookings.id`/`packages.id` UUIDs are
+ * deliberately not exposed by that allow-list). Packages do NOT have a `booking_number` — keying
+ * them on it was a real bug (fixed here): every package took the always-distinct fallback and was
+ * never deduped, so a customer with two verified emails mapping to one book-spa record saw
+ * duplicate packages. Vouchers dedupe on `voucher_code`, the same shape of id. A composite key
+ * (e.g. service+date+time for bookings) was considered and rejected for all three: it would
+ * collapse two genuinely distinct rows that happen to share those fields, which their real id
+ * fields never do.
  *
  * `membership`: picks the first non-null across the fanned-out lookups (session factor's result
  * first, in whatever order the caller passed them — callers should order session-email-first,
@@ -78,23 +112,31 @@ export function membershipView(m: LookupRow): { tier: string; detail?: string; s
  * factor at the same org is logged server-side (never surfaced to the customer, never merged) —
  * rare enough not to design for, but a silent pick would make it undiscoverable if it ever
  * happens.
+ *
+ * `totalVisits`/`referralEarnings`: both scalars, not arrays, so they can't be deduped by key the
+ * way rows are. Takes the MAX across factors rather than summing. Reasoning: if two verified
+ * emails resolve to the SAME book-spa customer record (the common case — a customer who simply
+ * changed their marketplace login email once), book-spa returns the IDENTICAL number from both
+ * lookups, and summing would double it — a visible, confusing bug ("why does it say 24 visits
+ * when I've been 12 times") for the exact case this fan-out exists to support correctly. Summing
+ * would only be right if two emails resolved to two genuinely DIFFERENT customer records at the
+ * same org (rare, and the undercounting MAX produces there is the quieter failure of the two). A
+ * genuine difference between factors is logged, same treatment as the membership conflict above,
+ * for the same reason: a silent pick would make a real discrepancy undiscoverable.
  */
 export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?: string; userId?: string }): LookupResult {
   const found = results.some((r) => r.found);
 
-  let fallbackIndex = 0;
-  const dedupe = (rows: LookupRow[], into: Map<string, LookupRow>) => {
-    for (const row of rows) {
-      const bn = row.booking_number;
-      const key = typeof bn === "string" || typeof bn === "number" ? `bn:${bn}` : `idx:${fallbackIndex++}`;
-      if (!into.has(key)) into.set(key, row);
-    }
-  };
   const bookingsByKey = new Map<string, LookupRow>();
   const packagesByKey = new Map<string, LookupRow>();
+  const vouchersByKey = new Map<string, LookupRow>();
+  const bookingCounter = { n: 0 };
+  const packageCounter = { n: 0 };
+  const voucherCounter = { n: 0 };
   for (const r of results) {
-    dedupe(r.bookings, bookingsByKey);
-    dedupe(r.packages, packagesByKey);
+    dedupeRows(r.bookings, "booking_number", bookingsByKey, bookingCounter);
+    dedupeRows(r.packages, "package_code", packagesByKey, packageCounter);
+    dedupeRows(r.vouchers, "voucher_code", vouchersByKey, voucherCounter);
   }
 
   let membership: LookupRow | null = null;
@@ -111,5 +153,31 @@ export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?
     }
   }
 
-  return { found, bookings: [...bookingsByKey.values()], packages: [...packagesByKey.values()], membership };
+  let totalVisits = 0;
+  let referralEarnings = 0;
+  let visitsDiffered = false;
+  let earningsDiffered = false;
+  for (const r of results) {
+    if (totalVisits > 0 && r.totalVisits > 0 && r.totalVisits !== totalVisits) visitsDiffered = true;
+    if (referralEarnings > 0 && r.referralEarnings > 0 && r.referralEarnings !== referralEarnings) earningsDiffered = true;
+    totalVisits = Math.max(totalVisits, r.totalVisits);
+    referralEarnings = Math.max(referralEarnings, r.referralEarnings);
+  }
+  if (visitsDiffered || earningsDiffered) {
+    console.error(
+      "[studio-lookup] total_visits/referral_earnings differed across verified factors at one org — kept the max, logging rather than summing or surfacing",
+      context?.orgSlug,
+      context?.userId
+    );
+  }
+
+  return {
+    found,
+    bookings: [...bookingsByKey.values()],
+    packages: [...packagesByKey.values()],
+    vouchers: [...vouchersByKey.values()],
+    membership,
+    totalVisits,
+    referralEarnings,
+  };
 }

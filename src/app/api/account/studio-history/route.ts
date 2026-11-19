@@ -34,7 +34,15 @@ import { mergeLookupResults, type LookupResult } from "@/lib/account/studio-look
  * client sends, never taken from the client directly.
  */
 
-const emptyResult: LookupResult = { found: false, bookings: [], membership: null, packages: [] };
+const emptyResult: LookupResult = {
+  found: false,
+  bookings: [],
+  membership: null,
+  packages: [],
+  vouchers: [],
+  totalVisits: 0,
+  referralEarnings: 0,
+};
 
 const Body = z.union([
   z.object({ providerSlug: z.string().min(1).max(200) }),
@@ -67,6 +75,12 @@ async function lookupOne(orgSlug: string, email: string, functionsUrl: string, s
       bookings: Array.isArray(data.bookings) ? data.bookings : [],
       membership: data.membership && typeof data.membership === "object" ? (data.membership as Record<string, unknown>) : null,
       packages: Array.isArray(data.packages) ? data.packages : [],
+      // Added in migration-336 alongside bookings/membership/packages — previously parsed off this
+      // object and then dropped before the function returned, which is the same "compiles, runs,
+      // delivers nothing" failure shape as the field-name bug in bookingLine().
+      vouchers: Array.isArray(data.vouchers) ? data.vouchers : [],
+      totalVisits: typeof data.total_visits === "number" ? data.total_visits : 0,
+      referralEarnings: typeof data.referral_earnings === "number" ? data.referral_earnings : 0,
     };
   } catch {
     // Network error, timeout, or book-spa down — fail soft, same shape as "nothing found".

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { bookingLine, membershipView, mergeLookupResults, type LookupRow } from "./studio-lookup";
+import { bookingLine, membershipView, mergeLookupResults, type LookupResult, type LookupRow } from "./studio-lookup";
+
+/** Fills in the other fields with empty/zero defaults so each test only has to spell out the
+ * part it's actually exercising. */
+function result(partial: Partial<LookupResult>): LookupResult {
+  return { found: true, bookings: [], packages: [], vouchers: [], membership: null, totalVisits: 0, referralEarnings: 0, ...partial };
+}
 
 /**
  * Fixtures shaped exactly like migration-336-marketplace-customer-lookup.sql's own
@@ -35,6 +41,13 @@ const REAL_MEMBERSHIP_ROW: LookupRow = {
   activation_date: "2026-06-01",
   expiry_date: "2027-06-01",
   status: "active",
+};
+
+const REAL_VOUCHER_ROW: LookupRow = {
+  voucher_code: "VCH-00055",
+  remaining_balance: 1500,
+  total_amount_issued: 2000,
+  expiry_date: "2027-03-01",
 };
 
 const REAL_PACKAGE_ROW: LookupRow = {
@@ -83,22 +96,57 @@ describe("membershipView", () => {
 
 describe("mergeLookupResults", () => {
   it("dedupes bookings by booking_number across multiple fanned-out factor results", () => {
-    const a = { found: true, bookings: [REAL_BOOKING_ROW], packages: [], membership: null };
-    const b = { found: true, bookings: [REAL_BOOKING_ROW, { ...REAL_BOOKING_ROW, booking_number: "BN-2026-0099" }], packages: [], membership: null };
+    const a = result({ bookings: [REAL_BOOKING_ROW] });
+    const b = result({ bookings: [REAL_BOOKING_ROW, { ...REAL_BOOKING_ROW, booking_number: "BN-2026-0099" }] });
     const merged = mergeLookupResults([a, b]);
     expect(merged.bookings).toHaveLength(2);
     expect(merged.bookings.map((r) => r.booking_number).sort()).toEqual(["BN-2026-0042", "BN-2026-0099"]);
   });
 
   it("picks the first non-null membership and logs rather than merges when a second differs", () => {
-    const first = { found: true, bookings: [], packages: [], membership: REAL_MEMBERSHIP_ROW };
-    const second = { found: true, bookings: [], packages: [], membership: { ...REAL_MEMBERSHIP_ROW, tier_name: "Platinum" } };
+    const first = result({ membership: REAL_MEMBERSHIP_ROW });
+    const second = result({ membership: { ...REAL_MEMBERSHIP_ROW, tier_name: "Platinum" } });
     const merged = mergeLookupResults([first, second], { orgSlug: "test-org", userId: "u1" });
     expect(merged.membership?.tier_name).toBe("Gold");
   });
 
   it("carries packages through using the real package row shape", () => {
-    const merged = mergeLookupResults([{ found: true, bookings: [], packages: [REAL_PACKAGE_ROW], membership: null }]);
+    const merged = mergeLookupResults([result({ packages: [REAL_PACKAGE_ROW] })]);
     expect(merged.packages).toEqual([REAL_PACKAGE_ROW]);
+  });
+
+  it("dedupes packages by package_code, not booking_number (packages don't have one)", () => {
+    const a = result({ packages: [REAL_PACKAGE_ROW] });
+    const b = result({ packages: [REAL_PACKAGE_ROW, { ...REAL_PACKAGE_ROW, package_code: "PKG-00100" }] });
+    const merged = mergeLookupResults([a, b]);
+    expect(merged.packages).toHaveLength(2);
+    expect(merged.packages.map((r) => r.package_code).sort()).toEqual(["PKG-00099", "PKG-00100"]);
+  });
+
+  it("dedupes vouchers by voucher_code the same way", () => {
+    const a = result({ vouchers: [REAL_VOUCHER_ROW] });
+    const b = result({ vouchers: [REAL_VOUCHER_ROW] });
+    const merged = mergeLookupResults([a, b]);
+    expect(merged.vouchers).toEqual([REAL_VOUCHER_ROW]);
+  });
+
+  it("carries vouchers/totalVisits/referralEarnings through the merge rather than dropping them", () => {
+    const merged = mergeLookupResults([result({ vouchers: [REAL_VOUCHER_ROW], totalVisits: 12, referralEarnings: 500 })]);
+    expect(merged.vouchers).toEqual([REAL_VOUCHER_ROW]);
+    expect(merged.totalVisits).toBe(12);
+    expect(merged.referralEarnings).toBe(500);
+  });
+
+  it("takes the max (not the sum) of totalVisits across factors resolving to the same customer, and logs when they differ", () => {
+    const a = result({ totalVisits: 12, referralEarnings: 500 });
+    const b = result({ totalVisits: 12, referralEarnings: 500 }); // same underlying customer record, same numbers
+    const sameCustomer = mergeLookupResults([a, b]);
+    expect(sameCustomer.totalVisits).toBe(12); // NOT 24 — summing identical factors would double-count
+    expect(sameCustomer.referralEarnings).toBe(500);
+
+    const c = result({ totalVisits: 12, referralEarnings: 500 });
+    const d = result({ totalVisits: 20, referralEarnings: 500 }); // genuinely different value -> logged
+    const differing = mergeLookupResults([c, d], { orgSlug: "test-org", userId: "u1" });
+    expect(differing.totalVisits).toBe(20);
   });
 });
