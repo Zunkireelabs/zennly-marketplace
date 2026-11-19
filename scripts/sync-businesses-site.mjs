@@ -48,6 +48,33 @@ const SITE_DIR = path.join(WEB_ZENLY_DIR, "_site");
 const DEST_DIR = path.join(REPO_ROOT, "public", "businesses");
 const PREFIX = "/businesses";
 
+// web-zenly's own "Login" buttons (and the one hardcoded book-now link) point at
+// https://app.zennly.io/... absolute, 220 instances across the mirror. That is the CORRECT
+// production URL — book-spa genuinely lives at app.zennly.io — so it must survive a production
+// build byte-for-byte. It's only wrong on localhost, where the real engine is NEXT_PUBLIC_
+// BOOKING_ENGINE_ORIGIN (e.g. http://localhost:4028), not BOOKING_ENGINE_PROXY_TARGET: the two
+// share a value today only by coincidence of local dev. BOOKING_ENGINE_PROXY_TARGET answers "what
+// does /book/* forward to" (a same-origin proxy path, src/app/api's sibling next.config rewrite);
+// ENGINE_ORIGIN answers "where does the engine actually live" (a direct, unproxied origin) — and
+// staff login (this rewrite's whole purpose) is never proxied, so it needs the direct origin, not
+// a /book/-prefixed path. providers-data.ts already reads NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN for
+// exactly this "where is the real engine" question; reusing it here keeps one answer to that
+// question instead of two.
+//
+// Safety: a production build has no override set at all (.env is gitignored and never committed;
+// .env.example ships this commented out), so ENGINE_REWRITE_ACTIVE is false there and every
+// app.zennly.io URL in rewriteUrl() below falls through completely untouched — same code path as
+// if this feature didn't exist. The only way app.zennly.io URLs change in a build is if whoever
+// runs that build explicitly sets NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN to something other than
+// https://app.zennly.io in that build's own environment — the same condition under which the booking
+// drawer's own "Book now" link already points elsewhere (providers-data.ts), so this rewrite adds
+// no new failure mode beyond one that already exists and is already load-bearing.
+const PRODUCTION_ENGINE_ORIGIN = "https://app.zennly.io";
+const rawEngineOverride = (process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN || "").trim().replace(/\/+$/, "");
+const ENGINE_REWRITE_ACTIVE =
+  rawEngineOverride.length > 0 && rawEngineOverride.toLowerCase() !== PRODUCTION_ENGINE_ORIGIN.toLowerCase();
+const ENGINE_ORIGIN_OVERRIDE = ENGINE_REWRITE_ACTIVE ? rawEngineOverride : null;
+
 // web-zenly generates these at the _site root as ITS OWN canonical SEO
 // surface (absolute https://zennly.io/... URLs throughout). Once zennly.io's
 // root is served by this Next app, these must not be copied in verbatim —
@@ -107,6 +134,17 @@ function rewriteUrl(url) {
     const prefixedRelative =
       relative === PREFIX || relative.startsWith(`${PREFIX}/`) ? relative : `${PREFIX}${relative}`;
     return `${origin}${stripTrailingSlash(prefixedRelative)}`;
+  }
+
+  // Only rewritten when NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN points somewhere other than production
+  // (see ENGINE_REWRITE_ACTIVE above) — origin only, path preserved verbatim, so
+  // https://app.zennly.io/nuad-thai-spa/book becomes e.g. http://localhost:4028/nuad-thai-spa/book.
+  // Naturally idempotent: once rewritten, the URL no longer matches app.zennly.io, so a re-run's
+  // rewriteUrl() falls through to the generic "other external domain, untouched" case below.
+  const engineAbsolute = url.match(/^https?:\/\/app\.zennly\.io(\/.*)?$/i);
+  if (engineAbsolute) {
+    if (!ENGINE_REWRITE_ACTIVE) return url;
+    return `${ENGINE_ORIGIN_OVERRIDE}${engineAbsolute[1] || ""}`;
   }
 
   if (/^https?:\/\//i.test(url)) return url; // other external domains, untouched
@@ -263,7 +301,10 @@ function copyAndRewrite() {
     }
   });
 
-  console.log(`Mirrored web-zenly -> ${path.relative(REPO_ROOT, DEST_DIR)} (${rewritten} files rewritten).`);
+  const engineNote = ENGINE_REWRITE_ACTIVE
+    ? `app.zennly.io links rewritten to ${ENGINE_ORIGIN_OVERRIDE}.`
+    : `app.zennly.io links left untouched.`;
+  console.log(`Mirrored web-zenly -> ${path.relative(REPO_ROOT, DEST_DIR)} (${rewritten} files rewritten). ${engineNote}`);
 }
 
 const skipBuild = process.argv.includes("--skip-build");
