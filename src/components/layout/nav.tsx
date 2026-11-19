@@ -257,7 +257,7 @@ function AccountControl({ ink, solid }: { ink: string; solid: boolean }) {
         >
           <p className="truncate px-3 pb-1 pt-1 text-xs text-muted-foreground">{accountLabel(user)}</p>
           <Link
-            href="/account"
+            href="/account/profile"
             role="menuitem"
             onClick={() => setOpen(false)}
             className="rounded-[var(--radius-sm)] px-3 py-2 text-sm transition-colors duration-150 hover:bg-muted"

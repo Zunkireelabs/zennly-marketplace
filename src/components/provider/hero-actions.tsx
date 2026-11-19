@@ -28,7 +28,8 @@ export function HeroPhotoButton() {
   );
 }
 
-/** Save and share, next to the page title. Saves live on the device until real accounts arrive. */
+/** Save and share, next to the page title. Signed in, saves sync to the account; signed out, they
+ * stay on the device until the visitor logs in (saved-sync.tsx merges them in at that point). */
 export function SaveShare({ slug, name }: { slug: string; name: string }) {
   const { saved, toggle } = useSaved(slug, name);
 
