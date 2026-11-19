@@ -119,6 +119,11 @@ export async function POST(request: NextRequest) {
     const emptyMap = Object.fromEntries(slugs.map((s) => [s, emptyResult]));
     if (!prisma || !functionsUrl || !secret) return NextResponse.json({ ok: true, data: emptyMap }, { headers: noStore });
 
+    // Unreachable by construction for an existing account — the ProfileFactor migration seeded
+    // one row per confirmed signup email, and ensureProfile never runs without one — but falling
+    // through to the calm empty shape here is correct even if it somehow is reached: it's the
+    // exact same "nothing found" a customer with no history gets, not an error. Left as a safe
+    // fallback rather than a throw on purpose; don't "fix" it into one.
     const emails = await verifiedEmails(user.id, user.email);
     if (emails.length === 0) return NextResponse.json({ ok: true, data: emptyMap }, { headers: noStore });
 
