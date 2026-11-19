@@ -19,7 +19,7 @@ const FOOTER_COLUMNS = [
     title: "Company",
     links: [
       { label: "About", href: MARKETING_ABOUT },
-      { label: "For Providers", href: MARKETING_SITE_HOME },
+      { label: "For Businesses", href: MARKETING_SITE_HOME },
       { label: "Careers", href: "#" },
     ],
   },

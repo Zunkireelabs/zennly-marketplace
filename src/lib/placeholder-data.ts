@@ -72,7 +72,7 @@ export const valueProps = [
  * used in heroFeature and the homepage rails (lib/home-rails.ts) so the placeholder universe stays coherent.
  */
 export const providerPitch = {
-  eyebrow: "For Providers",
+  eyebrow: "For Businesses",
   headline: "Zennly for Business",
   subcopy:
     "Reach self-care clients who are already looking for what you offer. List your studio free — no setup fees, no long-term contracts.",

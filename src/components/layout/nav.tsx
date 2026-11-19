@@ -74,7 +74,7 @@ export function Nav({
             href={providersHref}
             className={`hidden rounded-[var(--radius-full)] border px-4 py-2 font-mono text-sm font-medium transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] sm:inline-block ${ink} ${edge}`}
           >
-            For Providers
+            For Businesses
           </Link>
           <button
             type="button"
@@ -132,7 +132,7 @@ export function Nav({
                 className="rounded-[var(--radius-sm)] px-3 py-2 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted sm:hidden"
                 role="menuitem"
               >
-                For Providers
+                For Businesses
               </Link>
               {ready && !user && (
                 <button
@@ -150,6 +150,14 @@ export function Nav({
               {ready && user && (
                 <div className="flex flex-col gap-1 sm:hidden">
                   <p className="truncate px-3 pt-1 text-xs text-muted-foreground">{accountLabel(user)}</p>
+                  <Link
+                    href="/account"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className="rounded-[var(--radius-sm)] px-3 py-2 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted"
+                  >
+                    Profile
+                  </Link>
                   <button
                     type="button"
                     role="menuitem"
@@ -248,6 +256,14 @@ function AccountControl({ ink, solid }: { ink: string; solid: boolean }) {
           className="absolute right-0 top-[calc(100%+8px)] flex w-60 flex-col gap-1 rounded-[var(--radius-md)] border border-border bg-card p-2 text-foreground shadow-[var(--shadow-modal)]"
         >
           <p className="truncate px-3 pb-1 pt-1 text-xs text-muted-foreground">{accountLabel(user)}</p>
+          <Link
+            href="/account"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="rounded-[var(--radius-sm)] px-3 py-2 text-sm transition-colors duration-150 hover:bg-muted"
+          >
+            Profile
+          </Link>
           <Link
             href="/saved"
             role="menuitem"
