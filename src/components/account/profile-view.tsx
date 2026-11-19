@@ -262,6 +262,11 @@ function ProfileEditCard() {
 
     // Only fields that actually changed go in the request — see the comment on `original` above
     // for why resending every pre-filled value, even unchanged ones, would be the riskier choice.
+    // The phone/country pair is exactly where this bites: +1 maps to both US and CA (why
+    // `country` has to be stored at all, separately from the E.164 phone string), so a phone
+    // round-trip is precisely the kind of pre-fill that can come back subtly different from what
+    // was actually stored. Diffing against the snapshot makes that class of bug unreachable
+    // rather than merely unlikely, for a field the customer may not have touched this save.
     const trimmedNational = national.trim();
     const body: Record<string, string | null | undefined> = {};
     if (trimmedFirst !== original.firstName) body.firstName = trimmedFirst || null;
