@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
-import { ensureProfile } from "@/lib/account/server";
+import { ensureProfile, getAuthUser } from "@/lib/account/server";
 import { normalizeCode, normalizeEmail } from "@/lib/auth/normalize";
-import { fail, isSameOriginJson, noStore, notConfigured, ok, toAuthUser } from "@/lib/supabase/api";
+import { fail, isSameOriginJson, noStore, notConfigured, ok } from "@/lib/supabase/api";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 const Body = z.object({ email: z.string().max(254), code: z.string().max(12) });
@@ -29,5 +29,5 @@ export async function POST(request: NextRequest) {
     return fail({ code: "invalid_code", message: "That code isn't right." }, 400);
   }
   await ensureProfile(data.user);
-  return ok(toAuthUser(data.user));
+  return ok(await getAuthUser(data.user));
 }

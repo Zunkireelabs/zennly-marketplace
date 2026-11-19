@@ -11,6 +11,13 @@ export type AuthUser = {
   phone?: string;
   email?: string;
   name?: string;
+  /** From the profiles row — the auth adapter's own `AuthResult<AuthUser>` returns (sign-in,
+   * verifyCode) never populate these; only the server-read path (toAuthUser with a profile) does. */
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  /** ISO-2, behind the phone's dial code (see Profile.country in schema.prisma). */
+  country?: string;
   phoneVerified: boolean;
   emailVerified: boolean;
 };

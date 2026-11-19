@@ -91,10 +91,32 @@ model CollectionProvider {
 
 model Profile {
   id        String   @id @db.Uuid
+  /// Derived display string, recomputed server-side as [firstName, lastName].filter(Boolean).join(" ")
+  /// on every write — never edited directly. Kept so /api/auth/me's existing `name` contract
+  /// (read by book-spa's marketplaceIdentity.js and booking-drawer.tsx) needs no coordinated change.
   name      String?
+  firstName String?  @map("first_name")
+  /// Nullable and excluded from profile completeness: a single-word Nepali given name is common,
+  /// and the full name still round-trips through `name` above regardless of whether this is set.
+  lastName  String?  @map("last_name")
   avatar    String?
+  /// E.164 only (src/lib/auth/normalize.ts#normalizePhone). Self-asserted — see phoneVerifiedAt.
+  phone     String?
+  /// Timestamp, not a boolean: always null today (no SMS provider), but gets the "when" for free
+  /// the day phone verification ships, where a boolean would need a migration to add it. An
+  /// unverified phone (phoneVerifiedAt IS NULL) must never grant booking-history visibility — see
+  /// the PATCH /api/account handler's header comment for the full list of what it may never do.
+  phoneVerifiedAt DateTime? @map("phone_verified_at")
+  /// Exactly 'male' | 'female' | 'other', lowercase — matches book-spa's CustomerForm.jsx verbatim
+  /// so nothing maps on the way into p_customer_gender. Enforced in Zod AND a raw CHECK in the
+  /// migration SQL; not a Prisma enum, since book-spa's own customers.gender is deliberately free
+  /// text and a Postgres enum is painful to extend later.
+  gender    String?
+  /// ISO-2 code behind the phone's dial code (e.g. "US" vs "CA" both dial +1) — load-bearing for
+  /// the edit form to round-trip the country selector; the E.164 string alone is ambiguous.
   country   String?
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("profiles")
 }
