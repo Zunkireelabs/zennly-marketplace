@@ -88,11 +88,19 @@ export function ProfileView({ connectedStudios }: { connectedStudios: ConnectedS
   // name at all) — this ordering is the whole point of M1-M4: a customer who's set their name no
   // longer gets greeted by their email address.
   const greetingName = user.firstName ?? user.name?.split(" ")[0] ?? user.email?.split("@")[0] ?? "there";
+  const initial = (user.name ?? user.email ?? user.phone ?? "?").replace(/^\+/, "").charAt(0).toUpperCase();
 
   return (
     <section className="pt-6">
-      <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">Welcome back, {greetingName}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{[user.email, user.phone].filter(Boolean).join(" · ")}</p>
+      <div className="flex items-center gap-4">
+        <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-full)] bg-primary text-xl font-semibold text-primary-foreground">
+          {user.avatar ? <Image src={user.avatar} alt="" fill sizes="56px" className="object-cover" /> : initial}
+        </div>
+        <div>
+          <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">Welcome back, {greetingName}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{[user.email, user.phone].filter(Boolean).join(" · ")}</p>
+        </div>
+      </div>
 
       <CompletenessPrompt />
       <ProfileEditCard />

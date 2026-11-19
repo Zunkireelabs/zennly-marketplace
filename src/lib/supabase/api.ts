@@ -38,12 +38,24 @@ export function toAuthUser(user: User, profile?: ProfileLike | null): AuthUser {
   const meta = user.user_metadata ?? {};
   const metaName =
     typeof meta.full_name === "string" ? meta.full_name : typeof meta.name === "string" ? meta.name : undefined;
+  const metaAvatar = typeof meta.avatar_url === "string" ? meta.avatar_url : undefined;
   return {
     id: user.id,
     email: user.email ?? undefined,
     name: profile?.name ?? metaName,
     firstName: profile?.firstName ?? undefined,
     lastName: profile?.lastName ?? undefined,
+    // The ONE place avatarUploaded/avatarProvider precedence is decided — consumers (including
+    // book-spa's marketplaceIdentity.js) get a single resolved URL or undefined, never the two
+    // columns, and never have to implement "which photo wins" themselves. A customer's own
+    // upload always wins over the provider's photo; metaAvatar is the final fallback only for a
+    // user whose ensureProfile hasn't run yet (profile is null — same race-lost reasoning as
+    // `name` above). Currently this is almost always Google's lh3.googleusercontent.com URL,
+    // rendered as a hotlink (every page view requests it from Google, carrying the visitor's
+    // IP/referrer) rather than copied into our own storage — a deliberate choice to revisit once
+    // avatar-upload storage exists, at which point copying provider photos in at sign-in becomes
+    // the better default for privacy and URL durability. Independent of avatarUploaded either way.
+    avatar: profile?.avatarUploaded ?? profile?.avatarProvider ?? metaAvatar,
     phone: profile?.phone ?? undefined,
     gender: profile?.gender ?? undefined,
     country: profile?.country ?? undefined,
@@ -59,6 +71,8 @@ export type ProfileLike = {
   name: string | null;
   firstName: string | null;
   lastName: string | null;
+  avatarProvider: string | null;
+  avatarUploaded: string | null;
   phone: string | null;
   gender: string | null;
   country: string | null;

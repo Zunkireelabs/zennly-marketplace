@@ -15,6 +15,9 @@ export type AuthUser = {
    * verifyCode) never populate these; only the server-read path (toAuthUser with a profile) does. */
   firstName?: string;
   lastName?: string;
+  /** From the profiles row — ensureProfile's Google backfill today, a customer upload later.
+   * Absent for most users (email-OTP signups get none); render an initial-letter fallback. */
+  avatar?: string;
   gender?: string;
   /** ISO-2, behind the phone's dial code (see Profile.country in schema.prisma). */
   country?: string;

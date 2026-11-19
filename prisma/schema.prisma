@@ -99,7 +99,21 @@ model Profile {
   /// Nullable and excluded from profile completeness: a single-word Nepali given name is common,
   /// and the full name still round-trips through `name` above regardless of whether this is set.
   lastName  String?  @map("last_name")
-  avatar    String?
+  /// Default photo, entirely provider-managed: set and refreshed by ensureProfile() from the
+  /// OAuth provider's metadata (Google's avatar_url, currently) on every sign-in that has one.
+  /// NEVER touched by a profile edit or an avatar upload — see avatarUploaded for that.
+  avatarProvider String? @map("avatar_provider")
+  /// The customer's own uploaded photo, entirely user-managed: set only by the (future) avatar
+  /// upload endpoint, cleared only by the customer removing it. NEVER touched by ensureProfile —
+  /// signing in must not be able to overwrite or revive a photo the customer chose, and clearing
+  /// it must fall back to avatarProvider (the Google photo) rather than to nothing, matching what
+  /// the customer actually expects "remove my photo" to do when they signed up with Google.
+  /// Two columns instead of one "avatar" field + a clear-marker: an upload can then never be
+  /// overwritten by a later sign-in, structurally, with no fill-only-null discipline required to
+  /// keep that true. Resolved to a single URL ONLY in toAuthUser() (avatarUploaded ?? avatarProvider)
+  /// — nothing downstream, including book-spa, should ever see both columns or implement this
+  /// precedence itself.
+  avatarUploaded String? @map("avatar_uploaded")
   /// E.164 only (src/lib/auth/normalize.ts#normalizePhone). Self-asserted — see phoneVerifiedAt.
   phone     String?
   /// Timestamp, not a boolean: always null today (no SMS provider), but gets the "when" for free

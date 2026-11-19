@@ -244,11 +244,11 @@ function AccountControl({ ink, solid }: { ink: string; solid: boolean }) {
         aria-expanded={open}
         aria-label="Account menu"
         onClick={() => setOpen((o) => !o)}
-        className={`flex size-9 items-center justify-center rounded-[var(--radius-full)] text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+        className={`relative flex size-9 items-center justify-center overflow-hidden rounded-[var(--radius-full)] text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
           solid ? "bg-primary text-primary-foreground hover:bg-primary-hover" : "bg-white text-foreground hover:bg-white/85"
         }`}
       >
-        {initial}
+        {user.avatar ? <Image src={user.avatar} alt="" fill sizes="36px" className="object-cover" /> : initial}
       </button>
       {open && (
         <div
