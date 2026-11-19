@@ -80,6 +80,119 @@ export function membershipView(m: LookupRow): { tier: string; detail?: string; s
   return { tier, detail: balance ? `Balance: ${balance}` : undefined, status };
 }
 
+/** A label/value pair for a details list. Entries whose value is absent are dropped by the
+ *  builders below rather than rendered as an empty row. */
+export type DetailRow = { label: string; value: string };
+
+function rows(...entries: [string, string | undefined][]): DetailRow[] {
+  return entries.filter(([, v]) => Boolean(v)).map(([label, value]) => ({ label, value: value as string }));
+}
+
+/**
+ * The full membership card, as opposed to `membershipView`'s one-line summary. Four of the seven
+ * fields book-spa sends (membership_number, total_deposited, activation_date, expiry_date) were
+ * arriving and rendered nowhere.
+ *
+ * `status` is taken verbatim and never recomputed here: migration-336 derives it server-side
+ * ('active' | 'pending' | 'depleted' | 'lapsed') against Asia/Kathmandu, including the expiry
+ * comparison. Recomputing it from expiry_date in the browser would use the viewer's timezone and
+ * disagree with the studio's own dashboard for customers travelling or abroad.
+ */
+export function membershipDetail(m: LookupRow): { tier: string; status?: string; rows: DetailRow[] } {
+  return {
+    tier: asText(field(m, ["tier_name", "tierName", "tier", "name", "plan_name"])) ?? "Member",
+    status: asText(field(m, ["status"])),
+    rows: rows(
+      ["Membership no.", asText(field(m, ["membership_number"]))],
+      ["Balance", asMoney(field(m, ["balance", "balance_npr"]))],
+      ["Total deposited", asMoney(field(m, ["total_deposited"]))],
+      ["Activated", asText(field(m, ["activation_date"]))],
+      ["Expires", asText(field(m, ["expiry_date"]))]
+    ),
+  };
+}
+
+/**
+ * Packages have their own shape and their own id (`package_code`, not `booking_number`) — they
+ * were previously concatenated into the bookings list and pushed through `bookingLine()`, which
+ * matched none of their field names, so every package rendered as the literal "Visit · Date to be
+ * confirmed".
+ *
+ * Sessions are the point of a package, so they're built as one string rather than three rows:
+ * "3 of 10 used · 7 left" reads as a state, where three separate labelled numbers read as a form.
+ */
+export function packageView(p: LookupRow): { name: string; status?: string; sessions?: string; rows: DetailRow[] } {
+  const total = field(p, ["sessions_total"]);
+  const used = field(p, ["sessions_used"]);
+  const remaining = field(p, ["sessions_remaining"]);
+  const sessions =
+    typeof total === "number" && typeof used === "number"
+      ? `${used} of ${total} used${typeof remaining === "number" ? ` · ${remaining} left` : ""}`
+      : undefined;
+
+  return {
+    name: asText(field(p, ["package_type_name", "package_name", "name"])) ?? "Package",
+    status: asText(field(p, ["status"])),
+    sessions,
+    rows: rows(
+      ["Code", asText(field(p, ["package_code"]))],
+      ["Issued", asText(field(p, ["issued_date"]))],
+      ["Expires", asText(field(p, ["expiry_date"]))],
+      ["Paid", asMoney(field(p, ["paid_amount"]))]
+    ),
+  };
+}
+
+/**
+ * Vouchers arrive from migration-336 as a summary only — there is no claim-level ledger, so this
+ * deliberately renders a remaining balance and nothing resembling a redemption history.
+ */
+export function voucherView(v: LookupRow): { code: string; remaining?: string; rows: DetailRow[] } {
+  return {
+    code: asText(field(v, ["voucher_code"])) ?? "Voucher",
+    remaining: asMoney(field(v, ["remaining_balance"])),
+    rows: rows(
+      ["Issued for", asMoney(field(v, ["total_amount_issued"]))],
+      ["Issued", asText(field(v, ["issued_date"]))],
+      ["Expires", asText(field(v, ["expiry_date"]))]
+    ),
+  };
+}
+
+/**
+ * The full booking row, as opposed to `bookingLine`'s title/detail summary. Of the 15 fields
+ * book-spa sends per booking, 3 were rendered.
+ */
+export function bookingDetail(b: LookupRow): {
+  service: string;
+  status?: string;
+  when?: string;
+  rows: DetailRow[];
+} {
+  const date = asText(field(b, ["date", "booking_date"]));
+  const start = asText(field(b, ["start_time", "time"]));
+  const end = asText(field(b, ["end_time"]));
+  const time = start && end ? `${start}–${end}` : start;
+  const discount = asMoney(field(b, ["discount_amount"]));
+
+  return {
+    service: asText(field(b, ["service_name_snapshot", "service_name", "service", "name"])) ?? "Visit",
+    status: asText(field(b, ["status"])),
+    when: [date, time].filter(Boolean).join(" · ") || undefined,
+    rows: rows(
+      ["Category", asText(field(b, ["service_category_snapshot"]))],
+      ["Duration", asText(field(b, ["service_duration_snapshot"]))],
+      ["Therapist", asText(field(b, ["therapist_name_snapshot"]))],
+      ["Room", asText(field(b, ["room_name_snapshot"]))],
+      ["Paid", asMoney(field(b, ["final_amount"]))],
+      // Only ever shown when non-zero: "Discount: Rs 0" on every full-price booking is noise, and
+      // book-spa sends 0 rather than null for the overwhelmingly common no-discount case.
+      ["Discount", typeof field(b, ["discount_amount"]) === "number" && field(b, ["discount_amount"]) !== 0 ? discount : undefined],
+      ["Notes", asText(field(b, ["special_requests"]))]
+    ),
+  };
+}
+
 /**
  * Dedupes a list of rows (bookings, packages, or vouchers — each has its own stable id field) by
  * the given key, keeping the first occurrence. Falls back to an always-distinct key for a row

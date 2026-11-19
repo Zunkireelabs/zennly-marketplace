@@ -6,7 +6,14 @@ import { ListingRow, type CollectionItem } from "@/components/collection/listing
 import { useAuth } from "@/lib/auth/auth-provider";
 import { useSavedEntries } from "@/lib/saved/use-saved";
 
-export function SavedList({ items }: { items: CollectionItem[] }) {
+/**
+ * `heading` exists because this list has two homes: the standalone /saved page (reachable signed
+ * out, hence the device-only copy and the log-in nudge below) and /account/favourites, where the
+ * account shell has already guaranteed a signed-in user and the section is called Favourites.
+ * One list, two titles — rather than a second copy of the filtering and empty state that would
+ * then drift from this one.
+ */
+export function SavedList({ items, heading = "Saved studios" }: { items: CollectionItem[]; heading?: string }) {
   const entries = useSavedEntries();
   const { user, ready, openLogin } = useAuth();
 
@@ -19,7 +26,7 @@ export function SavedList({ items }: { items: CollectionItem[] }) {
   return (
     <section className="pt-6" aria-labelledby="saved-heading">
       <h1 id="saved-heading" className="text-3xl font-semibold leading-tight sm:text-4xl">
-        Saved studios
+        {heading}
       </h1>
       <p className="mt-2 max-w-prose text-muted-foreground">
         {ready && !user

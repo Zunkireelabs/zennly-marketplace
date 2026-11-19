@@ -40,6 +40,7 @@ export async function getAuthUser(user: User): Promise<AuthUser> {
         phone: true,
         gender: true,
         country: true,
+        dob: true,
         phoneVerifiedAt: true,
       },
     })

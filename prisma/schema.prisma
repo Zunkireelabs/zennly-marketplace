@@ -129,6 +129,10 @@ model Profile {
   /// ISO-2 code behind the phone's dial code (e.g. "US" vs "CA" both dial +1) — load-bearing for
   /// the edit form to round-trip the country selector; the E.164 string alone is ambiguous.
   country   String?
+  /// Optional, excluded from completeness (see completeness.ts). book-spa's customers.date_of_birth
+  /// already exists, so this syncs naturally once booking write-back lands — no new consent
+  /// surface needed for a field book-spa already collects today.
+  dob       DateTime? @db.Date
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 

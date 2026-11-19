@@ -67,6 +67,9 @@ export function toAuthUser(user: User, profile?: ProfileLike | null): AuthUser {
     phone: profile?.phone ?? undefined,
     gender: profile?.gender ?? undefined,
     country: profile?.country ?? undefined,
+    // YYYY-MM-DD, not a Date: toISOString() would shift by timezone and risk sliding onto the
+    // wrong calendar day; slicing the already-date-only column's ISO string never can.
+    dob: profile?.dob ? profile.dob.toISOString().slice(0, 10) : undefined,
     // Always false until phone verification exists (no SMS provider yet) — but now for a real
     // reason (profile.phoneVerifiedAt is always null today) rather than a hardcoded stub.
     phoneVerified: Boolean(profile?.phoneVerifiedAt),
@@ -84,6 +87,7 @@ export type ProfileLike = {
   phone: string | null;
   gender: string | null;
   country: string | null;
+  dob: Date | null;
   phoneVerifiedAt: Date | null;
 };
 

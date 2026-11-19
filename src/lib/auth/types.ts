@@ -21,6 +21,8 @@ export type AuthUser = {
   gender?: string;
   /** ISO-2, behind the phone's dial code (see Profile.country in schema.prisma). */
   country?: string;
+  /** YYYY-MM-DD. Optional, excluded from profile completeness — see completeness.ts. */
+  dob?: string;
   phoneVerified: boolean;
   emailVerified: boolean;
 };

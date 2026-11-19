@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { bookingLine, membershipView, mergeLookupResults, type LookupResult, type LookupRow } from "./studio-lookup";
+import {
+  bookingDetail,
+  bookingLine,
+  membershipDetail,
+  membershipView,
+  mergeLookupResults,
+  packageView,
+  voucherView,
+  type LookupResult,
+  type LookupRow,
+} from "./studio-lookup";
 
 /** Fills in the other fields with empty/zero defaults so each test only has to spell out the
  * part it's actually exercising. */
@@ -195,5 +205,91 @@ describe("mergeLookupResults", () => {
     const b = result({ reachable: false, found: false });
     const merged = mergeLookupResults([a, b]);
     expect(merged.reachable).toBe(false);
+  });
+});
+
+/** Helper: the labels present on a details list, in order — asserting on labels rather than the
+ *  whole row objects keeps these readable and still catches a field going missing. */
+const labels = (r: { rows: { label: string }[] }) => r.rows.map((x) => x.label);
+const valueOf = (r: { rows: { label: string; value: string }[] }, label: string) =>
+  r.rows.find((x) => x.label === label)?.value;
+
+describe("membershipDetail", () => {
+  it("renders all five detail fields from a real row", () => {
+    const d = membershipDetail(REAL_MEMBERSHIP_ROW);
+    expect(d.tier).toBe("Gold");
+    expect(d.status).toBe("active");
+    expect(labels(d)).toEqual(["Membership no.", "Balance", "Total deposited", "Activated", "Expires"]);
+    expect(valueOf(d, "Balance")).toBe("Rs 8,200");
+    expect(valueOf(d, "Membership no.")).toBe("MEM-00123");
+  });
+
+  it("drops rows whose field is absent rather than rendering an empty one", () => {
+    // activation_date is null for a membership that hasn't been activated — the 'pending' case.
+    const d = membershipDetail({ ...REAL_MEMBERSHIP_ROW, activation_date: null, status: "pending" });
+    expect(labels(d)).not.toContain("Activated");
+    expect(d.status).toBe("pending");
+  });
+
+  it("takes status verbatim and never derives it from expiry_date", () => {
+    // Expired a year ago, but book-spa says active. We must not "correct" that: the server
+    // computes status in Asia/Kathmandu, and a browser recomputing it would disagree abroad.
+    const d = membershipDetail({ ...REAL_MEMBERSHIP_ROW, expiry_date: "2025-01-01", status: "active" });
+    expect(d.status).toBe("active");
+  });
+});
+
+describe("packageView", () => {
+  it("renders sessions as one readable state, not three numbers", () => {
+    const p = packageView(REAL_PACKAGE_ROW);
+    expect(p.name).toBe("10-Session Facial Pack");
+    expect(p.sessions).toBe("3 of 10 used · 7 left");
+    expect(valueOf(p, "Code")).toBe("PKG-00099");
+    expect(valueOf(p, "Paid")).toBe("Rs 25,000");
+  });
+
+  it("omits sessions entirely when the counts aren't numbers", () => {
+    const p = packageView({ ...REAL_PACKAGE_ROW, sessions_total: null, sessions_used: null });
+    expect(p.sessions).toBeUndefined();
+    expect(p.name).toBe("10-Session Facial Pack");
+  });
+
+  it("does not fall back to bookingLine's shape — a package is not a visit", () => {
+    // The bug this replaces: packages were concatenated into bookings and pushed through
+    // bookingLine(), matching none of their field names, so every one rendered "Visit".
+    expect(packageView(REAL_PACKAGE_ROW).name).not.toBe("Visit");
+    expect(bookingLine(REAL_PACKAGE_ROW).title).toBe("Visit");
+  });
+});
+
+describe("voucherView", () => {
+  it("renders remaining against the issued total", () => {
+    const v = voucherView(REAL_VOUCHER_ROW);
+    expect(v.code).toBe("VCH-00055");
+    expect(v.remaining).toBe("Rs 1,500");
+    expect(valueOf(v, "Issued for")).toBe("Rs 2,000");
+  });
+});
+
+describe("bookingDetail", () => {
+  it("renders the fields bookingLine never showed", () => {
+    const d = bookingDetail(REAL_BOOKING_ROW);
+    expect(d.service).toBe("Deep Tissue Massage");
+    expect(d.when).toBe("2026-11-10 · 14:30:00–15:30:00");
+    expect(valueOf(d, "Therapist")).toBe("Sita Gurung");
+    expect(valueOf(d, "Room")).toBe("Room 2");
+    expect(valueOf(d, "Paid")).toBe("Rs 3,150");
+    expect(valueOf(d, "Discount")).toBe("Rs 350");
+  });
+
+  it("hides a zero discount rather than printing 'Rs 0' on every full-price booking", () => {
+    const d = bookingDetail({ ...REAL_BOOKING_ROW, discount_amount: 0 });
+    expect(labels(d)).not.toContain("Discount");
+    expect(valueOf(d, "Paid")).toBe("Rs 3,150");
+  });
+
+  it("falls back to the start time alone when there is no end time", () => {
+    const d = bookingDetail({ ...REAL_BOOKING_ROW, end_time: null });
+    expect(d.when).toBe("2026-11-10 · 14:30:00");
   });
 });
