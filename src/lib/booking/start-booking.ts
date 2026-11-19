@@ -126,6 +126,14 @@ export function startBooking({ provider, selection, forWhom }: StartBookingInput
   if (!url) return { kind: "blocked", reason: "This studio's booking link isn't available right now." };
 
   track("handoff_started", { slug: provider.slug, destination: "engine", for_whom: who.kind });
-  window.open(url, "_blank", "noopener,noreferrer");
+  // Same tab for a same-origin path (the /book/* proxy): booking is a continuation of the
+  // journey, not a detour, and a new tab strands the customer's back button. A cross-origin
+  // absolute URL still opens in its own tab — that case really is leaving the site, and
+  // noopener/noreferrer matter there.
+  if (isRelativeSameOrigin(base)) {
+    window.location.assign(url);
+  } else {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
   return { kind: "external", handoffId, url };
 }
