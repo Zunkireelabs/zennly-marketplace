@@ -55,7 +55,23 @@ const PatchBody = z.object({
   dialCode: z.string().max(10).nullable().optional(),
   gender: z.string().nullable().optional(),
   country: z.string().max(2).nullable().optional(),
+  /** YYYY-MM-DD. Optional and excluded from completeness — see Profile.dob in schema.prisma. */
+  dob: z.string().nullable().optional(),
 });
+
+const DOB_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Rejects malformed strings and calendar-impossible dates (e.g. 2026-02-30) outright, plus
+ * anything not a plausible birth date — in the future, or more than 120 years ago. */
+function parseDob(value: string): Date | null {
+  if (!DOB_RE.test(value)) return null;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) return null;
+  const now = new Date();
+  const earliest = new Date(Date.UTC(now.getUTCFullYear() - 120, now.getUTCMonth(), now.getUTCDate()));
+  if (date > now || date < earliest) return null;
+  return date;
+}
 
 /**
  * Edits the signed-in user's own profile fields. Email is deliberately NOT accepted here — it's
@@ -100,6 +116,7 @@ export async function PATCH(request: NextRequest) {
     phone?: string | null;
     gender?: string | null;
     country?: string | null;
+    dob?: Date | null;
     name?: string | null;
   } = {};
 
@@ -152,6 +169,15 @@ export async function PATCH(request: NextRequest) {
     else {
       if (!COUNTRY_CODES.has(body.country)) return json({ ok: false, error: "invalid_input", field: "country" }, 400);
       data.country = body.country;
+    }
+  }
+
+  if (body.dob !== undefined) {
+    if (body.dob === null) data.dob = null;
+    else {
+      const dobDate = parseDob(body.dob);
+      if (!dobDate) return json({ ok: false, error: "invalid_input", field: "dob" }, 400);
+      data.dob = dobDate;
     }
   }
 

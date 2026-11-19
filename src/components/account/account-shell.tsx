@@ -8,9 +8,11 @@ import { AccountSidebar } from "./account-nav";
  * in — the desktop sidebar + content grid (collection-browser.tsx:143-258's exact shape, the
  * working precedent already in this codebase, not a new one).
  *
- * Signed out: the same card profile-view.tsx's `!user` branch already renders (duplicated here
- * rather than imported — profile-view.tsx itself isn't being touched as part of this shell work),
- * for EVERY account route, performing no lookup at all. Never a redirect: a studio link might
+ * Signed out: one card for EVERY account route, performing no lookup at all — which is why the
+ * sections themselves can assume a signed-in user and never re-check. (This gate used to live in
+ * profile-view.tsx, which has since been split into avatar-editor / completeness-prompt /
+ * profile-edit-card; the gate moved up here rather than being duplicated per section.)
+ * Never a redirect: a studio link might
  * deep-link straight into /account/appointments, and bouncing that to a login page would lose
  * where they were trying to go.
  */

@@ -129,9 +129,18 @@ model Profile {
   /// ISO-2 code behind the phone's dial code (e.g. "US" vs "CA" both dial +1) — load-bearing for
   /// the edit form to round-trip the country selector; the E.164 string alone is ambiguous.
   country   String?
-  /// Optional, excluded from completeness (see completeness.ts). book-spa's customers.date_of_birth
-  /// already exists, so this syncs naturally once booking write-back lands — no new consent
-  /// surface needed for a field book-spa already collects today.
+  /// Date of birth. A DATE column, not a timestamp and not text: Postgres rejects an impossible
+  /// calendar date (2026-02-31) natively, where text would need a CHECK to do the same.
+  ///
+  /// The cost is at the JS edge, and it is a real trap — Prisma hands this back as a JS Date at
+  /// UTC midnight, so ANY local-time formatter (toLocaleDateString, getDate, date-fns `format`)
+  /// renders it a day early for a reader in a negative-offset timezone: someone born on the 1st
+  /// shown as the 31st of the month before. **Always format with UTC methods** —
+  /// `d.toISOString().slice(0, 10)` — and always construct from a plain "YYYY-MM-DD" string,
+  /// which `new Date()` parses as UTC midnight. There is no time-of-day here to preserve.
+  ///
+  /// Optional, and deliberately excluded from profile completeness: it is useful for birthday
+  /// offers later, not for completing a booking now.
   dob       DateTime? @db.Date
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
