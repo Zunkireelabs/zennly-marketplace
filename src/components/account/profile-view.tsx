@@ -304,8 +304,29 @@ function ProfileEditCard() {
     const snapNational = user.phone?.startsWith(dialStr) ? user.phone.slice(dialStr.length) : "";
     const snapGender = user.gender ?? "";
 
-    setFirstName(snapFirst);
-    setLastName(snapLast);
+    // A SUGGESTION, not a stored value: Google sends only a combined `name` ("Anish Balami"), never
+    // given_name/family_name (confirmed against the real account's raw identity data), so
+    // ensureProfile correctly leaves firstName/lastName null — there's nothing to backfill. This
+    // splits `name` on the FIRST space only (multi-word surnames — "Bahadur Singh Thapa" — split
+    // wrong on every space) purely to prefill the form fields. Deliberately NOT written to
+    // `original`: original stays the real empty snapshot, so if the customer saves the suggestion
+    // unmodified, save()'s diff (trimmed !== original) still sees it as a change and sends it —
+    // a suggestion that silently failed to save on an unmodified Save click would be worse than no
+    // suggestion at all. It also never reaches the database unless the customer presses Save.
+    let suggestedFirst = snapFirst;
+    let suggestedLast = snapLast;
+    if (!snapFirst && !snapLast && user.name) {
+      const spaceIndex = user.name.indexOf(" ");
+      if (spaceIndex > 0) {
+        suggestedFirst = user.name.slice(0, spaceIndex);
+        suggestedLast = user.name.slice(spaceIndex + 1);
+      } else {
+        suggestedFirst = user.name;
+      }
+    }
+
+    setFirstName(suggestedFirst);
+    setLastName(suggestedLast);
     setDial(snapDial);
     setNational(snapNational);
     setGender(snapGender);

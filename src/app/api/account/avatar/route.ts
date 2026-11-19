@@ -86,9 +86,16 @@ export async function POST(request: NextRequest) {
   return json({ ok: true, data: await getAuthUser(user) });
 }
 
-/** Clears the customer's own uploaded photo. Falls back to avatarProvider (the Google photo, if
+/**
+ * Clears the customer's own uploaded photo. Falls back to avatarProvider (the Google photo, if
  * any), never to nothing — "remove my photo" means "go back to the default", matching what a
- * customer who signed up with Google would actually expect. */
+ * customer who signed up with Google would actually expect.
+ *
+ * The object is actually gone from storage once this returns, but Supabase's storage CDN can
+ * briefly keep serving a cached response for the old (now-dead) public URL — object paths are
+ * random per upload and never reused, so nothing new can discover that URL to exploit the window,
+ * but don't write UI copy that promises the old photo is instantly unreachable everywhere.
+ */
 export async function DELETE(request: NextRequest) {
   if (!isSameOrigin(request)) return json({ ok: false }, 403);
 
