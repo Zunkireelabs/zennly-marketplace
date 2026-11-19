@@ -156,12 +156,24 @@ const nextConfig: NextConfig = {
         hostname: "images.pexels.com",
         pathname: "/**",
       },
-      // Google account photos (profiles.avatar, backfilled from Google sign-in metadata).
+      // Google account photos (profiles.avatarProvider, backfilled from Google sign-in metadata).
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
         pathname: "/**",
       },
+      // Supabase Storage (profiles.avatarUploaded — customer-uploaded photos, "avatars" bucket).
+      // Derived from the same project the app already talks to, rather than hardcoding a project
+      // ref, so this doesn't silently point at the wrong project in a different environment.
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
     ],
   },
 };

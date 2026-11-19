@@ -21,9 +21,17 @@ export const notConfigured = () =>
  * (a cross-site form post can't send either). Session cookies are also SameSite=Lax.
  */
 export function isSameOriginJson(request: NextRequest): boolean {
+  return isSameOrigin(request) && (request.headers.get("content-type") ?? "").startsWith("application/json");
+}
+
+/**
+ * Same CSRF guard as isSameOriginJson, minus the JSON requirement — for state-changing routes
+ * that take a body a cross-site form CAN send a version of (multipart/form-data, e.g. the avatar
+ * upload route), where Origin is the only thing actually proving same-site intent.
+ */
+export function isSameOrigin(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
-  if (!origin || origin !== request.nextUrl.origin) return false;
-  return (request.headers.get("content-type") ?? "").startsWith("application/json");
+  return Boolean(origin) && origin === request.nextUrl.origin;
 }
 
 /**
