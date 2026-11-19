@@ -29,13 +29,23 @@ function asMoney(value: unknown): string | undefined {
   return undefined;
 }
 
-/** Exported for direct testing — these rendering rules are the part most worth exercising
- * without a live book-spa response, since field names aren't frozen yet. */
+/**
+ * Exported for direct testing — these rendering rules are the part most worth exercising without
+ * a live book-spa response, since field names aren't frozen yet (see studio-lookup.test.ts, which
+ * feeds this a real migration-336-shaped row specifically so the names below can't silently drift
+ * from what book-spa actually sends again the way they did before — "service_name"/"amount" etc.
+ * were plausible-sounding guesses that matched nothing, and every booking rendered the literal
+ * string "Visit" with no price until someone checked the real column names).
+ *
+ * Real names first in each candidate list (migration-336-marketplace-customer-lookup.sql's own
+ * jsonb_build_object column list is the source of truth), older guessed names kept after as a
+ * defensive fallback per the file header — not because they're expected to match anything today.
+ */
 export function bookingLine(b: LookupRow): { title: string; detail: string; status?: string } {
-  const service = asText(field(b, ["service_name", "serviceName", "service", "name"])) ?? "Visit";
+  const service = asText(field(b, ["service_name_snapshot", "service_name", "serviceName", "service", "name"])) ?? "Visit";
   const date = asText(field(b, ["date", "booking_date", "scheduled_date", "appointment_date"]));
-  const time = asText(field(b, ["time", "booking_time", "scheduled_time", "start_time"]));
-  const amount = asMoney(field(b, ["amount", "price", "total", "amount_npr"]));
+  const time = asText(field(b, ["start_time", "time", "booking_time", "scheduled_time"]));
+  const amount = asMoney(field(b, ["final_amount", "amount", "price", "total", "amount_npr"]));
   const status = asText(field(b, ["status"]));
   const detail = [date, time].filter(Boolean).join(" · ") || "Date to be confirmed";
   return { title: amount ? `${service} · ${amount}` : service, detail, status };
