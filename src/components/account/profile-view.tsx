@@ -2,8 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { toast } from "sonner";
+import { auth } from "@/lib/auth";
 import { useAuth } from "@/lib/auth/auth-provider";
+import { COUNTRIES, DEFAULT_COUNTRY, normalizeName, normalizePhone } from "@/lib/auth/normalize";
+import { profileCompleteness } from "@/lib/account/completeness";
 import { bookingLine, membershipView, type LookupResult } from "@/lib/account/studio-lookup";
 
 type ConnectedStudio = { slug: string; name: string; city: string; image: string };
@@ -80,12 +84,18 @@ export function ProfileView({ connectedStudios }: { connectedStudios: ConnectedS
     );
   }
 
-  const greetingName = user.name?.split(" ")[0] ?? user.email?.split("@")[0] ?? "there";
+  // firstName (a stored field) beats name.split(" ") (derived) beats the email local-part (not a
+  // name at all) — this ordering is the whole point of M1-M4: a customer who's set their name no
+  // longer gets greeted by their email address.
+  const greetingName = user.firstName ?? user.name?.split(" ")[0] ?? user.email?.split("@")[0] ?? "there";
 
   return (
     <section className="pt-6">
       <h1 className="text-3xl font-semibold leading-tight sm:text-4xl">Welcome back, {greetingName}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{[user.email, user.phone].filter(Boolean).join(" · ")}</p>
+
+      <CompletenessPrompt />
+      <ProfileEditCard />
 
       {connectedStudios.length === 0 ? (
         <div className="mt-8 rounded-[var(--radius-lg)] border border-dashed border-border px-6 py-14 text-center">
@@ -104,6 +114,284 @@ export function ProfileView({ connectedStudios }: { connectedStudios: ConnectedS
         </ul>
       )}
     </section>
+  );
+}
+
+const DISMISS_KEY = "zennly:profile-prompt-dismissed:v1";
+
+// useSyncExternalStore, not useEffect+setState, for the same reason src/lib/currency/store.ts
+// reads localStorage this way: it's external (non-React) state, so this is a subscription, not a
+// side effect to synchronize — and getServerSnapshot gives SSR a safe default with no hydration
+// mismatch, where a useEffect would flash the prompt open for a frame before reading storage.
+function subscribeDismissed() {
+  return () => {};
+}
+function readDismissed() {
+  try {
+    return window.localStorage.getItem(DISMISS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A dismissible nudge toward finishing the profile — never a gate. Nothing here blocks anything;
+ * it just disappears once dismissed (localStorage, this device) or once the profile is complete.
+ * See src/lib/account/completeness.ts's header comment for why this must stay this way.
+ */
+function CompletenessPrompt() {
+  const { user } = useAuth();
+  const dismissed = useSyncExternalStore(subscribeDismissed, readDismissed, () => false);
+  const [dismissedNow, setDismissedNow] = useState(false);
+
+  if (!user) return null;
+  const { missing, percent } = profileCompleteness(user);
+  if (missing.length === 0 || dismissed || dismissedNow) return null;
+
+  const dismiss = () => {
+    try {
+      window.localStorage.setItem(DISMISS_KEY, "1");
+    } catch {
+      // Storage unavailable (private browsing, quota) — still hide it for this render via
+      // dismissedNow below; it just won't stay hidden across a reload.
+    }
+    setDismissedNow(true);
+  };
+
+  return (
+    <div className="mt-6 flex items-start justify-between gap-4 rounded-[var(--radius-md)] border border-border bg-muted/60 px-4 py-3 text-sm">
+      <p className="text-foreground">
+        Your profile is {percent}% complete. Finishing it fills in bookings automatically — no typing your details every time.
+      </p>
+      <button
+        type="button"
+        onClick={dismiss}
+        aria-label="Dismiss"
+        className="shrink-0 text-muted-foreground transition-colors duration-150 hover:text-foreground"
+      >
+        Dismiss
+      </button>
+    </div>
+  );
+}
+
+// Same visual language as login-dialog.tsx's phone field — one input pattern for phone entry
+// everywhere in the app, not a second one invented here.
+const FIELD =
+  "h-11 rounded-[12px] border border-border bg-card px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+const GENDERS = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
+] as const;
+
+function ProfileEditCard() {
+  const { user } = useAuth();
+  const [editing, setEditing] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [dial, setDial] = useState(DEFAULT_COUNTRY.code);
+  const [national, setNational] = useState("");
+  const [gender, setGender] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Snapshot at the moment editing starts, so save() can send only what actually changed — every
+  // field the form pre-fills is sent back untouched otherwise, and PATCH's "absent means leave
+  // alone, null means clear" contract means an untouched-but-resent field with a subtly wrong
+  // pre-fill (e.g. a phone that didn't round-trip through the dial-code split below) would
+  // silently clear something the customer never meant to touch.
+  const [original, setOriginal] = useState({ firstName: "", lastName: "", national: "", dial: DEFAULT_COUNTRY.code, gender: "" });
+
+  const country = COUNTRIES.find((c) => c.code === dial) ?? DEFAULT_COUNTRY;
+
+  const startEditing = () => {
+    if (!user) return;
+    const snapFirst = user.firstName ?? "";
+    const snapLast = user.lastName ?? "";
+    const snapDial = user.country ?? DEFAULT_COUNTRY.code;
+    // The stored phone is E.164 (e.g. +9779812345678); split off the dial code so the national
+    // part round-trips into the input the same way login-dialog.tsx's phone field works.
+    const dialStr = (COUNTRIES.find((c) => c.code === snapDial) ?? DEFAULT_COUNTRY).dial;
+    const snapNational = user.phone?.startsWith(dialStr) ? user.phone.slice(dialStr.length) : "";
+    const snapGender = user.gender ?? "";
+
+    setFirstName(snapFirst);
+    setLastName(snapLast);
+    setDial(snapDial);
+    setNational(snapNational);
+    setGender(snapGender);
+    setOriginal({ firstName: snapFirst, lastName: snapLast, national: snapNational, dial: snapDial, gender: snapGender });
+    setError(null);
+    setEditing(true);
+  };
+
+  if (!user) return null;
+
+  if (!editing) {
+    return (
+      <div className="mt-6 flex items-center justify-between gap-4 rounded-[var(--radius-md)] border border-border bg-card px-4 py-3 text-sm">
+        <div className="min-w-0 text-muted-foreground">
+          {[user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName, user.phone, user.gender]
+            .filter(Boolean)
+            .join(" · ") || "Add your name, phone, and gender."}
+        </div>
+        <button
+          type="button"
+          onClick={startEditing}
+          className="shrink-0 rounded-[var(--radius-sm)] border border-border px-3 py-1.5 text-sm font-medium transition-colors duration-150 hover:border-foreground/40"
+        >
+          Edit profile
+        </button>
+      </div>
+    );
+  }
+
+  const save = async () => {
+    setError(null);
+
+    // Client-side validation mirrors the server's (same functions, same rules) so a bad value
+    // never round-trips to the API only to bounce — but the server re-validates independently and
+    // is the actual authority; this is purely for faster feedback.
+    const trimmedFirst = firstName.trim();
+    const trimmedLast = lastName.trim();
+    if (trimmedFirst && !normalizeName(trimmedFirst)) return setError("Enter a valid first name.");
+    if (trimmedLast && !normalizeName(trimmedLast)) return setError("Enter a valid last name.");
+    if (national.trim() && !normalizePhone(country.dial, national)) {
+      return setError(country.dial === "+977" ? "Enter a valid Nepal mobile number." : "Enter a valid phone number.");
+    }
+
+    // Only fields that actually changed go in the request — see the comment on `original` above
+    // for why resending every pre-filled value, even unchanged ones, would be the riskier choice.
+    const trimmedNational = national.trim();
+    const body: Record<string, string | null | undefined> = {};
+    if (trimmedFirst !== original.firstName) body.firstName = trimmedFirst || null;
+    if (trimmedLast !== original.lastName) body.lastName = trimmedLast || null;
+    if (gender !== original.gender) body.gender = gender || null;
+    if (trimmedNational !== original.national || dial !== original.dial) {
+      body.phone = trimmedNational || null;
+      if (trimmedNational) {
+        body.dialCode = country.dial;
+        body.country = country.code;
+      }
+    }
+
+    if (Object.keys(body).length === 0) {
+      setEditing(false);
+      return;
+    }
+
+    setSaving(true);
+    const res = await fetch("/api/account", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    })
+      .then((r) => ({ ok: r.ok }))
+      .catch(() => ({ ok: false }));
+    setSaving(false);
+
+    if (!res.ok) {
+      setError("Couldn't save — try again.");
+      return;
+    }
+    // Re-reads /api/auth/me so `user` everywhere (nav, this page) reflects the edit immediately —
+    // no sign-out, no page reload, the whole point of fixing the toAuthUser read path in M2.
+    await auth.refresh();
+    toast.success("Profile updated");
+    setEditing(false);
+  };
+
+  return (
+    <div className="mt-6 rounded-[var(--radius-md)] border border-border bg-card p-4">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1.5 text-sm">
+          First name
+          <input
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            maxLength={80}
+            className={FIELD}
+          />
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
+          Last name
+          <input
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            maxLength={80}
+            className={FIELD}
+          />
+        </label>
+      </div>
+
+      <label className="mt-3 flex flex-col gap-1.5 text-sm">
+        Phone
+        <div className="flex gap-2">
+          <select
+            aria-label="Country code"
+            value={dial}
+            onChange={(e) => setDial(e.target.value)}
+            className={`${FIELD} w-[7.5rem] shrink-0 px-2`}
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.code} {c.dial}
+              </option>
+            ))}
+          </select>
+          <input
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel-national"
+            maxLength={32}
+            value={national}
+            onChange={(e) => setNational(e.target.value)}
+            placeholder={country.dial === "+977" ? "98XXXXXXXX" : "Phone number"}
+            className={`${FIELD} min-w-0 flex-1`}
+          />
+        </div>
+      </label>
+
+      <fieldset className="mt-3">
+        <legend className="text-sm">Gender</legend>
+        <div className="mt-1.5 flex gap-2">
+          {GENDERS.map((g) => (
+            <button
+              key={g.value}
+              type="button"
+              aria-pressed={gender === g.value}
+              onClick={() => setGender(gender === g.value ? "" : g.value)}
+              className={`rounded-[var(--radius-full)] border px-3.5 py-1.5 text-sm transition-colors duration-150 ${
+                gender === g.value ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-foreground/40"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      {error && <p className="mt-3 text-sm text-error">{error}</p>}
+
+      <div className="mt-4 flex gap-2">
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => void save()}
+          className="rounded-[var(--radius-md)] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setEditing(false)}
+          disabled={saving}
+          className="rounded-[var(--radius-md)] border border-border px-4 py-2 text-sm font-medium transition-colors duration-150 hover:border-foreground/40"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }
 
