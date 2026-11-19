@@ -130,23 +130,46 @@ describe("mergeLookupResults", () => {
     expect(merged.vouchers).toEqual([REAL_VOUCHER_ROW]);
   });
 
-  it("carries vouchers/totalVisits/referralEarnings through the merge rather than dropping them", () => {
-    const merged = mergeLookupResults([result({ vouchers: [REAL_VOUCHER_ROW], totalVisits: 12, referralEarnings: 500 })]);
+  it("carries vouchers through the merge rather than dropping them", () => {
+    const merged = mergeLookupResults([result({ vouchers: [REAL_VOUCHER_ROW] })]);
     expect(merged.vouchers).toEqual([REAL_VOUCHER_ROW]);
-    expect(merged.totalVisits).toBe(12);
-    expect(merged.referralEarnings).toBe(500);
   });
 
-  it("takes the max (not the sum) of totalVisits across factors resolving to the same customer, and logs when they differ", () => {
-    const a = result({ totalVisits: 12, referralEarnings: 500 });
-    const b = result({ totalVisits: 12, referralEarnings: 500 }); // same underlying customer record, same numbers
-    const sameCustomer = mergeLookupResults([a, b]);
-    expect(sameCustomer.totalVisits).toBe(12); // NOT 24 — summing identical factors would double-count
-    expect(sameCustomer.referralEarnings).toBe(500);
+  it("derives totalVisits from the merged bookings' Completed count, not from either factor's own total_visits number", () => {
+    const completed1 = { ...REAL_BOOKING_ROW, booking_number: "BN-1", status: "Completed" };
+    const completed2 = { ...REAL_BOOKING_ROW, booking_number: "BN-2", status: "Completed" };
+    const cancelled = { ...REAL_BOOKING_ROW, booking_number: "BN-3", status: "Cancelled" };
+    // Deliberately WRONG totalVisits on the input, to prove the merge ignores it and recomputes
+    // from the actual bookings array instead.
+    const merged = mergeLookupResults([result({ bookings: [completed1, completed2, cancelled], totalVisits: 999 })]);
+    expect(merged.totalVisits).toBe(2); // Completed only — Cancelled doesn't count
+  });
 
-    const c = result({ totalVisits: 12, referralEarnings: 500 });
-    const d = result({ totalVisits: 20, referralEarnings: 500 }); // genuinely different value -> logged
-    const differing = mergeLookupResults([c, d], { orgSlug: "test-org", userId: "u1" });
-    expect(differing.totalVisits).toBe(20);
+  it(
+    "two factors both reporting non-zero totalVisits/referralEarnings is unreachable by construction, " +
+      "not a supported path — migration-336 matches customers.email, a single-valued column, so two " +
+      "DIFFERENT verified emails can never resolve to the SAME customer row",
+    () => {
+      // If this scenario somehow occurred anyway, it would mean two DISTINCT customer records with
+      // disjoint bookings — which is exactly the next test, not this one.
+      const a = result({ bookings: [{ ...REAL_BOOKING_ROW, booking_number: "BN-1", status: "Completed" }] });
+      const b = result({ bookings: [{ ...REAL_BOOKING_ROW, booking_number: "BN-1", status: "Completed" }] }); // same booking_number -> deduped
+      const merged = mergeLookupResults([a, b]);
+      expect(merged.totalVisits).toBe(1); // deduped to one booking, not two
+    }
+  );
+
+  it("sums totalVisits and referralEarnings across two genuinely distinct customer records (disjoint bookings), and logs the duplicate-record case", () => {
+    const recordA = result({
+      bookings: [{ ...REAL_BOOKING_ROW, booking_number: "BN-A1", status: "Completed" }],
+      referralEarnings: 300,
+    });
+    const recordB = result({
+      bookings: [{ ...REAL_BOOKING_ROW, booking_number: "BN-B1", status: "Completed" }],
+      referralEarnings: 200,
+    });
+    const merged = mergeLookupResults([recordA, recordB], { orgSlug: "test-org", userId: "u1" });
+    expect(merged.totalVisits).toBe(2); // union of two disjoint bookings, not a max of 1
+    expect(merged.referralEarnings).toBe(500); // sum, not max — both are real, non-overlapping credits
   });
 });

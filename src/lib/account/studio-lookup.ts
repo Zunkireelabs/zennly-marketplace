@@ -113,16 +113,24 @@ function dedupeRows(rows: LookupRow[], keyField: string, into: Map<string, Looku
  * rare enough not to design for, but a silent pick would make it undiscoverable if it ever
  * happens.
  *
- * `totalVisits`/`referralEarnings`: both scalars, not arrays, so they can't be deduped by key the
- * way rows are. Takes the MAX across factors rather than summing. Reasoning: if two verified
- * emails resolve to the SAME book-spa customer record (the common case — a customer who simply
- * changed their marketplace login email once), book-spa returns the IDENTICAL number from both
- * lookups, and summing would double it — a visible, confusing bug ("why does it say 24 visits
- * when I've been 12 times") for the exact case this fan-out exists to support correctly. Summing
- * would only be right if two emails resolved to two genuinely DIFFERENT customer records at the
- * same org (rare, and the undercounting MAX produces there is the quieter failure of the two). A
- * genuine difference between factors is logged, same treatment as the membership conflict above,
- * for the same reason: a silent pick would make a real discrepancy undiscoverable.
+ * `totalVisits` is DERIVED from the already-merged, already-deduped `bookings` array
+ * (`count(status === 'Completed')`) rather than taken from either factor's own `total_visits`
+ * number. This isn't a style choice — `migration-336`'s customer match
+ * (`lower(c.email) = lower(p_identifier_value)`) is against `customers.email`, a single-valued
+ * column, so two DIFFERENT verified emails can never resolve to the SAME customer row: if one
+ * matches, the other returns `found: false` with `total_visits: 0`. So whenever two factors both
+ * report non-zero totalVisits at one org, they are necessarily two DIFFERENT customer records —
+ * a duplicate book-spa client for one human — with disjoint, non-overlapping bookings. Deriving
+ * from the merged list rather than merging the scalar means it can never disagree with what's
+ * actually rendered beside it, which a separately-chosen merge policy (max, sum, or anything else)
+ * always risks.
+ *
+ * `referralEarnings` has no array to derive from, so IT does need a merge policy, and by the same
+ * disjointness argument SUM is correct here: two factors both reporting non-zero earnings can only
+ * mean two separate customer records, each with real, non-overlapping credited earnings — nothing
+ * to double-count. Logged (not an error, informational) when more than one factor contributes a
+ * non-zero value, since "this customer has more than one book-spa record at this org" is worth
+ * being able to find later even though summing is the right behavior for it.
  */
 export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?: string; userId?: string }): LookupResult {
   const found = results.some((r) => r.found);
@@ -138,6 +146,7 @@ export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?
     dedupeRows(r.packages, "package_code", packagesByKey, packageCounter);
     dedupeRows(r.vouchers, "voucher_code", vouchersByKey, voucherCounter);
   }
+  const bookings = [...bookingsByKey.values()];
 
   let membership: LookupRow | null = null;
   for (const r of results) {
@@ -153,19 +162,13 @@ export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?
     }
   }
 
-  let totalVisits = 0;
-  let referralEarnings = 0;
-  let visitsDiffered = false;
-  let earningsDiffered = false;
-  for (const r of results) {
-    if (totalVisits > 0 && r.totalVisits > 0 && r.totalVisits !== totalVisits) visitsDiffered = true;
-    if (referralEarnings > 0 && r.referralEarnings > 0 && r.referralEarnings !== referralEarnings) earningsDiffered = true;
-    totalVisits = Math.max(totalVisits, r.totalVisits);
-    referralEarnings = Math.max(referralEarnings, r.referralEarnings);
-  }
-  if (visitsDiffered || earningsDiffered) {
+  const totalVisits = bookings.filter((b) => b.status === "Completed").length;
+
+  const nonZeroEarnings = results.map((r) => r.referralEarnings).filter((n) => n > 0);
+  const referralEarnings = nonZeroEarnings.reduce((sum, n) => sum + n, 0);
+  if (nonZeroEarnings.length > 1) {
     console.error(
-      "[studio-lookup] total_visits/referral_earnings differed across verified factors at one org — kept the max, logging rather than summing or surfacing",
+      "[studio-lookup] more than one verified factor reports referral earnings at one org — summed (correct: they're disjoint customer records), logging because it means this customer has more than one book-spa record here",
       context?.orgSlug,
       context?.userId
     );
@@ -173,7 +176,7 @@ export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?
 
   return {
     found,
-    bookings: [...bookingsByKey.values()],
+    bookings,
     packages: [...packagesByKey.values()],
     vouchers: [...vouchersByKey.values()],
     membership,
