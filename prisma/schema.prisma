@@ -135,6 +135,32 @@ model Profile {
   @@map("profiles")
 }
 
+/// Every email or phone the customer has proven they control — the login email at signup/seed,
+/// plus any address/number since verified through step-up (§D of the profile plan: changing a
+/// contact channel requires proving the new value AND proving control of one factor already
+/// held). One table for both kinds, not parallel ProfileEmail/ProfilePhone tables: the rule this
+/// exists for is inherently "any verified factor" — the cross-studio history fan-out
+/// (studio-lookup.ts), the 10-factor cap, and (once phone verification ships) choosing which
+/// factor to challenge for a step-up all become one code path instead of two kept in step by hand.
+///
+/// Seeded by this table's own migration with one kind:'email' row per existing profile's current
+/// confirmed login email — skipping that seed makes every existing user's cross-studio booking
+/// history silently disappear (studio-history's lookup only ever sees verified factors), with
+/// nothing logged anywhere to explain why.
+model ProfileFactor {
+  userId     String   @map("user_id") @db.Uuid
+  /// 'email' | 'phone', enforced by a raw CHECK in the migration SQL — same posture as
+  /// Profile.gender above, and for the same reason (free text here is cheaper to extend than a
+  /// Postgres enum, and Zod enforces it independently at the API layer too).
+  kind       String
+  value      String
+  verifiedAt DateTime @map("verified_at")
+
+  @@id([userId, kind, value])
+  @@index([userId])
+  @@map("profile_factors")
+}
+
 model SavedStudio {
   userId       String   @map("user_id") @db.Uuid
   providerSlug String   @map("provider_slug")
