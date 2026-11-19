@@ -10,6 +10,17 @@
 export type LookupRow = Record<string, unknown>;
 export type LookupResult = {
   found: boolean;
+  /**
+   * Whether book-spa was actually asked and answered — distinct from `found`, which only makes
+   * sense once `reachable` is true. Before this field existed, a dead host, a timeout, a
+   * malformed response, and a genuine "no history here" all produced the identical
+   * `{found: false, bookings: [], ...}` shape, so no caller could tell "you have no visits here"
+   * from "we couldn't check right now" — they're very different things to tell a customer. Only
+   * `lookupOne`'s genuine success path (a real, parsed response from book-spa) sets this true;
+   * every fail-soft path (config missing, non-2xx, unparseable body, network error/timeout) in
+   * route.ts leaves it false, which is also `emptyResult`'s default.
+   */
+  reachable: boolean;
   bookings: LookupRow[];
   membership: LookupRow | null;
   packages: LookupRow[];
@@ -134,6 +145,10 @@ function dedupeRows(rows: LookupRow[], keyField: string, into: Map<string, Looku
  */
 export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?: string; userId?: string }): LookupResult {
   const found = results.some((r) => r.found);
+  // True if ANY factor actually reached book-spa — one email's lookup timing out among several
+  // verified factors isn't an outage, and shouldn't read as one just because it happened to be
+  // first in the list.
+  const reachable = results.some((r) => r.reachable);
 
   const bookingsByKey = new Map<string, LookupRow>();
   const packagesByKey = new Map<string, LookupRow>();
@@ -176,6 +191,7 @@ export function mergeLookupResults(results: LookupResult[], context?: { orgSlug?
 
   return {
     found,
+    reachable,
     bookings,
     packages: [...packagesByKey.values()],
     vouchers: [...vouchersByKey.values()],

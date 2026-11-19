@@ -34,8 +34,13 @@ import { mergeLookupResults, type LookupResult } from "@/lib/account/studio-look
  * client sends, never taken from the client directly.
  */
 
+// reachable: false is the default here on purpose — this constant is returned by every path that
+// DIDN'T get a real answer from book-spa (config missing, non-2xx, unparseable body, network
+// error/timeout). The one path that genuinely asked and got a real response builds its own object
+// with reachable: true explicitly, below.
 const emptyResult: LookupResult = {
   found: false,
+  reachable: false,
   bookings: [],
   membership: null,
   packages: [],
@@ -72,6 +77,7 @@ async function lookupOne(orgSlug: string, email: string, functionsUrl: string, s
     const data = json as Record<string, unknown>;
     return {
       found: Boolean(data.found),
+      reachable: true,
       bookings: Array.isArray(data.bookings) ? data.bookings : [],
       membership: data.membership && typeof data.membership === "object" ? (data.membership as Record<string, unknown>) : null,
       packages: Array.isArray(data.packages) ? data.packages : [],

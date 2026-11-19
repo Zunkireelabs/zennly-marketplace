@@ -4,7 +4,17 @@ import { bookingLine, membershipView, mergeLookupResults, type LookupResult, typ
 /** Fills in the other fields with empty/zero defaults so each test only has to spell out the
  * part it's actually exercising. */
 function result(partial: Partial<LookupResult>): LookupResult {
-  return { found: true, bookings: [], packages: [], vouchers: [], membership: null, totalVisits: 0, referralEarnings: 0, ...partial };
+  return {
+    found: true,
+    reachable: true,
+    bookings: [],
+    packages: [],
+    vouchers: [],
+    membership: null,
+    totalVisits: 0,
+    referralEarnings: 0,
+    ...partial,
+  };
 }
 
 /**
@@ -171,5 +181,19 @@ describe("mergeLookupResults", () => {
     const merged = mergeLookupResults([recordA, recordB], { orgSlug: "test-org", userId: "u1" });
     expect(merged.totalVisits).toBe(2); // union of two disjoint bookings, not a max of 1
     expect(merged.referralEarnings).toBe(500); // sum, not max — both are real, non-overlapping credits
+  });
+
+  it("reachable is true if ANY factor reached book-spa — one timed-out email among several isn't an outage", () => {
+    const reached = result({ reachable: true, found: true });
+    const timedOut = result({ reachable: false, found: false });
+    const merged = mergeLookupResults([timedOut, reached]);
+    expect(merged.reachable).toBe(true);
+  });
+
+  it("reachable is false only when EVERY factor failed to reach book-spa", () => {
+    const a = result({ reachable: false, found: false });
+    const b = result({ reachable: false, found: false });
+    const merged = mergeLookupResults([a, b]);
+    expect(merged.reachable).toBe(false);
   });
 });
