@@ -27,7 +27,10 @@ jobs:
       # (confirmed elsewhere on this stack via `npm install --dry-run`).
       - run: npm install
 
-      - run: npx eslint --max-warnings 0
+      # Scoped to src/ — public/maplibre/*.mjs is a vendored worker file copied
+      # from node_modules by postinstall, not app code, and isn't in the
+      # project's eslint ignores.
+      - run: npx eslint src --max-warnings 0
 
       - run: npx tsc --noEmit
 

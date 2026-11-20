@@ -24,7 +24,8 @@ jobs:
       # lockfile-resolution mismatch; npm install tolerates it.
       - run: npm install
 
-      - run: npx eslint --max-warnings 0
+      # See ci.yml — scoped to src/ to skip the vendored public/maplibre worker file.
+      - run: npx eslint src --max-warnings 0
 
       - run: npx tsc --noEmit
 
