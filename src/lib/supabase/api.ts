@@ -74,6 +74,17 @@ export function toAuthUser(user: User, profile?: ProfileLike | null): AuthUser {
     // reason (profile.phoneVerifiedAt is always null today) rather than a hardcoded stub.
     phoneVerified: Boolean(profile?.phoneVerifiedAt),
     emailVerified: Boolean(user.email_confirmed_at),
+    // An email change this customer started but hasn't finished. Supabase owns this state, so it
+    // is NOT mirrored into a column of ours: a copy would desync on abandoned flows, expired
+    // tokens, and codes confirmed in another tab, with nothing to reconcile it. Read straight off
+    // the auth user instead — `getUser()` already fetches it.
+    //
+    // This is what makes the change-email dialog survive a reload or a different device: the
+    // per-LEG progress (which of the two codes is already spent) is genuinely not exposed by
+    // GoTrue anywhere, so the only honest recovery is "a change to THIS address is pending" plus a
+    // Start-over that reissues both codes. Browser storage would claim to know more than we do and
+    // would be absent on another device anyway.
+    pendingEmail: user.new_email ?? undefined,
   };
 }
 

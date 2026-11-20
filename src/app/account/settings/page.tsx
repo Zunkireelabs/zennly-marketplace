@@ -3,15 +3,14 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth/auth-provider";
+import { EmailChangeDialog } from "@/components/account/email-change-dialog";
 
 /**
  * Account-level actions, as opposed to profile *data* (which lives in /account/profile).
  *
- * Changing your email is deliberately absent rather than stubbed: it is a two-code
- * verify-both-addresses flow whose shape depends on two Supabase dashboard settings nobody has
- * read yet ("Secure email change", and whether the change-email template sends a code or a link).
- * Building the one-code version and discovering the project is set to two means rebuilding it, so
- * this shows the address with an honest "not yet" rather than a control that half-works.
+ * Changing the sign-in email is a two-code flow (one to each address) -- see
+ * email-change-dialog.tsx for why both are required and what the server cannot tell the UI about
+ * which code is already spent.
  */
 export default function AccountSettingsPage() {
   const { user, signOut } = useAuth();
@@ -27,9 +26,10 @@ export default function AccountSettingsPage() {
         <h2 className="font-semibold text-foreground">Sign-in email</h2>
         <p className="mt-1 text-sm text-foreground">{user?.email ?? "—"}</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          This is how you sign in, and how we find your bookings at each studio. Changing it
-          isn&rsquo;t available yet.
+          This is how you sign in, and how we find your bookings at each studio — changing it
+          changes which visits we can show you.
         </p>
+        <EmailChangeDialog />
       </div>
 
       <div className="rounded-[var(--radius-lg)] border border-border bg-card p-5">

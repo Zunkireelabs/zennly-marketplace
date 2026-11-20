@@ -23,6 +23,11 @@ export type AuthUser = {
   country?: string;
   /** YYYY-MM-DD. Optional, excluded from profile completeness — see completeness.ts. */
   dob?: string;
+  /** An email change started but not finished — Supabase's `auth.users.new_email`, read live, never
+   * mirrored into a column of ours. Present means two codes are outstanding (one per address);
+   * WHICH of them is already spent is not exposed by GoTrue at all, so the UI can only offer to
+   * continue or to start over. */
+  pendingEmail?: string;
   phoneVerified: boolean;
   emailVerified: boolean;
 };
