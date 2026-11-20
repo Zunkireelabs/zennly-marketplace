@@ -92,3 +92,13 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* The collapsed search pill's typing-animation caret. Pure CSS so the blink costs no extra
+   timer or React state — `typingFrame()` stays a pure string function, untouched. */
+@keyframes pill-caret-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+.pill-caret {
+  animation: pill-caret-blink 1s step-end infinite;
+}

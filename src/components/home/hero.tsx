@@ -82,7 +82,11 @@ export function Hero({ destinations, searchIndex }: { destinations: Destination[
         // sampled the exact row the photo/video band ends and the white page begins: 458px.
         // Fixed breakpoint heights (not aspect-ratio — see prior lesson on onefinestay), topping
         // out at that measured 458px on desktop.
-        className="relative h-[360px] w-full overflow-hidden sm:h-[420px] lg:h-[458px]"
+        // Bottom corners are softened on phones only — measured off StayVista's mobile hero,
+        // where the curve reads as a subtle easing of the edge rather than a rounded card. 24px
+        // was visibly too round against a band this tall. Desktop stays square (sm:rounded-b-none):
+        // their desktop hero is a hard full-bleed edge, and so is ours.
+        className="relative h-[360px] w-full overflow-hidden rounded-b-[14px] sm:h-[420px] sm:rounded-b-none lg:h-[458px]"
       >
         {useStaticPoster ? (
           // Reduced-motion and data-saver/slow-connection users get the loop's first frame as

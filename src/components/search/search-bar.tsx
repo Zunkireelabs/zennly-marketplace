@@ -8,8 +8,28 @@ import type { Destination, SearchIndex } from "@/lib/home-rails";
 import { ANY_TIME, DateTimePanel, formatDay } from "@/components/home/date-time-panel";
 import { TreatmentPanel, useSearchResults, type SearchItem, type SearchTab } from "@/components/home/treatment-search";
 import { track } from "@/lib/analytics/track";
+import { typingFrame } from "@/lib/search/pill-typing";
+import { nextSheet, type Sheet, type SheetAction } from "@/lib/search/sheet-nav";
+import { MobileSearchSheet } from "@/components/search/mobile-search";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
+
+const PILL_TICK_MS = 90;
+
+// Cities for the collapsed mobile pill's typing animation. None of these resolve to real
+// provider data today (providers are US cities plus Kathmandu) — the owner has chosen to ship
+// the placeholder this way anyway; this is not the search index's city list and must not become
+// one.
+const PILL_CITIES = [
+  "Lazimpat",
+  "Thamel",
+  "Durbarmarg",
+  "Sanepa",
+  "Bouddha",
+  "Pokhara",
+  "Bhaisepati",
+  "Jhamsikhel",
+] as const;
 
 // Pin positions (% of the map image) for each studio city, projected with the same Albers USA
 // projection used to draw public/images/map-us.svg.
@@ -50,6 +70,126 @@ export function SearchBar({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [nav]);
+  const [pillTick, setPillTick] = useState(0);
+  // Mobile full-screen search (location picker, then the stacked form). `sheet` is the only new
+  // piece of state this adds — the overlay itself is presentational and reads/writes the same
+  // where/what/date/time/active state as everything else in this component.
+  const [sheet, setSheet] = useState<Sheet>(null);
+  const sheetRef = useRef<Sheet>(null);
+  useEffect(() => {
+    sheetRef.current = sheet;
+  }, [sheet]);
+  const pillRef = useRef<HTMLButtonElement>(null);
+  const sheetWasOpenRef = useRef(false);
+  // True for the span of our own synthetic `history.back()` calls below, so the popstate they
+  // cause isn't mistaken for a real hardware-back press.
+  const popSuppressRef = useRef(false);
+  const pendingAfterCloseRef = useRef<(() => void) | null>(null);
+  // The location sheet's own search text — separate from `where`, so a past selection doesn't
+  // pre-fill the box, and separate from `what`, so opening the sheet never shows someone else's
+  // in-progress treatment search. Cleared at every point below that closes the sheet, so it's
+  // always empty the next time it opens.
+  const [sheetQuery, setSheetQuery] = useState("");
+
+  // Every tap-driven transition goes through here so history stays in lockstep with `sheet`:
+  // opening pushes one entry, and any transition that lands on `null` (closing) pops it straight
+  // back out — "closing by chevron must consume its own entry so the user isn't left pressing
+  // back twice." Stepping between `location` and `form` touches no history at all; both live
+  // under the one entry pushed when the sheet first opened.
+  const dispatchSheet = (action: SheetAction, after?: () => void) => {
+    const next = nextSheet(sheet, action);
+    if (sheet === null && next !== null) {
+      window.history.pushState({ zennlySheetOpen: true }, "");
+    } else if (sheet !== null && next === null) {
+      popSuppressRef.current = true;
+      if (after) pendingAfterCloseRef.current = after;
+      window.history.back();
+    } else if (after) {
+      after();
+    }
+    if (next === null) setSheetQuery("");
+    setSheet(next);
+  };
+  // Escape is a direct close from either screen — not modeled in nextSheet's table, which only
+  // encodes the chevron/back step-or-close behaviour.
+  const closeSheet = () => {
+    if (sheet === null) return;
+    popSuppressRef.current = true;
+    window.history.back();
+    setSheetQuery("");
+    setSheet(null);
+  };
+
+  // Android hardware back: step a screen rather than leave the page. A press here always
+  // consumes one real history entry; if the resulting screen is still open, push a fresh one
+  // immediately so the NEXT back press has something to consume too, instead of leaving the page.
+  useEffect(() => {
+    const onPopState = () => {
+      if (popSuppressRef.current) {
+        popSuppressRef.current = false;
+        const after = pendingAfterCloseRef.current;
+        pendingAfterCloseRef.current = null;
+        // Deferred out of this tick: Next's own router also reconciles on popstate, and a
+        // navigation triggered synchronously inside the SAME dispatch — as `go()`'s router.push
+        // does — silently loses the race and never commits. Confirmed by direct A/B: the exact
+        // same router.push works immediately outside a popstate handler, and fails consistently
+        // (reproducibly, on an already-compiled route) when called synchronously inside one.
+        if (after) setTimeout(after, 0);
+        return;
+      }
+      const next = nextSheet(sheetRef.current, "back");
+      if (next !== null) window.history.pushState({ zennlySheetOpen: true }, "");
+      else setSheetQuery("");
+      setSheet(next);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  // Escape closes the sheet outright, from either screen.
+  useEffect(() => {
+    if (sheet === null) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && closeSheet();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet]);
+
+  // Lock body scroll while the sheet is open and restore the exact position on close — keyed on
+  // open/closed rather than on `sheet` itself, so stepping between the two screens doesn't
+  // re-measure (and clobber) the saved scroll position.
+  const sheetOpen = sheet !== null;
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = { position: body.style.position, top: body.style.top, width: body.style.width, overflow: body.style.overflow };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      body.style.overflow = prev.overflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [sheetOpen]);
+
+  // Focus returns to the pill once the sheet fully closes — not on first mount, which is why this
+  // tracks "was it open a moment ago" rather than just reacting to `sheet === null`.
+  useEffect(() => {
+    if (sheet !== null) {
+      sheetWasOpenRef.current = true;
+      return;
+    }
+    if (sheetWasOpenRef.current) {
+      sheetWasOpenRef.current = false;
+      pillRef.current?.focus();
+    }
+  }, [sheet]);
+
   const [where, setWhere] = useState("");
   // Which search field is open: its panel shows and the field expands.
   const [active, setActive] = useState<"where" | "what" | "when" | null>(null);
@@ -63,6 +203,9 @@ export function SearchBar({
   const results = useSearchResults(searchIndex, what, tab, scopedCity);
   const effectiveKey =
     results.flat.find((i) => i.key === activeKey)?.key ?? (what.trim() ? results.flat[0]?.key ?? null : null);
+  // A second, independent call for the location sheet's combined search — unscoped (no city),
+  // since the visitor hasn't picked one yet there, and driven by `sheetQuery` rather than `what`.
+  const sheetResults = useSearchResults(searchIndex, sheetQuery, "all", null);
 
   // Keep the arrow-key selection in view inside the scrolling list.
   useEffect(() => {
@@ -97,6 +240,26 @@ export function SearchBar({
     setActive(null);
   };
 
+  // Shared by the location sheet's rows and "Near me" — sets the exact string the desktop panel
+  // already sets, so `scopedCity` keeps resolving either way.
+  const pickDestination = (d: Destination) => {
+    setWhere(`${d.city}, ${d.region}`);
+    dispatchSheet("pickCity");
+  };
+
+  // The location sheet's combined search: a studio navigates away entirely, so close the sheet
+  // first and defer the navigation until that close's own history entry is actually consumed —
+  // same reasoning as the Search button, so this doesn't dangle a second entry the way an
+  // immediate router.push alongside an un-popped entry would.
+  const pickSearchItem = (item: SearchItem) => {
+    if (item.href) {
+      dispatchSheet("pickStudio", () => pick(item));
+      return;
+    }
+    pick(item);
+    dispatchSheet("pickService");
+  };
+
   const onWhatKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const list = results.flat;
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -114,10 +277,27 @@ export function SearchBar({
       }
     }
   };
+  // Mobile form screen's What input: Enter-to-pick only. Arrow-key highlighting is meaningless
+  // on a touchscreen with no physical arrow keys, and there's no visual "highlighted" row state
+  // on this screen for them to move between — reusing the desktop handler's arrow branches would
+  // just be dead code here. Enter still picks the top result (effectiveKey already falls back to
+  // results.flat[0] once something's typed), which is the one affordance worth keeping.
+  const onWhatEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter") return;
+    const item = results.flat.find((i) => i.key === effectiveKey);
+    if (item) {
+      e.preventDefault();
+      pick(item);
+    }
+  };
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const query = where.trim().toLowerCase();
   const matches = destinations.filter((d) => `${d.city} ${d.region}`.toLowerCase().includes(query));
+  // Same filter, applied to the sheet's own query instead of `where` — the desktop dropdown and
+  // the mobile sheet search different text, so they get independent results.
+  const sheetQueryNorm = sheetQuery.trim().toLowerCase();
+  const sheetMatches = destinations.filter((d) => `${d.city} ${d.region}`.toLowerCase().includes(sheetQueryNorm));
 
   // Close the destinations panel on outside click or Escape — and on mobile collapse the bar
   // back to its pill, since a tap outside is the only dismissal gesture it offers (there is no
@@ -147,7 +327,27 @@ export function SearchBar({
     .filter(Boolean)
     .join(" · ");
 
+  // The collapsed pill's typing animation only has anything to animate once there's no real
+  // selection to echo, and only one timer runs regardless of how many times this effect re-fires
+  // (each run clears the previous interval first). Skipped entirely for `nav`, which never
+  // renders the pill at all.
+  const animatePill = !nav && !reduceMotion && !summary;
+  useEffect(() => {
+    if (!animatePill) return;
+    const id = window.setInterval(() => setPillTick((t) => t + 1), PILL_TICK_MS);
+    return () => window.clearInterval(id);
+  }, [animatePill]);
+  const pillFrame = animatePill ? typingFrame(pillTick, PILL_CITIES) : null;
+
+  // The hero's bottom edge should pass through the bar's vertical centre — half on the image,
+  // half on the page below. That means -mt must equal HALF the bar's own rendered height at each
+  // breakpoint, measured in the browser, not guessed:
+  //   mobile (<sm): the collapsed pill is 64px tall (py-4 pill + its 1.5-unit wrapper padding) → -mt-8 (32px).
+  //   sm and up: the three-field row is ~68.5px tall → -mt-[34px].
+  // If either bar's height changes again (padding, font size, the pill's own py-*), these values
+  // must be re-measured and updated together, or the centering silently drifts off.
   return (
+    <>
         <motion.form
           ref={formRef}
           onSubmit={(e) => {
@@ -157,30 +357,53 @@ export function SearchBar({
           initial={reduceMotion || nav ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: EASE_STANDARD, delay: reduceMotion ? 0 : 0.08 }}
-          className={nav ? "mx-6 hidden min-w-0 max-w-3xl flex-1 items-center gap-0 rounded-[var(--radius-lg)] bg-card p-1 shadow-[var(--shadow-floating)] ring-1 ring-border md:flex" : `relative mx-auto -mt-14 w-full max-w-3xl bg-card transition-shadow duration-200 sm:-mt-16 sm:rounded-[var(--radius-lg)] sm:p-2 ${expanded ? "rounded-[var(--radius-lg)] p-3" : "rounded-[var(--radius-full)] p-1.5"} ${stuck ? "shadow-[0_1px_2px_rgba(35,33,29,0.10),0_4px_8px_rgba(35,33,29,0.12),0_8px_16px_-4px_rgba(35,33,29,0.14),0_0_0_1px_rgba(35,33,29,0.07)]" : "shadow-[var(--shadow-floating)]"}`}
+          className={nav ? "mx-6 hidden min-w-0 max-w-3xl flex-1 items-center gap-0 rounded-[var(--radius-lg)] bg-card p-1 shadow-[var(--shadow-floating)] ring-1 ring-border md:flex" : `relative mx-auto -mt-8 w-full max-w-3xl bg-card transition-shadow duration-200 sm:-mt-[34px] sm:rounded-[var(--radius-lg)] sm:p-2 ${expanded ? "rounded-[var(--radius-lg)] p-3" : "rounded-[var(--radius-full)] p-1.5"} ${stuck ? "shadow-[0_1px_2px_rgba(35,33,29,0.10),0_4px_8px_rgba(35,33,29,0.12),0_8px_16px_-4px_rgba(35,33,29,0.14),0_0_0_1px_rgba(35,33,29,0.07)]" : "shadow-[var(--shadow-floating)]"}`}
         >
           {/* The collapsed pill. `sm:hidden` rather than conditional rendering, so the three
               fields below stay mounted at every width — unmounting them would drop whatever the
               visitor had typed each time the bar collapsed. */}
           {!nav && (
             <button
+              ref={pillRef}
               type="button"
-              aria-expanded={expanded}
-              aria-controls="hero-search-fields"
-              onClick={() => {
-                setExpanded(true);
-                // Focus after paint: the input is display:none until `expanded` renders.
-                requestAnimationFrame(() => whereRef.current?.focus());
-              }}
-              className={`w-full items-center gap-3 px-4 py-2.5 text-left sm:hidden ${expanded ? "hidden" : "flex"}`}
+              aria-expanded={sheet !== null}
+              aria-controls="mobile-search-sheet"
+              // Stable name regardless of the typing animation underneath — a button whose
+              // accessible name changed on every character would be unusable with a screen
+              // reader. Only set when there's no real summary to announce; the summary case keeps
+              // its existing (already stable) name, read straight from the visible text.
+              aria-label={summary ? undefined : "Search treatments or studios"}
+              onClick={() => dispatchSheet("openPill")}
+              className={`w-full items-center gap-3 px-4 py-4 text-left sm:hidden ${sheet ? "hidden" : "flex"}`}
             >
+              {summary ? (
+                <span className="min-w-0 flex-1 truncate text-sm text-foreground">{summary}</span>
+              ) : (
+                // aria-hidden: the button's aria-label above already gives screen readers a
+                // stable name, so this animated sentence isn't re-announced on every character.
+                <span aria-hidden className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+                  {/* Short on purpose. "Search for a service provider in " alone filled the pill
+                      at 320px, so the city — the whole point of the animation — was truncated away
+                      before its first character on the narrowest phones. Keep any replacement
+                      wording about this length, and check 320px before changing it. */}
+                  Search for studios in{" "}
+                  <span className="font-semibold text-foreground">
+                    {reduceMotion ? PILL_CITIES[0] : pillFrame?.text}
+                  </span>
+                  {/* The typing caret: pure CSS blink, no extra timer or state — typingFrame()
+                      stays a plain string function. Suppressed under reduced motion, where the
+                      pill shows one static city and a blinking caret would defeat the point. */}
+                  {!reduceMotion && (
+                    <span className="pill-caret ml-0.5 inline-block h-[1em] w-px translate-y-[0.1em] bg-foreground align-middle" />
+                  )}
+                </span>
+              )}
+              {/* Trailing, matching the reference — the icon stays decorative and in the same
+                  spot whether the pill shows the real summary or the typing animation. */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0 text-muted-foreground">
                 <circle cx="11" cy="11" r="6.5" />
                 <path d="m16 16 4 4" />
               </svg>
-              <span className={`min-w-0 flex-1 truncate text-sm ${summary ? "text-foreground" : "text-muted-foreground"}`}>
-                {summary || "Search treatments or studios"}
-              </span>
             </button>
           )}
 
@@ -402,5 +625,51 @@ export function SearchBar({
             </div>
           )}
         </motion.form>
+      {sheet && (
+        <MobileSearchSheet
+          screen={sheet}
+          destinations={destinations}
+          sheetQuery={sheetQuery}
+          sheetMatches={sheetMatches}
+          sheetResults={sheetResults}
+          where={where}
+          what={what}
+          date={date}
+          time={time}
+          active={active}
+          results={results}
+          tab={tab}
+          effectiveKey={effectiveKey}
+          onSheetQueryChange={setSheetQuery}
+          onPickDestination={pickDestination}
+          onPickSearchItem={pickSearchItem}
+          onChevron={() => dispatchSheet("chevron")}
+          onTapWhere={() => dispatchSheet("tapWhere")}
+          onSetActive={setActive}
+          onActiveKey={setActiveKey}
+          onWhatChange={setWhat}
+          onWhatEnter={onWhatEnter}
+          onPick={pick}
+          onClearCity={() => setWhere("")}
+          onClearWhere={() => setWhere("")}
+          onClearWhat={() => setWhat("")}
+          onTab={setTab}
+          onDate={setDate}
+          onTime={setTime}
+          onClearDateTime={() => {
+            setDate("");
+            setTime("");
+          }}
+          onClearAll={() => {
+            setWhere("");
+            setWhat("");
+            setDate("");
+            setTime("");
+            setSheetQuery("");
+          }}
+          onSearch={() => dispatchSheet("search", go)}
+        />
+      )}
+    </>
   );
 }

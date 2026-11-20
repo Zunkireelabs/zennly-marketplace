@@ -122,10 +122,13 @@ export function SearchExperience({
     document.getElementById(`card-${activeSlug}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [activeSlug]);
 
+  // A blank field means "any", not "none" — so its place in this line says so explicitly rather
+  // than silently disappearing, which otherwise reads as an unfiltered list rather than a
+  // deliberately unrestricted one.
   const summary = [
-    query.where || "All locations",
+    query.where || "Anywhere",
     query.what,
-    query.date ? `${formatDay(query.date)}${query.time ? ` · ${query.time}` : ""}` : "",
+    query.date ? `${formatDay(query.date)}${query.time ? ` · ${query.time}` : ""}` : "Any time",
   ].filter(Boolean);
 
   const resetArea = () => {
