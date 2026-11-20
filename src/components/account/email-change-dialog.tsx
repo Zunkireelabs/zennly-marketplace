@@ -5,11 +5,10 @@ import { toast } from "sonner";
 import { auth } from "@/lib/auth";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { maskTarget, normalizeEmail } from "@/lib/auth/normalize";
+import { fieldClass } from "@/components/ui/field";
 
-const FIELD =
-  "h-11 w-full rounded-[12px] border border-border bg-card px-3.5 text-sm outline-none transition-colors duration-150 focus-visible:border-foreground/40 focus-visible:ring-2 focus-visible:ring-accent";
-
-const CODE_FIELD = `${FIELD} text-center font-mono text-2xl tracking-[0.5em]`;
+const FIELD = fieldClass();
+const CODE_FIELD = fieldClass({ code: true });
 
 const PRIMARY =
   "h-11 rounded-[var(--radius-md)] bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";

@@ -5,11 +5,11 @@ import { toast } from "sonner";
 import { auth } from "@/lib/auth";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { COUNTRIES, DEFAULT_COUNTRY, normalizeName, normalizePhone } from "@/lib/auth/normalize";
+import { fieldClass } from "@/components/ui/field";
 
 // Same visual language as login-dialog.tsx's phone field — one input pattern for phone entry
 // everywhere in the app, not a second one invented here.
-const FIELD =
-  "h-11 rounded-[12px] border border-border bg-card px-3.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+const FIELD = fieldClass();
 const GENDERS = [
   { value: "male", label: "Male" },
   { value: "female", label: "Female" },
