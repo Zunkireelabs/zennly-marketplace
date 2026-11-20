@@ -24,13 +24,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=hosting"
-      # HTTPS router
-      - "traefik.http.routers.zennly-marketplace-app-prod.rule=Host(`zennly.io`)"
+      # HTTPS router — serves both zennly.io and www.zennly.io identically
+      # (no canonical redirect between them, same pattern as edgexcrm's
+      # multi-host routers)
+      - "traefik.http.routers.zennly-marketplace-app-prod.rule=Host(`zennly.io`) || Host(`www.zennly.io`)"
       - "traefik.http.routers.zennly-marketplace-app-prod.entrypoints=websecure"
       - "traefik.http.routers.zennly-marketplace-app-prod.tls=true"
       - "traefik.http.routers.zennly-marketplace-app-prod.tls.certresolver=letsencrypt"
       # HTTP -> HTTPS redirect
-      - "traefik.http.routers.zennly-marketplace-app-prod-http.rule=Host(`zennly.io`)"
+      - "traefik.http.routers.zennly-marketplace-app-prod-http.rule=Host(`zennly.io`) || Host(`www.zennly.io`)"
       - "traefik.http.routers.zennly-marketplace-app-prod-http.entrypoints=web"
       - "traefik.http.routers.zennly-marketplace-app-prod-http.middlewares=zennly-marketplace-app-prod-redirect"
       - "traefik.http.middlewares.zennly-marketplace-app-prod-redirect.redirectscheme.scheme=https"
