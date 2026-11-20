@@ -32,6 +32,13 @@ export function SearchBar({
 }) {
   const nav = variant === "nav";
   const router = useRouter();
+  // Mobile only: the hero bar starts as a single pill and expands into the three-field card on
+  // tap. Three stacked fields plus a Search button is ~210px of a ~700px viewport, and because
+  // the bar is `sticky top-3` it carries that height down the whole page — on a phone it covered
+  // the first studio card permanently. Desktop has the width to show all three at once and keeps
+  // the open card; this state is simply ignored above `sm`, where the fields are `sm:flex`.
+  const [expanded, setExpanded] = useState(false);
+  const whereRef = useRef<HTMLInputElement>(null);
   const reduceMotion = useReducedMotion();
   const formRef = useRef<HTMLFormElement>(null);
   // Hero only: once the bar docks to the top of the viewport (sticky top-3), lift it with a deeper shadow.
@@ -76,6 +83,7 @@ export function SearchBar({
     if (time) q.set("time", time);
     if (view) q.set("view", view);
     setActive(null);
+    setExpanded(false);
     router.push(`/search${q.size ? `?${q}` : ""}`);
   };
 
@@ -111,20 +119,33 @@ export function SearchBar({
   const query = where.trim().toLowerCase();
   const matches = destinations.filter((d) => `${d.city} ${d.region}`.toLowerCase().includes(query));
 
-  // Close the destinations panel on outside click or Escape.
+  // Close the destinations panel on outside click or Escape — and on mobile collapse the bar
+  // back to its pill, since a tap outside is the only dismissal gesture it offers (there is no
+  // visible close control, and leaving it open would re-cover the page it was expanded over).
   useEffect(() => {
-    if (!active) return;
-    const onDown = (e: MouseEvent) => {
-      if (!formRef.current?.contains(e.target as Node)) setPanelOpen(false);
+    if (!active && !expanded) return;
+    const dismiss = () => {
+      setPanelOpen(false);
+      setExpanded(false);
     };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setPanelOpen(false);
+    const onDown = (e: MouseEvent) => {
+      if (!formRef.current?.contains(e.target as Node)) dismiss();
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && dismiss();
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onKey);
     };
-  }, [active]);
+  }, [active, expanded]);
+
+  // What the collapsed pill says. Echoing the current selection rather than a fixed placeholder
+  // is the point of collapsing: the bar still has to answer "what did I search for?" once it
+  // stops showing its own fields.
+  const summary = [where.trim(), what.trim(), date ? `${formatDay(date)}${time ? ` · ${time}` : ""}` : ""]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
         <motion.form
@@ -136,8 +157,37 @@ export function SearchBar({
           initial={reduceMotion || nav ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: EASE_STANDARD, delay: reduceMotion ? 0 : 0.08 }}
-          className={nav ? "mx-6 hidden min-w-0 max-w-3xl flex-1 items-center gap-0 rounded-[var(--radius-lg)] bg-card p-1 shadow-[var(--shadow-floating)] ring-1 ring-border md:flex" : `relative mx-auto -mt-14 flex w-full max-w-3xl flex-col gap-2 rounded-[var(--radius-lg)] bg-card p-3 transition-shadow duration-200 sm:-mt-16 sm:flex-row sm:items-center sm:gap-0 sm:p-2 ${stuck ? "shadow-[0_1px_2px_rgba(35,33,29,0.10),0_4px_8px_rgba(35,33,29,0.12),0_8px_16px_-4px_rgba(35,33,29,0.14),0_0_0_1px_rgba(35,33,29,0.07)]" : "shadow-[var(--shadow-floating)]"}`}
+          className={nav ? "mx-6 hidden min-w-0 max-w-3xl flex-1 items-center gap-0 rounded-[var(--radius-lg)] bg-card p-1 shadow-[var(--shadow-floating)] ring-1 ring-border md:flex" : `relative mx-auto -mt-14 w-full max-w-3xl bg-card transition-shadow duration-200 sm:-mt-16 sm:rounded-[var(--radius-lg)] sm:p-2 ${expanded ? "rounded-[var(--radius-lg)] p-3" : "rounded-[var(--radius-full)] p-1.5"} ${stuck ? "shadow-[0_1px_2px_rgba(35,33,29,0.10),0_4px_8px_rgba(35,33,29,0.12),0_8px_16px_-4px_rgba(35,33,29,0.14),0_0_0_1px_rgba(35,33,29,0.07)]" : "shadow-[var(--shadow-floating)]"}`}
         >
+          {/* The collapsed pill. `sm:hidden` rather than conditional rendering, so the three
+              fields below stay mounted at every width — unmounting them would drop whatever the
+              visitor had typed each time the bar collapsed. */}
+          {!nav && (
+            <button
+              type="button"
+              aria-expanded={expanded}
+              aria-controls="hero-search-fields"
+              onClick={() => {
+                setExpanded(true);
+                // Focus after paint: the input is display:none until `expanded` renders.
+                requestAnimationFrame(() => whereRef.current?.focus());
+              }}
+              className={`w-full items-center gap-3 px-4 py-2.5 text-left sm:hidden ${expanded ? "hidden" : "flex"}`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0 text-muted-foreground">
+                <circle cx="11" cy="11" r="6.5" />
+                <path d="m16 16 4 4" />
+              </svg>
+              <span className={`min-w-0 flex-1 truncate text-sm ${summary ? "text-foreground" : "text-muted-foreground"}`}>
+                {summary || "Search treatments or studios"}
+              </span>
+            </button>
+          )}
+
+          <div
+            id="hero-search-fields"
+            className={`w-full min-w-0 flex-1 flex-col gap-2 sm:flex sm:flex-row sm:items-center sm:gap-0 ${nav || expanded ? "flex" : "hidden"}`}
+          >
           <div className={`flex min-w-0 flex-col gap-1 rounded-[var(--radius-md)] px-3 py-1.5 transition-[flex-grow,background-color,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] sm:basis-0 ${panelOpen ? "bg-muted sm:grow-[2.6]" : active ? "opacity-60 sm:grow-[0.7]" : "sm:grow"}`}>
             <label htmlFor="hero-search-location" className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.04em] text-muted-foreground">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 21s-7-6.2-7-11a7 7 0 1 1 14 0c0 4.8-7 11-7 11Z" /><circle cx="12" cy="10" r="2.5" /></svg>
@@ -145,6 +195,7 @@ export function SearchBar({
             </label>
             <input
               id="hero-search-location"
+              ref={whereRef}
               type="text"
               autoComplete="off"
               role="combobox"
@@ -212,6 +263,7 @@ export function SearchBar({
           >
             Search
           </button>
+          </div>
 
           {active === "when" && (
             <div className="absolute left-1/2 top-full z-30 mt-2 w-[min(60rem,calc(100vw-2rem))] -translate-x-1/2 overflow-hidden rounded-[var(--radius-lg)] bg-card shadow-[var(--shadow-floating)]">
