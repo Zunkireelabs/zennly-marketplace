@@ -10,6 +10,9 @@ COPY package.json package-lock.json ./
 # the package.json/lock-only COPY above.
 COPY prisma.config.ts ./
 COPY prisma ./prisma
+# postinstall's second half (node scripts/copy-maplibre-worker.mjs) needs the
+# script itself present too - same gap as prisma/ above.
+COPY scripts ./scripts
 # npm ci requires byte-exact lockfile parity; this image's npm resolves
 # maplibre-gl's nested wasm32-wasi optional deps differently than the npm
 # version that generated the lockfile on Windows. npm install tolerates
