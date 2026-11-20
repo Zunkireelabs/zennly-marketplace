@@ -1,0 +1,42 @@
+services:
+  app:
+    container_name: zennly-marketplace-app-prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_TRACK_EVENTS: ${NEXT_PUBLIC_TRACK_EVENTS}
+    env_file:
+      - .env
+    restart: unless-stopped
+    mem_limit: 1024m
+    networks:
+      - hosting
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=hosting"
+      # HTTPS router
+      - "traefik.http.routers.zennly-marketplace-app-prod.rule=Host(`zennly.io`)"
+      - "traefik.http.routers.zennly-marketplace-app-prod.entrypoints=websecure"
+      - "traefik.http.routers.zennly-marketplace-app-prod.tls=true"
+      - "traefik.http.routers.zennly-marketplace-app-prod.tls.certresolver=letsencrypt"
+      # HTTP -> HTTPS redirect
+      - "traefik.http.routers.zennly-marketplace-app-prod-http.rule=Host(`zennly.io`)"
+      - "traefik.http.routers.zennly-marketplace-app-prod-http.entrypoints=web"
+      - "traefik.http.routers.zennly-marketplace-app-prod-http.middlewares=zennly-marketplace-app-prod-redirect"
+      - "traefik.http.middlewares.zennly-marketplace-app-prod-redirect.redirectscheme.scheme=https"
+      # Service port
+      - "traefik.http.services.zennly-marketplace-app-prod.loadbalancer.server.port=3000"
+
+networks:
+  hosting:
+    external: true
