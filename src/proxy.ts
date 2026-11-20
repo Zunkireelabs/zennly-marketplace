@@ -56,10 +56,38 @@ function handleBusinessesPath(request: NextRequest): NextResponse | null {
   });
 }
 
+/**
+ * An OAuth code that lands on the site root instead of /auth/callback, forwarded to the route that
+ * knows how to spend it.
+ *
+ * Supabase only uses the `redirect_to` we send if it matches the dashboard's Redirect URLs; when
+ * it doesn't, it silently substitutes the project's Site URL — the bare origin, callback path
+ * discarded — and the one-time code arrives at `/?code=…`, where nothing was listening. The
+ * account page then showed a signed-out visitor holding a valid code.
+ *
+ * Verified against `auth.flow_state.referrer`, which records the return address GoTrue actually
+ * accepted: every row for this project reads the Site URL, including attempts whose `redirect_to`
+ * exactly equalled an allow-list entry. So the substitution is not an edge case here, it is the
+ * normal path, and the allow list cannot be relied on to prevent it.
+ *
+ * Cheap to be right about: one `has("code")` check on one pathname, and it makes sign-in work
+ * whichever address Supabase picks rather than requiring the dashboard to agree with the code.
+ */
+function handleRootOAuthCode(request: NextRequest): NextResponse | null {
+  const { pathname, searchParams } = request.nextUrl;
+  if (pathname !== "/" || !searchParams.has("code")) return null;
+  const url = request.nextUrl.clone();
+  url.pathname = "/auth/callback";
+  return NextResponse.redirect(url);
+}
+
 /** Keeps the Supabase session fresh: refreshes expiring tokens and writes them back as httpOnly cookies. */
 export async function proxy(request: NextRequest) {
   const businessesResponse = handleBusinessesPath(request);
   if (businessesResponse) return businessesResponse;
+
+  const oauthResponse = handleRootOAuthCode(request);
+  if (oauthResponse) return oauthResponse;
 
   const config = supabaseConfig();
   if (!config) return NextResponse.next();
