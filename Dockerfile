@@ -5,7 +5,11 @@ FROM node:22-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# npm ci requires byte-exact lockfile parity; this image's npm resolves
+# maplibre-gl's nested wasm32-wasi optional deps differently than the npm
+# version that generated the lockfile on Windows. npm install tolerates
+# that without actually changing the lockfile.
+RUN npm install
 
 # Build
 FROM base AS builder

@@ -20,7 +20,12 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # npm ci requires byte-exact lockfile parity; the ubuntu-latest runner's
+      # bundled npm resolves maplibre-gl's nested wasm32-wasi optional deps
+      # differently than the npm version that generated this lockfile on
+      # Windows. npm install tolerates that without changing the lockfile
+      # (confirmed elsewhere on this stack via `npm install --dry-run`).
+      - run: npm install
 
       - run: npx eslint --max-warnings 0
 
