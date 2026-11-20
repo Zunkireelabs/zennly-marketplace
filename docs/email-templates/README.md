@@ -38,3 +38,19 @@ will then wait forever for something that never arrives, with no error anywhere.
 
 The login ("Magic link or OTP") template was switched to `{{ .Token }}` long ago. Change email
 address was not, until 2026-11-20.
+
+## They must all look the same
+
+A customer cannot tell which template GoTrue picked for them, and shouldn't be able to: whether
+their address was new or returning is our implementation detail. `confirm-sign-up.html` shipped
+on 2026-11-20 in a plainer design than the live "Magic link or OTP" template, and the mismatch was
+obvious the moment a sign-up code and a login code sat in the same inbox. It was rebuilt the same
+day to match.
+
+The shared design, for anything added later: cream `#ede9e0` ground · white card, 18px radius ·
+a 6px `#5b6e56` rule across the top · serif wordmark and heading (Instrument Serif, falling back
+to Georgia) · the code in a `#f1f4ef` panel at 38px with 12px letter-spacing · a `#e6e1d6` hairline
+above the "didn't try to sign in?" line · the tagline outside the card.
+
+**"Magic link or OTP" has no source file here** — it predates this directory and exists only in
+the dashboard. Paste it in if you ever edit it.
