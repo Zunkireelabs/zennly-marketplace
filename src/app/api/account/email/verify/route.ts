@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { getAuthUser, getSessionUser } from "@/lib/account/server";
 import { prisma } from "@/lib/prisma";
+import { syncEmailToStudios } from "@/lib/account/contact-sync";
 import { normalizeCode, normalizeEmail } from "@/lib/auth/normalize";
 import { fail, isSameOriginJson, noStore, notConfigured, ok } from "@/lib/supabase/api";
 import { createSupabaseServer } from "@/lib/supabase/server";
@@ -79,6 +80,15 @@ export async function POST(request: NextRequest) {
         // alongside stored factors, so history still resolves under the new address. Losing the
         // row only costs the OLD address's history until the next successful write.
       });
+  }
+
+  // Tell the studios, so staff stop writing to an address the customer no longer reads.
+  // `sessionUser.email` was read at the top of this handler, BEFORE verifyOtp completed the
+  // change, so it is still the old address here — `data.user.email` is the new one. Best-effort
+  // by design: see syncEmailToStudios' doc comment for why a failure here can't cost the customer
+  // anything (the history fan-out queries every verified factor, old addresses included).
+  if (sessionUser.email && confirmed) {
+    await syncEmailToStudios(sessionUser.email, confirmed).catch(() => {});
   }
 
   // Sign out everywhere else. This is the point of requiring the old address's code at all: the
