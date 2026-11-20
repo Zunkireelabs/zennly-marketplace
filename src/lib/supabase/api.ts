@@ -31,7 +31,35 @@ export function isSameOriginJson(request: NextRequest): boolean {
  */
 export function isSameOrigin(request: NextRequest): boolean {
   const origin = request.headers.get("origin");
-  return Boolean(origin) && origin === request.nextUrl.origin;
+  return Boolean(origin) && origin === requestOrigin(request);
+}
+
+/**
+ * The origin the BROWSER addressed, derived from Host — not `request.nextUrl.origin`, which in
+ * dev reports the hostname the server was started with regardless of how the request arrived.
+ * Opening the app on a LAN IP made every write route 403: the browser sent
+ * `Origin: http://192.168.1.68:3001`, nextUrl.origin said `http://localhost:3001`, and the CSRF
+ * guard below saw a cross-origin request. Sign-in, sign-out, saving, profile edits and the studio
+ * lookup were all refused — the entire write surface, on any host but the one `next dev` booted
+ * with.
+ *
+ * Trusting Host here is correct for a CSRF check specifically, and is what the check is actually
+ * asking: did the browser send this request to the same place it says it came from? `Origin` is
+ * set by the browser and unforgeable from page JS, so a cross-site page cannot make the two agree.
+ * Spoofing both with a direct HTTP client proves nothing — that request carries no victim cookies,
+ * which is the whole point of CSRF. (Host-header *poisoning* matters when a value is reflected
+ * into a link, a password-reset URL or a cache key. Nothing here does that; the value is compared
+ * and discarded.)
+ *
+ * `x-forwarded-host` takes precedence because Vercel and any reverse proxy rewrite `host` to the
+ * internal upstream while preserving the public hostname there — without it this check breaks in
+ * production the moment it's deployed behind one.
+ */
+export function requestOrigin(request: NextRequest): string {
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  if (!host) return request.nextUrl.origin;
+  const proto = request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
+  return `${proto}://${host}`;
 }
 
 /**

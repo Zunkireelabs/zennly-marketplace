@@ -133,7 +133,22 @@ const bookingProxyRewrite = bookingEngineProxyTarget
   ? [{ source: "/book/:path*", destination: `${bookingEngineProxyTarget}/book/:path*` }]
   : [];
 
+// LAN testing. Next blocks cross-origin requests to dev-only assets by default, and the dev
+// server allows only localhost, its subdomains, and the hostname it was started with — so opening
+// http://192.168.1.68:3001 from a phone on the same wifi got the HTML but no working dev client:
+// /_next/hmr was refused, the client runtime never booted, nothing hydrated, and every
+// framer-motion element stayed at the `opacity:0` the SERVER rendered. The page looked blank
+// above the fold while unanimated sections further down showed normally — which reads as a broken
+// page, not as a blocked request. The only trace is a warning in the dev server's own stdout.
+//
+// A whole-subnet wildcard rather than this machine's current address: `*` matches exactly one
+// hostname label, so this covers 192.168.1.1–254 and survives the router handing this Mac a
+// different lease mid-session — the failure above is far too indirect to want to debug twice.
+//
+// Dev only — `next build` ignores this key entirely, so it cannot widen anything in production.
+// Private RFC-1918 space, reachable only from the same wifi.
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["192.168.1.*"],
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
