@@ -35,19 +35,42 @@ export default function MembershipsPage() {
         loading ? (
           <p className="mt-8 text-sm text-muted-foreground">Loading your memberships…</p>
         ) : null
-      ) : connectedStudios.length === 0 ? (
-        <EmptyPanel
-          title="No connected studios yet"
-          body="Once a studio you've booked with connects to Zennly, your membership and packages there will show up here."
-        />
       ) : (
-        <ul className="mt-8 flex flex-col gap-8">
-          {connectedStudios.map((studio) => (
-            <li key={studio.slug}>
-              <StudioHoldings name={studio.name} result={results[studio.slug]} />
-            </li>
-          ))}
-        </ul>
+        (() => {
+          // Only studios that actually hold something get a row. Listing every connected studio
+          // just to say "nothing here" turns a page about what you hold into a directory of what
+          // you don't — and it gets worse with every studio added. A studio we couldn't REACH is
+          // different and still shown: that is us failing, not an absence.
+          const withHoldings = connectedStudios.filter((s) => {
+            const r = results[s.slug];
+            return r?.reachable && (r.membership || r.packages.length > 0 || r.vouchers.length > 0);
+          });
+          const unreachable = connectedStudios.filter((s) => !results[s.slug]?.reachable);
+
+          if (withHoldings.length === 0 && unreachable.length === 0) {
+            return (
+              <EmptyPanel
+                title="Nothing here yet"
+                body="Memberships, packages and vouchers you hold at a studio will show up here."
+              />
+            );
+          }
+
+          return (
+            <ul className="mt-8 flex flex-col gap-8">
+              {withHoldings.map((studio) => (
+                <li key={studio.slug}>
+                  <StudioHoldings name={studio.name} result={results[studio.slug]} />
+                </li>
+              ))}
+              {unreachable.map((studio) => (
+                <li key={studio.slug}>
+                  <StudioHoldings name={studio.name} result={results[studio.slug]} />
+                </li>
+              ))}
+            </ul>
+          );
+        })()
       )}
     </section>
   );
@@ -66,46 +89,40 @@ function StudioHoldings({ name, result }: { name: string; result: LookupResult |
     );
   }
 
+  // A studio with nothing never reaches here — the caller filters those out entirely rather than
+  // rendering a row that only says "nothing". This component now always has something to show.
   const membership = result.membership ? membershipDetail(result.membership) : null;
   const packages = result.packages.map(packageView);
   const vouchers = result.vouchers.map(voucherView);
-  const nothing = !membership && packages.length === 0 && vouchers.length === 0;
 
   return (
     <div>
       <StudioName name={name} visits={result.totalVisits} />
 
-      {/* Naming the studio in the empty line matters: "No membership at Nuad Thai Spa" reads as
-          "we checked", where a bare "Nothing here" reads as "this section is broken" — and with
-          two studios and a young customer base, empty is the normal case, not the edge one. */}
-      {nothing ? (
-        <p className="mt-1 text-sm text-muted-foreground">No membership, packages or vouchers at {name} yet.</p>
-      ) : (
-        <div className="mt-3 flex flex-col gap-3">
-          {membership && (
-            <Card tone="primary">
-              <CardHead title={membership.tier} status={membership.status} />
-              <Rows rows={membership.rows} />
-            </Card>
-          )}
+      <div className="mt-3 flex flex-col gap-3">
+        {membership && (
+          <Card tone="primary">
+            <CardHead title={membership.tier} status={membership.status} />
+            <Rows rows={membership.rows} />
+          </Card>
+        )}
 
-          {packages.map((p, i) => (
-            <Card key={p.rows.find((r) => r.label === "Code")?.value ?? i}>
-              <CardHead title={p.name} status={p.status} />
-              {p.sessions && <p className="mt-1 text-sm font-medium text-foreground">{p.sessions}</p>}
-              <Rows rows={p.rows} />
-            </Card>
-          ))}
+        {packages.map((p, i) => (
+          <Card key={p.rows.find((r) => r.label === "Code")?.value ?? i}>
+            <CardHead title={p.name} status={p.status} />
+            {p.sessions && <p className="mt-1 text-sm font-medium text-foreground">{p.sessions}</p>}
+            <Rows rows={p.rows} />
+          </Card>
+        ))}
 
-          {vouchers.map((v, i) => (
-            <Card key={v.code === "Voucher" ? i : v.code}>
-              <CardHead title={`Voucher ${v.code}`} />
-              {v.remaining && <p className="mt-1 text-sm font-medium text-foreground">{v.remaining} remaining</p>}
-              <Rows rows={v.rows} />
-            </Card>
-          ))}
-        </div>
-      )}
+        {vouchers.map((v, i) => (
+          <Card key={v.code === "Voucher" ? i : v.code}>
+            <CardHead title={`Voucher ${v.code}`} />
+            {v.remaining && <p className="mt-1 text-sm font-medium text-foreground">{v.remaining} remaining</p>}
+            <Rows rows={v.rows} />
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

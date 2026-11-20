@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/auth-provider";
 import type { Provider } from "@/lib/providers";
@@ -15,6 +17,9 @@ import { bookingLine, membershipView, type LookupResult } from "@/lib/account/st
  * The rendering rules (field-name matching, since book-spa's response shape isn't frozen yet)
  * live in src/lib/account/studio-lookup.ts, shared with the cross-studio profile page.
  */
+
+/** Enough to say "you have been here before" without becoming a history page. */
+const VISIT_PREVIEW_COUNT = 3;
 
 export function StudioHistory({ provider }: { provider: Provider }) {
   const { user, ready } = useAuth();
@@ -48,7 +53,13 @@ export function StudioHistory({ provider }: { provider: Provider }) {
   if (!connected || !ready || !user || !result) return null;
 
   const membership = result.found && result.membership ? membershipView(result.membership) : null;
-  const bookings = result.found ? [...result.bookings, ...result.packages] : [];
+  const allBookings = result.found ? result.bookings : [];
+  // This is a studio page, not an account page: the job here is to remind a returning customer
+  // they've been before, not to be their booking history. A regular with forty visits pushed the
+  // studio's own content off the screen entirely. /account/appointments is where the full list
+  // lives, across every studio, so link there rather than growing this.
+  const bookings = allBookings.slice(0, VISIT_PREVIEW_COUNT);
+  const hiddenCount = allBookings.length - bookings.length;
 
   return (
     <section id="your-visits" className="scroll-mt-20 pt-12">
@@ -88,6 +99,15 @@ export function StudioHistory({ provider }: { provider: Provider }) {
             );
           })}
         </ul>
+      )}
+
+      {hiddenCount > 0 && (
+        <Link
+          href="/account/appointments"
+          className="mt-3 inline-block text-sm font-medium text-primary underline-offset-2 hover:underline"
+        >
+          View all {allBookings.length} visits
+        </Link>
       )}
 
       {!membership && bookings.length === 0 && (
