@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ensureProfile } from "@/lib/account/server";
+import { NEXT_COOKIE } from "@/app/api/auth/google/route";
 import { requestOrigin, safeNext } from "@/lib/supabase/api";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
@@ -13,12 +14,22 @@ export async function GET(request: NextRequest) {
   // CSRF guard in lib/supabase/api.ts; missed here the first time because this destructures
   // `origin` off nextUrl rather than spelling out `nextUrl.origin`.
   const origin = requestOrigin(request);
-  const next = safeNext(searchParams.get("next"));
+  // Set before the trip to Google rather than passed through the callback URL — see NEXT_COOKIE.
+  // `safeNext` again on the way out: a cookie is as untrusted as a query param.
+  const next = safeNext(request.cookies.get(NEXT_COOKIE)?.value ?? null);
   const code = searchParams.get("code");
   const supabase = await createSupabaseServer();
   if (!code || !supabase) return NextResponse.redirect(new URL("/?login=failed", origin));
 
   const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) {
+    // Worth a line in the log: from the outside this is indistinguishable from "no code at all",
+    // and the two have completely different causes (a stale/replayed code vs a misrouted return).
+    console.error("[auth/callback] exchangeCodeForSession failed:", error.status, error.code, error.message);
+  }
   if (data?.user) await ensureProfile(data.user);
-  return NextResponse.redirect(new URL(error ? "/?login=failed" : next, origin));
+
+  const response = NextResponse.redirect(new URL(error ? "/?login=failed" : next, origin));
+  response.cookies.delete(NEXT_COOKIE);
+  return response;
 }
