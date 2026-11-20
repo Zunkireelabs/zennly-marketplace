@@ -13,8 +13,21 @@ const MAX_AVATAR_UPLOAD_BYTES = 5 * 1024 * 1024;
  * what's showing is an upload or the Google default, by design: "Remove photo" always just means
  * "clear my upload, fall back to the default (or the initial letter if there is none)", which is
  * safely idempotent to call even when there's nothing to clear.
+ *
+ * `editing` comes from the page, which also drives ProfileEditCard. Change/Remove are hidden until
+ * the customer actually asks to edit: a profile page is something you mostly visit to *read*, and
+ * a permanently-live "Remove" next to your own photo is an accident waiting to happen. The circle
+ * itself always renders, so the header doesn't reflow when the form opens.
  */
-export function AvatarEditor({ avatar, initial }: { avatar: string | undefined; initial: string }) {
+export function AvatarEditor({
+  avatar,
+  initial,
+  editing,
+}: {
+  avatar: string | undefined;
+  initial: string;
+  editing: boolean;
+}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,6 +72,7 @@ export function AvatarEditor({ avatar, initial }: { avatar: string | undefined; 
       <div className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-full)] bg-primary text-xl font-semibold text-primary-foreground">
         {avatar ? <Image src={avatar} alt="" fill sizes="56px" className="object-cover" /> : initial}
       </div>
+      {!editing ? null : (
       <div className="flex items-center gap-2 text-xs">
         <label className="cursor-pointer font-medium text-foreground underline-offset-2 hover:underline">
           {busy ? "Working…" : "Change"}
@@ -83,7 +97,8 @@ export function AvatarEditor({ avatar, initial }: { avatar: string | undefined; 
           </>
         )}
       </div>
-      {error && <p className="max-w-[9rem] text-xs text-error">{error}</p>}
+      )}
+      {editing && error && <p className="max-w-[9rem] text-xs text-error">{error}</p>}
     </div>
   );
 }

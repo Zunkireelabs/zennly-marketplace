@@ -31,9 +31,13 @@ function formatDob(dob: string): string {
  * for context but never editable here — it's the Supabase login identity, not a profile field
  * (see the PATCH handler's header comment); it never appears in the edit form or the save diff.
  */
-export function ProfileEditCard() {
+/**
+ * `editing` is owned by the page rather than this component, because the avatar sits in the page
+ * header — outside this card — and its Change/Remove controls have to appear and disappear with
+ * the form. Two independent edit states would let the photo be editable while the details are not.
+ */
+export function ProfileEditCard({ editing, setEditing }: { editing: boolean; setEditing: (v: boolean) => void }) {
   const { user } = useAuth();
-  const [editing, setEditing] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [dial, setDial] = useState(DEFAULT_COUNTRY.code);
