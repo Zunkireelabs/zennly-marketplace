@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { maskTarget, normalizeEmail } from "@/lib/auth/normalize";
 import { fieldClass } from "@/components/ui/field";
+import { nextStep, type Step } from "@/lib/account/email-change-steps";
 
 const FIELD = fieldClass();
 const CODE_FIELD = fieldClass({ code: true });
@@ -16,27 +17,29 @@ const PRIMARY =
 const SECONDARY =
   "h-11 rounded-[var(--radius-md)] border border-border px-5 text-sm font-semibold transition-colors duration-150 hover:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
-type Leg = "current" | "new";
-
 /**
  * Changing the sign-in email. Two codes, one to each address, because these customers have no
  * password — there is nothing to re-authenticate with, so a code to the address already on file is
  * what stands in for it. ("Secure email change" is ON for this project; the server routes assume
  * it.)
  *
- * ## Why this is two inputs and not a wizard
+ * ## Why this is one input at a time, in order
  *
- * The two codes arrive in two different inboxes, and nothing says the customer reads them in the
- * order we'd prefer. Forcing an order would strand anyone whose new-address mail arrives first.
- * Both are on screen, either can be submitted, and each disappears as it's accepted.
+ * Both codes are sent the instant the change is requested — Supabase offers no way to hold the
+ * second one back. But the owner wants the *asking* to run turn by turn: confirm the old address
+ * first, then the new one. The old address's code is the real proof of ownership, so asking for
+ * it first and showing the new-address box only after is purely presentational — `nextStep()` in
+ * `email-change-steps.ts` is what actually enforces the order.
  *
  * ## What cannot be known, and what the UI does about it
  *
  * GoTrue exposes no per-leg progress: `auth.users.new_email` says a change is pending, but NOT
  * which of the two codes is already spent. So after a reload (or on another device) we can honestly
- * say "a change to this address is pending" and nothing more — hence `accepted` is local state that
- * starts empty, and **Start over** is the real recovery path. It re-requests the change, which
- * issues two fresh codes and invalidates the outstanding pair.
+ * say "a change to this address is pending" and nothing more — hence `step` is local state that
+ * resets to `current` on reload, with a quiet escape link to skip to step 2 for anyone who already
+ * entered the first code before reloading. **Start over** stays the recovery path for everything
+ * else: it re-requests the change, which issues two fresh codes and invalidates the outstanding
+ * pair.
  *
  * Deliberately NOT stored in localStorage: it would be absent on another device and stale after a
  * code is spent elsewhere, i.e. it would claim to know more than we do.
@@ -49,8 +52,8 @@ export function EmailChangeDialog() {
   const [newEmail, setNewEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Which legs this tab has watched succeed. Empty after a reload, by design — see above.
-  const [accepted, setAccepted] = useState<Leg[]>([]);
+  // Resets to "current" on reload, by design — see above.
+  const [step, setStep] = useState<Step>("current");
 
   const currentMasked = user?.email ? maskTarget("email", user.email) : "your current address";
   const newMasked = pending ? maskTarget("email", pending) : newEmail ? maskTarget("email", newEmail) : "";
@@ -74,7 +77,7 @@ export function EmailChangeDialog() {
         setError(json?.error?.message ?? "We couldn't start that change. Try again.");
         return false;
       }
-      setAccepted([]);
+      setStep("current");
       await auth.refresh();
       if (!silent) toast.success("Codes sent — check both inboxes");
       return true;
@@ -86,7 +89,7 @@ export function EmailChangeDialog() {
     }
   }
 
-  async function verify(leg: Leg, address: string, code: string) {
+  async function verify(address: string, code: string) {
     setBusy(true);
     setError(null);
     try {
@@ -96,22 +99,22 @@ export function EmailChangeDialog() {
         body: JSON.stringify({ email: address, code }),
       });
       const json = await res.json().catch(() => null);
-      if (!res.ok || !json?.ok) {
-        setError(json?.error?.message ?? "That code is wrong or has expired.");
+      const outcome = res.ok && json?.ok ? { ok: true as const, complete: Boolean(json.data?.complete) } : { ok: false as const };
+      const result = nextStep(step, outcome);
+
+      if (!outcome.ok) {
+        setError(json?.error?.message ?? result.error ?? "That code is wrong or has expired.");
         return;
       }
 
-      // The first of the two succeeds with an empty payload — success carrying nothing. Treating
-      // it as completion is the single easiest mistake here, and it would tell the customer their
-      // email changed when it hasn't. See the verify route's doc comment.
-      if (!json.data?.complete) {
-        setAccepted((prev) => (prev.includes(leg) ? prev : [...prev, leg]));
-        return;
-      }
+      setStep(result.step);
+      setError(result.error ?? null);
+
+      if (result.step !== "done") return;
 
       await auth.refresh();
       setOpen(false);
-      setAccepted([]);
+      setStep("current");
       setNewEmail("");
       toast.success("Email changed. You've been signed out on your other devices.");
     } catch {
@@ -177,32 +180,46 @@ export function EmailChangeDialog() {
     );
   }
 
-  // ---- Two codes outstanding ----
-  const legs: { leg: Leg; address: string; label: string; hint: string }[] = [
-    { leg: "current", address: user?.email ?? "", label: "Code from your current address", hint: currentMasked },
-    { leg: "new", address: pending, label: "Code from your new address", hint: newMasked },
-  ];
+  // ---- One code at a time: current address first, then the new one ----
+  const onCurrent = step !== "new";
+  const address = onCurrent ? user?.email ?? "" : pending;
 
   return (
     <div className="mt-4 flex flex-col gap-4">
       <div className="rounded-[var(--radius-md)] border border-border bg-muted/60 px-4 py-3 text-sm">
-        <p className="font-medium text-foreground">Change to {newMasked} is pending</p>
-        <p className="mt-1 text-muted-foreground">
-          Your email hasn&rsquo;t changed yet. Enter the code from each inbox — in either order.
+        <p className="font-medium text-foreground">
+          {onCurrent ? "Step 1 of 2" : "Step 2 of 2"}
         </p>
+        <p className="mt-1 text-muted-foreground">
+          {onCurrent
+            ? `We've sent a code to each address. Start with the one sent to ${currentMasked} — we'll ask for the other next.`
+            : `Now enter the code sent to ${newMasked}.`}
+        </p>
+        <p className="mt-1 text-muted-foreground">Your email hasn&rsquo;t changed yet.</p>
       </div>
 
-      {legs.map(({ leg, address, label, hint }) => (
-        <CodeInput
-          key={leg}
-          id={`code-${leg}`}
-          label={label}
-          hint={hint}
-          done={accepted.includes(leg)}
-          busy={busy}
-          onSubmit={(code) => void verify(leg, address, code)}
-        />
-      ))}
+      <CodeInput
+        key={step}
+        id={`code-${step}`}
+        label={onCurrent ? "Code from your current address" : "Code from your new address"}
+        hint={onCurrent ? currentMasked : newMasked}
+        busy={busy}
+        onSubmit={(code) => void verify(address, code)}
+      />
+
+      {onCurrent && (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => {
+            setStep("new");
+            setError(null);
+          }}
+          className="self-start text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:underline"
+        >
+          Already entered this one? &rarr;
+        </button>
+      )}
 
       {error && <p className="text-sm text-error">{error}</p>}
 
@@ -220,26 +237,16 @@ function CodeInput({
   id,
   label,
   hint,
-  done,
   busy,
   onSubmit,
 }: {
   id: string;
   label: string;
   hint: string;
-  done: boolean;
   busy: boolean;
   onSubmit: (code: string) => void;
 }) {
   const [code, setCode] = useState("");
-
-  if (done) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        <span aria-hidden>✓</span> {label} — accepted. Waiting on the other one.
-      </p>
-    );
-  }
 
   return (
     <form
