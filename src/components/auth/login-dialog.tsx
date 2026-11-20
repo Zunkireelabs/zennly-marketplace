@@ -432,7 +432,7 @@ function LoginForm({
                 }
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "login-error" : undefined}
-                className={`${FIELD} text-center font-mono text-2xl tracking-[0.5em]`}
+                className={fieldClass({ size: "lg", code: true })}
               />
             </div>
 
