@@ -13,7 +13,22 @@ the dashboard. If you change the template there, change it here.
 
 | File | Dashboard location |
 |---|---|
+| `confirm-sign-up.html` | Authentication → Emails → Templates → Confirm sign up |
 | `change-email-address.html` | Authentication → Emails → Templates → Change email address |
+
+## Signing in and signing up use DIFFERENT templates
+
+`/api/auth/email` calls `signInWithOtp({ shouldCreateUser: true })`, so there is one form for both
+— but GoTrue picks the template by whether the address already has an account:
+
+| Address | Template used |
+|---|---|
+| Already has an account | **Magic link or OTP** |
+| Brand new | **Confirm sign up** |
+
+That is how the sign-up template stayed on Supabase's link-sending default long after login was
+switched to codes: every existing customer worked, and nobody tested a new address. If you change
+one, change the other.
 
 ## The one thing to get right
 
