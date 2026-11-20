@@ -59,7 +59,7 @@ export default function AppointmentsPage() {
       ) : (
         <>
           {/* Partial outage: some studios answered, some didn't. Saying so matters — otherwise a
-              customer whose Sbal history is missing concludes it was deleted. */}
+              customer whose Sami's Brow and Lashes history is missing concludes it was deleted. */}
           {anyUnreachable && rows.length > 0 && (
             <p className="mt-6 text-sm text-muted-foreground">
               Some studios couldn&rsquo;t be reached, so this list may be incomplete.
