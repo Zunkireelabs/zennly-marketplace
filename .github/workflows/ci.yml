@@ -46,5 +46,9 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PROD_NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_SITE_URL: https://${{ vars.PROD_DOMAIN }}
           NEXT_PUBLIC_TRACK_EVENTS: ${{ vars.PROD_NEXT_PUBLIC_TRACK_EVENTS }}
-          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.PROD_DIRECT_URL }}
+          # Deliberately no DATABASE_URL/DIRECT_URL: src/lib/prisma.ts treats an
+          # unset DATABASE_URL as "build without DB access", falling back to
+          # seed data for static generation - the same behavior the Dockerfile
+          # build on the VPS gets (DB vars are runtime-only there, not build
+          # ARGs). CI shouldn't need prod DB credentials just to prove the app
+          # builds.

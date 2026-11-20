@@ -36,8 +36,8 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PROD_NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.PROD_DOMAIN }}
           NEXT_PUBLIC_TRACK_EVENTS: ${{ vars.PROD_NEXT_PUBLIC_TRACK_EVENTS }}
-          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.PROD_DIRECT_URL }}
+          # See ci.yml - no DB vars here either, matching the Dockerfile build
+          # on the VPS (DB access is runtime-only, via .env, not a build ARG).
 
   deploy:
     name: Deploy to Production
