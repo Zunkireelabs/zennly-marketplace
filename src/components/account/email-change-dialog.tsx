@@ -150,7 +150,7 @@ export function EmailChangeDialog() {
           autoFocus
           value={newEmail}
           onChange={(e) => setNewEmail(e.target.value)}
-          className={`${FIELD} max-w-sm`}
+          className={`${FIELD} w-full max-w-sm`}
         />
         <p className="text-sm text-muted-foreground">
           We&rsquo;ll send a code to {currentMasked} and one to the new address. You&rsquo;ll need
@@ -263,7 +263,7 @@ function CodeInput({
           pattern="[0-9]*"
           value={code}
           onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-          className={`${CODE_FIELD} max-w-[13rem]`}
+          className={`${CODE_FIELD} w-[13rem]`}
         />
         <button type="submit" disabled={busy || code.length !== 6} className={PRIMARY}>
           {busy ? "Checking…" : "Verify"}
