@@ -1,0 +1,92 @@
+<!--
+  Supabase Auth → Emails → Templates → "Change email address"
+  Project: fninbtezzrzsmszorfgt (zennly-marketplace)
+
+  Paste the markup below (everything after this comment) into the template's Body field.
+
+  WHY THIS FILE EXISTS: Supabase email templates live only in the dashboard. They are not in any
+  migration, they do not travel with a database restore, and they must be set per project — so a
+  staging/production split means setting them twice, by hand, with nothing to diff against. This
+  project has already been bitten four times by dashboard-only configuration (migrations 013/337/
+  338, the untracked pin-login Edge Function). Keeping the source here makes the template
+  reviewable, re-pasteable, and visible to anyone wondering why customers get a code.
+
+  WHAT CHANGED FROM SUPABASE'S DEFAULT, and why it matters:
+    - {{ .ConfirmationURL }} (a clickable link) → {{ .Token }} (a 6-digit code).
+      Matching the login flow is the lesser reason. The real one: the confirmation link carries a
+      PKCE verifier bound to the browser that STARTED the change. A customer who begins on a
+      laptop and taps the link on their phone gets an error with no explanation. A code works from
+      any device, which is how people actually read email.
+
+  TWO EMAILS, ONE TEMPLATE: with "Secure email change" ON (it is), GoTrue sends this template to
+  BOTH the old and the new address, each with its own {{ .Token }}. The customer receives two
+  near-identical messages carrying different numbers. That is why the body names the address being
+  confirmed via {{ .NewEmail }}, and why the dialog must label which inbox each input belongs to.
+
+  EMAIL-CLIENT CONSTRAINTS this markup respects: table layout (not flexbox/grid), inline styles
+  only (no <style> block, which Gmail strips), no web fonts (Outfit won't load — the stack falls
+  back to system sans), no external images (nothing to block or fail), and a max-width that
+  survives a phone.
+
+  Brand tokens copied from src/app/globals.css — keep in sync if those change:
+    background #fefdfb · foreground #23211d · muted-foreground #6b6255
+    border #e6e1d6 · card #ffffff · primary #5b6e56 · radius-lg 18px · radius-md 12px
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fefdfb;margin:0;padding:32px 16px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+
+        <!-- Wordmark. Text, not an image: images are blocked by default in most clients, and a
+             blocked logo looks broken where a styled word never does. -->
+        <tr>
+          <td style="padding-bottom:24px;">
+            <span style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:600;color:#5b6e56;letter-spacing:-0.01em;">zennly</span>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color:#ffffff;border:1px solid #e6e1d6;border-radius:18px;padding:32px;">
+
+            <h1 style="margin:0 0 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:20px;line-height:1.3;font-weight:600;color:#23211d;">
+              Confirm your new email address
+            </h1>
+
+            <p style="margin:0 0 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#6b6255;">
+              Enter this code in Zennly to confirm <strong style="color:#23211d;">{{ .NewEmail }}</strong> as your new email address.
+            </p>
+
+            <!-- The code. Sage-tinted panel rather than a plain line: it is the one thing the
+                 reader needs, and on a phone it has to be findable without reading the sentence. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" style="background-color:#f4f6f3;border:1px solid #e6e1d6;border-radius:12px;padding:20px 12px;">
+                  <span style="font-family:'SF Mono',SFMono-Regular,Menlo,Consolas,'Courier New',monospace;font-size:30px;line-height:1;font-weight:600;letter-spacing:8px;color:#23211d;">{{ .Token }}</span>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:24px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#6b6255;">
+              We&rsquo;ve sent a code to your current address too — enter both to finish the change.
+            </p>
+
+            <p style="margin:12px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#6b6255;">
+              Didn&rsquo;t ask for this? Ignore this email — nothing will change, and your current
+              address keeps working.
+            </p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding-top:20px;">
+            <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#6b6255;">
+              Zennly — a calmer way to discover and book wellness &amp; self-care.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
