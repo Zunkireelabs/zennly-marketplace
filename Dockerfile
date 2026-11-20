@@ -5,6 +5,11 @@ FROM node:22-alpine AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
+# prisma.config.ts + prisma/schema.prisma must exist before npm install runs,
+# since postinstall (prisma generate) needs them - they aren't copied yet by
+# the package.json/lock-only COPY above.
+COPY prisma.config.ts ./
+COPY prisma ./prisma
 # npm ci requires byte-exact lockfile parity; this image's npm resolves
 # maplibre-gl's nested wasm32-wasi optional deps differently than the npm
 # version that generated the lockfile on Windows. npm install tolerates
@@ -16,6 +21,12 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# /src/generated/prisma and /public/maplibre/ are both gitignored - generated
+# by deps' postinstall (prisma generate + copy-maplibre-worker.mjs) - and
+# live outside node_modules, so the COPYs above don't bring them. Without
+# these, @/generated/prisma/client fails to resolve during the build below.
+COPY --from=deps /app/src/generated ./src/generated
+COPY --from=deps /app/public/maplibre ./public/maplibre
 
 # NEXT_PUBLIC_* vars are inlined into the client bundle at build time, not read
 # from the runtime environment, so they must arrive as build args.
