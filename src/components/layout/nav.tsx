@@ -23,6 +23,14 @@ const MENU_LINKS = [
   { label: "Saved", href: "/saved" },
 ];
 
+// Menu rows were 36px tall with a 4px gap. That is comfortable with a mouse and too small on a
+// phone — below the ~44px both Apple and Android publish as the minimum touch target — and the
+// row directly under "Profile" is "Log out". A tap aimed at Profile that drifts a few pixels low
+// signs you out instead, which is exactly what it looked like from the server: no /account
+// request at all, then a sign-out. `min-h-11` is 44px on touch; desktop keeps the compact row.
+const MENU_ITEM =
+  "flex min-h-11 items-center rounded-[var(--radius-sm)] px-3 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted sm:min-h-9";
+
 /**
  * `overlay` floats transparent with white text over the homepage hero. `solid` sits in normal
  * flow with dark text, for pages that start on the light page background.
@@ -119,7 +127,7 @@ export function Nav({
                   key={link.label}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-[var(--radius-sm)] px-3 py-2 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted"
+                  className={MENU_ITEM}
                   role="menuitem"
                 >
                   {link.label}
@@ -133,7 +141,7 @@ export function Nav({
               <Link
                 href={providersHref}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-[var(--radius-sm)] px-3 py-2 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted sm:hidden"
+                className={`${MENU_ITEM} sm:hidden`}
                 role="menuitem"
               >
                 For Businesses
@@ -145,7 +153,7 @@ export function Nav({
                     setMenuOpen(false);
                     openLogin();
                   }}
-                  className="rounded-[var(--radius-sm)] px-3 py-2 text-left text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted sm:hidden"
+                  className={`${MENU_ITEM} sm:hidden`}
                   role="menuitem"
                 >
                   Log in
@@ -158,10 +166,14 @@ export function Nav({
                     href="/account"
                     role="menuitem"
                     onClick={() => setMenuOpen(false)}
-                    className="rounded-[var(--radius-sm)] px-3 py-2 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted"
+                    className={MENU_ITEM}
                   >
                     Profile
                   </Link>
+                  {/* Log out is the one irreversible item in this menu and it sits right under
+                      the one people reach for most. A rule and a margin, so a tap that lands
+                      between the two hits neither rather than silently signing someone out. */}
+                  <div className="my-1 h-px bg-border" />
                   <button
                     type="button"
                     role="menuitem"
@@ -169,7 +181,7 @@ export function Nav({
                       setMenuOpen(false);
                       void signOut();
                     }}
-                    className="rounded-[var(--radius-sm)] px-3 py-2 text-left text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted"
+                    className={MENU_ITEM}
                   >
                     Log out
                   </button>
