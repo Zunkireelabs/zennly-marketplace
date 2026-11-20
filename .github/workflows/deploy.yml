@@ -27,8 +27,8 @@ jobs:
       # See ci.yml — scoped to src/ to skip the vendored public/maplibre worker file.
       - run: npx eslint src --max-warnings 0
 
-      - run: npx tsc --noEmit
-
+      # See ci.yml - no standalone tsc step; `next build` below generates the
+      # types PageProps<...> needs and type-checks as part of building.
       - name: Build
         run: npm run build
         env:
