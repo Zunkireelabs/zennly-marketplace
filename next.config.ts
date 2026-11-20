@@ -9,7 +9,13 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+  // `geolocation=(self)`, not `()`: the mobile search's "Near me" asks the browser where the
+  // visitor is, and a blanket `geolocation=()` denies our own page the permission before the
+  // prompt is ever shown — getCurrentPosition fails with "disabled in this document by
+  // permissions policy", which is indistinguishable from the visitor refusing. `self` still
+  // denies every embedded third party; camera, microphone and payment stay fully off because
+  // nothing here uses them.
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self), payment=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
   {
     key: "Content-Security-Policy",

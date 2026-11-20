@@ -171,9 +171,22 @@ function LocationScreen({ destinations, sheetQuery, sheetMatches, sheetResults, 
         }
         onPickDestination(nearest);
       },
-      () => {
+      (err) => {
         setLocating(false);
-        setNearMeError("We couldn't get your location.");
+        // Browsers refuse geolocation outright on an insecure origin, and report it as
+        // PERMISSION_DENIED — identical to the visitor tapping "Block". Saying "you can turn
+        // this on" to someone who was never asked sends them hunting through settings for a
+        // switch that isn't there. Production is HTTPS so this only bites over http on a LAN
+        // address, which is exactly how this project is tested on a real phone.
+        if (typeof window !== "undefined" && !window.isSecureContext) {
+          setNearMeError("Finding you needs a secure connection.");
+          return;
+        }
+        setNearMeError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location is off for this site."
+            : "We couldn't get your location."
+        );
       },
     );
   };
