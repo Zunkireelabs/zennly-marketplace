@@ -13,9 +13,13 @@ import { CurrencyChip, CurrencyRow } from "./currency-picker";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 
+// On mobile this menu is the ONLY navigation — the header's search is hidden below `sm`, so a
+// customer deep in /account/* has nothing else to get back to browsing with. "Discover" and
+// "Collections" both pointed at "#" and did nothing, which made that a dead end rather than a
+// narrow one. Every entry here must go somewhere real; there is no /collections index route, so
+// that concept lives on the homepage rails rather than as a link that lies.
 const MENU_LINKS = [
-  { label: "Discover", href: "#" },
-  { label: "Collections", href: "#" },
+  { label: "Browse studios", href: "/search" },
   { label: "Saved", href: "/saved" },
 ];
 
@@ -172,8 +176,10 @@ export function Nav({
                 </div>
               )}
 
+              {/* Was hardcoded to /collections/restore-and-retreat — a button labelled "Explore
+                  studios" that dropped you into one curated list. Goes to the real browse page. */}
               <Link
-                href="/collections/restore-and-retreat"
+                href="/search"
                 onClick={() => setMenuOpen(false)}
                 className="mt-1 rounded-[var(--radius-sm)] bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-primary-hover"
                 role="menuitem"

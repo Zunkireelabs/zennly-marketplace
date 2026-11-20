@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ActivityIcon, ChevronRightIcon, GearIcon, HeartIcon, TicketIcon, UserIcon } from "@/components/provider/icons";
+import { ActivityIcon, ChevronLeftIcon, ChevronRightIcon, GearIcon, HeartIcon, TicketIcon, UserIcon } from "@/components/provider/icons";
 
 const SECTIONS = [
   { href: "/account/profile", label: "Profile", Icon: UserIcon },
@@ -34,6 +34,26 @@ export function AccountSidebar() {
         );
       })}
     </nav>
+  );
+}
+
+/**
+ * Mobile only: the way back out of a section. The sidebar is `hidden lg:block`, so on a phone a
+ * customer who taps into /account/profile has no in-page route back to the section list — only
+ * the browser's back gesture, which is not navigation a product should rely on. Rendered on
+ * sub-pages only; /account itself IS the list.
+ */
+export function AccountBackLink() {
+  const pathname = usePathname();
+  if (pathname === "/account") return null;
+  return (
+    <Link
+      href="/account"
+      className="mb-4 -ml-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:text-foreground lg:hidden"
+    >
+      <ChevronLeftIcon width={16} height={16} />
+      Account
+    </Link>
   );
 }
 

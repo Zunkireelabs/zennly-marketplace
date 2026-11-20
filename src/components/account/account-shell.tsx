@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth/auth-provider";
-import { AccountSidebar } from "./account-nav";
+import { AccountBackLink, AccountSidebar } from "./account-nav";
 
 /**
  * The layout-level chrome every /account/* route shares: the signed-out gate, and — once signed
@@ -52,7 +52,10 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
             <AccountSidebar />
           </div>
         </aside>
-        <div className="min-w-0">{children}</div>
+        <div className="min-w-0">
+          <AccountBackLink />
+          {children}
+        </div>
       </div>
     </div>
   );
