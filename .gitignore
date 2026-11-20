@@ -65,6 +65,10 @@ next-env.d.ts
 
 # markdown docs and agent/skill files stay local
 *.md
+# ...except CLAUDE.md, which is how work runs here (roles, the one-writer rule,
+# the review gate) rather than notes about the code. Local-only would mean a
+# fresh clone, or anyone else's machine, has none of it.
+!/CLAUDE.md
 /.claude/
 /.agents/
 /skills-lock.json
