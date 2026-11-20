@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { auth } from "@/lib/auth";
@@ -254,10 +256,20 @@ export function ProfileEditCard({ editing, setEditing }: { editing: boolean; set
         </div>
       </label>
 
+      {/* Disabled on purpose: the email is the SIGN-IN identity, not a profile detail. Changing it
+          moves the login and needs a code sent to each address, so it lives in Settings. A greyed
+          box with no explanation just reads as broken — say where to go instead. */}
       <label className="mt-3 flex flex-col gap-1.5 text-sm">
         Email
         <input value={user.email ?? ""} disabled className={`${FIELD} opacity-60`} />
       </label>
+      <p className="mt-1.5 text-xs text-muted-foreground">
+        This is how you sign in.{" "}
+        <Link href="/account/settings" className="font-medium text-primary underline-offset-2 hover:underline">
+          Change it in Settings
+        </Link>
+        .
+      </p>
 
       <label className="mt-3 flex flex-col gap-1.5 text-sm sm:w-1/2">
         Date of birth
