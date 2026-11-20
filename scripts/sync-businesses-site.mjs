@@ -258,33 +258,41 @@ function rewriteHtml(html) {
     (_m, prefix, quote, value) => `${prefix}${quote}${rewriteUrl(value)}${quote}`
   );
 
-  html = pointNavLogoAtMarketplace(html);
+  html = pointWordmarksAtMarketplace(html);
 
   return html;
 }
 
-// The one link the /businesses prefix must NOT be applied to: the header wordmark.
+// The two links the /businesses prefix must NOT be applied to: the Zennly wordmarks, in the
+// header and in the footer.
 //
-// web-zenly writes it as href="/", meaning "the site you're on", and the generic rewrite above
+// web-zenly writes both as href="/", meaning "the site you're on", and the generic rewrite above
 // dutifully turns that into /businesses — correct for every other root-absolute link in the
-// mirror, wrong for this one. Now that both surfaces live on zennly.io, the wordmark is the
-// shared brand mark across them, and a customer who lands on a marketing page and clicks it
-// expects the marketplace, not a reload of the page they are already on.
+// mirror, wrong for these. Now that both surfaces live on zennly.io, the wordmark is the shared
+// brand mark across them, and a customer who lands on a marketing page and clicks it expects the
+// marketplace, not a reload of the page they are already on. Both wordmarks are the same mark
+// and carry the same promise, so they go to the same place — the footer one even says so in its
+// aria-label ("Zennly home").
 //
 // Applied after the generic pass rather than special-cased inside rewriteUrl(), because
 // rewriteUrl() sees a bare URL with no idea which element it came from — "/" appears in plenty
 // of places that should still be prefixed. Matching the anchor is the only way to tell them
-// apart. The nav markup is a fixed Eleventy include (_nav-v2.njk), so the class is stable; the
-// href is matched loosely (before or after the class, either prefixed or not) so this survives
-// attribute reordering and re-running the sync over an already-rewritten mirror.
+// apart. The markup is fixed Eleventy includes (_nav-v2.njk, _footer-v2.njk), so the classes are
+// stable; the href is matched loosely (before or after the class, either prefixed or not) so
+// this survives attribute reordering and re-running the sync over an already-rewritten mirror.
 //
-// The FOOTER wordmark (.v2-footer-logo) is deliberately left pointing at /businesses: it sits
-// at the bottom of a marketing page beside the rest of the marketing footer links, where "back
-// to the top of this site" is the expected meaning. Change it here too if that stops being true.
-function pointNavLogoAtMarketplace(html) {
-  return html.replace(/<a\b[^>]*\bclass=["'][^"']*\bv2-nav__logo\b[^"']*["'][^>]*>/gi, (tag) =>
-    tag.replace(/\bhref=(["'])[^"']*\1/i, 'href="/"')
-  );
+// Note this is the ONLY route back to the marketing home from a marketing page's chrome, since
+// the nav's own links all point at sections rather than at "/". That is fine — the nav sections
+// are what people navigate by — but if a "Home" item is ever wanted there, it needs an explicit
+// /businesses href in web-zenly, not a bare "/".
+const WORDMARK_CLASSES = ["v2-nav__logo", "v2-footer-logo"];
+
+function pointWordmarksAtMarketplace(html) {
+  for (const className of WORDMARK_CLASSES) {
+    const anchor = new RegExp(`<a\\b[^>]*\\bclass=["'][^"']*\\b${className}\\b[^"']*["'][^>]*>`, "gi");
+    html = html.replace(anchor, (tag) => tag.replace(/\bhref=(["'])[^"']*\1/i, 'href="/"'));
+  }
+  return html;
 }
 
 function rewriteCss(css) {
