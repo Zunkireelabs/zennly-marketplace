@@ -1,0 +1,17 @@
+# Never let the real runtime .env (written by deploy.yml before the build)
+# get pulled into an image layer by the builder stage's COPY . .
+.env*
+!.env.example
+
+node_modules
+.git
+.next
+out
+build
+coverage
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.DS_Store
