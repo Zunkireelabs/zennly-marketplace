@@ -58,6 +58,9 @@ export type Provider = {
   city: string;
   region: string;
   location: string;
+  /** Neighbourhoods/municipalities this studio trades in — one per connected book-spa branch.
+   *  Searched alongside city and region; not a place in its own right (see Destination). */
+  areas?: string[];
   modality: string;
   modalities: string[];
   rating: number;

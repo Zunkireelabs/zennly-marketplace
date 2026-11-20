@@ -36,6 +36,7 @@ function toProvider(r: ProviderRow): Provider {
     city: r.city,
     region: r.region,
     location: r.location,
+    areas: r.areas,
     modality: r.modality,
     modalities: r.modalities,
     rating: r.rating,

@@ -36,6 +36,11 @@ model Provider {
   addOns            Json     @map("add_ons")
   amenities         String[]
   address           String
+  /// Areas this studio trades in — one entry per connected book-spa branch, plus the
+  /// municipality when outlets straddle more than one. Searched alongside city/region so a
+  /// visitor who types a neighbourhood finds the studio; deliberately NOT a Destination, which
+  /// is built from `city` and carries counts and a photo per place.
+  areas             String[] @default([])
   hours             Json
   nearby            Json
   reviewSummary     String   @default("") @map("review_summary")

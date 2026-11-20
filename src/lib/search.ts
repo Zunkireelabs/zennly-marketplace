@@ -64,7 +64,10 @@ function toResult(p: Provider): SearchResult {
 export async function searchStudios(q: Pick<SearchQuery, "where" | "what">): Promise<SearchResult[]> {
   const all = await getProviders();
   return all
-    .filter((p) => matches(`${p.city} ${p.region} ${p.location}`, q.where))
+    // Also `areas` and `address`: a studio with outlets across several neighbourhoods should
+    // answer to any of them, and addresses already carry areas nothing else indexes (Quiet
+    // Practice Yoga sits on "Thamel Marg, Thamel" with no `areas` of its own).
+    .filter((p) => matches(`${p.city} ${p.region} ${p.location} ${(p.areas ?? []).join(" ")} ${p.address}`, q.where))
     .filter((p) =>
       matches(
         [p.name, p.modality, ...p.modalities, ...p.serviceCategories, ...p.services.map((s) => s.name)].join(" "),

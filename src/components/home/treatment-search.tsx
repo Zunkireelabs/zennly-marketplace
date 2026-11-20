@@ -85,7 +85,7 @@ export function useSearchResults(
         (s) =>
           !q ||
           norm(s.name).includes(q) ||
-          norm(`${s.city} ${s.region}`).includes(q) ||
+          norm(`${s.city} ${s.region} ${s.areas.join(" ")} ${s.address}`).includes(q) ||
           s.modalities.some((m) => norm(m).includes(q)),
       )
       .sort((a, b) => b.rating - a.rating)

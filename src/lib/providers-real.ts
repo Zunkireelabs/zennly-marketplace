@@ -38,9 +38,17 @@ export const realProviders: RealProvider[] = [
     // Four real, active outlets in book-spa staging (Bhaisepati, Lazimpat, Sanepa, Thamel) — one
     // more than this integration was originally briefed on; trusted the live data. Provider has a
     // single address/lat/lng, so Lazimpat (returned first by the engine) stands in as the single
-    // representation; the other three are surfaced only as photos here. A real multi-outlet model
-    // is a schema decision for later (docs/booking-integration-plan.md, Stage 0 notes this gap).
+    // representation. All four are now FINDABLE via `areas` below — that does not settle the
+    // multi-outlet schema question (one page, one address, one pin per studio still), it just
+    // stops search denying three outlets exist. Booking was already branch-aware: the drawer
+    // shows a location step whenever a connected provider has more than one branch.
     location: "Lazimpat, Kathmandu",
+    // The four live, is_active outlets in book-spa (org 00000000-...-0001), read from its
+    // `branches` table rather than copied from the comment above. "Lalitpur" is listed too
+    // because Sanepa and Bhaisepati are in that municipality, not Kathmandu, and someone there
+    // searching their own city should find this studio. `city` stays Kathmandu: that is the
+    // studio's seat and what the Destination rail counts.
+    areas: ["Lazimpat", "Thamel", "Sanepa", "Bhaisepati", "Lalitpur"],
     modality: "Massage",
     modalities: ["Massage"],
     rating: 0,

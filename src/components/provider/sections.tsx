@@ -49,9 +49,18 @@ export function Overview({ provider }: { provider: Provider }) {
                 {provider.isNew ? "New to Zennly" : `${provider.reviewCount} reviews`}
               </span>
             </span>
+            {/* Names the areas a multi-outlet studio trades in rather than implying one.
+                Deliberately NOT a count: `areas` is a search aid, and may hold a municipality
+                (Nuad lists Lalitpur so someone there finds it) alongside actual branches — so
+                "5 locations" would claim an outlet that doesn't exist. A real outlet count
+                would have to come from book-spa's branches, not from this field.
+                Plain text, too: the branch is chosen in the booking flow, which is already
+                branch-aware, and a second place to pick one would be a trap. */}
             <span className="flex items-center gap-1.5">
               <PinIcon width={15} height={15} />
-              {provider.location}
+              {provider.areas && provider.areas.length > 1
+                ? `${provider.areas.slice(0, 3).join(", ")}${provider.areas.length > 3 ? "…" : ""}`
+                : provider.location}
             </span>
             <span className="flex items-center gap-1.5">
               <ClockIcon width={15} height={15} />

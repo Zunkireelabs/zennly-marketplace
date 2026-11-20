@@ -40,6 +40,12 @@ export type SearchStudio = {
   name: string;
   city: string;
   region: string;
+  /** Same fields the results page matches on — carried here so the search box and /search
+   *  cannot disagree about whether a neighbourhood finds this studio. `address` earns its
+   *  place because some studios carry their area only there (Quiet Practice Yoga sits on
+   *  "Thamel Marg, Thamel" and has no `areas` of its own). */
+  areas: string[];
+  address: string;
   image: string;
   rating: number;
   isNew: boolean;
@@ -159,6 +165,8 @@ export async function getHomeRails(): Promise<HomeRails> {
       name: p.name,
       city: p.city,
       region: p.region,
+      areas: p.areas ?? [],
+      address: p.address,
       image: p.image,
       rating: p.rating,
       isNew: p.isNew,
