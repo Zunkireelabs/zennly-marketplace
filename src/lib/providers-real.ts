@@ -112,7 +112,10 @@ export const realProviders: RealProvider[] = [
   },
   {
     slug: "sbal",
-    name: "Sbal",
+    // "sbal" is an internal abbreviation, not the business's name. It stays as the slug (it is in
+    // URLs, the /images/providers/sbal/ paths, and engineProviderId must keep matching book-spa's
+    // org slug) — but customers must see the real name.
+    name: "Sami's Brow and Lashes",
     city: "Kathmandu",
     region: "Nepal",
     location: "Panipokhari, Kathmandu",
