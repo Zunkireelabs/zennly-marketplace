@@ -91,12 +91,32 @@ jobs:
             ENVEOF
             chmod 600 .env
 
-            docker compose up -d --build
+            # Build the runtime image first (cached layers are shared with the
+            # migrator build below, since both come from the same Dockerfile).
+            docker compose build app
 
-            # Apply any pending Prisma migrations against the prod DB, inside
-            # the freshly built image's own node_modules (same dependency
-            # versions that will serve requests).
-            docker compose run --rm --no-deps app npx prisma migrate deploy
+            # Migrations run against the `builder` stage, NOT the runtime
+            # image `docker compose build` just produced: the standalone
+            # runtime output deliberately excludes dev-only CLI packages
+            # (prisma) and the schema/migrations directory itself, since the
+            # running server never imports them. `npx prisma` against that
+            # image finds nothing installed and silently fetches the latest
+            # major version from the registry instead of this project's
+            # pinned ^7.10.0 - broke a deploy with
+            # "`prisma migrate deploy` is a Prisma 7 command and is not
+            # available in Prisma 8". `builder` already has the full
+            # devDependencies, the right CLI version, and the schema.
+            docker build --target builder \
+              --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+              --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+              --build-arg NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
+              --build-arg NEXT_PUBLIC_TRACK_EVENTS="$NEXT_PUBLIC_TRACK_EVENTS" \
+              -t zennly-marketplace-migrate:latest .
+            docker run --rm --env-file .env zennly-marketplace-migrate:latest npx prisma migrate deploy
+            docker rmi zennly-marketplace-migrate:latest || true
+
+            # Migrations succeeded - now swap in the actual runtime container.
+            docker compose up -d
 
             echo "Waiting for container to be healthy..."
             sleep 10
