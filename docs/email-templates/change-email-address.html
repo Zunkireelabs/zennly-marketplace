@@ -23,54 +23,93 @@
   near-identical messages carrying different numbers. That is why the body names the address being
   confirmed via {{ .NewEmail }}, and why the dialog must label which inbox each input belongs to.
 
+  WHY IT LOOKS LIKE THIS: shared design with "Magic link or OTP" (dashboard-only) and
+  confirm-sign-up.html — cream ground, green rule, serif wordmark and heading, the code in a sage
+  panel. Three auth emails that look like three different companies is worse than any one of them
+  looking plain, and this is the email where a customer is most likely to be checking whether the
+  message is genuine. See README.md for the token list.
+
+  The eyebrow reads "Email change" rather than "Sign in": it is the one line that tells a reader
+  at a glance which of our emails this is, which matters precisely because two of them arrive at
+  once and a third looks nearly identical.
+
   EMAIL-CLIENT CONSTRAINTS this markup respects: table layout (not flexbox/grid), inline styles
-  only (no <style> block, which Gmail strips), no web fonts (Outfit won't load — the stack falls
-  back to system sans), no external images (nothing to block or fail), and a max-width that
-  survives a phone.
+  only (no <style> block, which Gmail strips), no web fonts (Outfit and Instrument Serif won't
+  load — the stacks fall back to system sans and Georgia), no external images (nothing to block or
+  fail), and a max-width that survives a phone.
 
   Brand tokens copied from src/app/globals.css — keep in sync if those change:
-    background #fefdfb · foreground #23211d · muted-foreground #6b6255
+    background #fefdfb · foreground #23211d · muted #ede9e0 · muted-foreground #6b6255
     border #e6e1d6 · card #ffffff · primary #5b6e56 · radius-lg 18px · radius-md 12px
 -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fefdfb;margin:0;padding:32px 16px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ede9e0;margin:0;padding:40px 16px;">
   <tr>
     <td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
 
-        <!-- Wordmark. Text, not an image: images are blocked by default in most clients, and a
-             blocked logo looks broken where a styled word never does. -->
+        <!-- The card. The green rule across the top is a <td> with a background colour rather than
+             a border-top, because Outlook drops border-radius and renders a stray square corner on
+             a bordered element; a filled row degrades to a plain green bar, which is fine. -->
         <tr>
-          <td style="padding-bottom:24px;">
-            <span style="font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:600;color:#5b6e56;letter-spacing:-0.01em;">zennly</span>
-          </td>
+          <td style="background-color:#5b6e56;height:6px;line-height:6px;font-size:0;border-radius:18px 18px 0 0;">&nbsp;</td>
         </tr>
 
         <tr>
-          <td style="background-color:#ffffff;border:1px solid #e6e1d6;border-radius:18px;padding:32px;">
+          <td style="background-color:#ffffff;border-radius:0 0 18px 18px;padding:44px 44px 40px;">
 
-            <h1 style="margin:0 0 12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:20px;line-height:1.3;font-weight:600;color:#23211d;">
-              Confirm your new email address
+            <!-- Wordmark. Text, not an image: images are blocked by default in most clients, and a
+                 blocked logo looks broken where a styled word never does. -->
+            <p style="margin:0 0 36px;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:42px;line-height:1;font-weight:400;color:#5b6e56;letter-spacing:-0.02em;">
+              zennly
+            </p>
+
+            <p style="margin:0 0 10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6b6255;">
+              Email change
+            </p>
+
+            <h1 style="margin:0 0 14px;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:36px;line-height:1.15;font-weight:400;color:#23211d;">
+              Confirm your new address
             </h1>
 
-            <p style="margin:0 0 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.55;color:#6b6255;">
-              Enter this code in Zennly to confirm <strong style="color:#23211d;">{{ .NewEmail }}</strong> as your new email address.
+            <p style="margin:0 0 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#6b6255;">
+              Enter this code in Zennly to confirm
+              <span style="color:#23211d;">{{ .NewEmail }}</span> as your email address.
             </p>
 
             <!-- The code. Sage-tinted panel rather than a plain line: it is the one thing the
                  reader needs, and on a phone it has to be findable without reading the sentence. -->
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td align="center" style="background-color:#f4f6f3;border:1px solid #e6e1d6;border-radius:12px;padding:20px 12px;">
-                  <span style="font-family:'SF Mono',SFMono-Regular,Menlo,Consolas,'Courier New',monospace;font-size:30px;line-height:1;font-weight:600;letter-spacing:8px;color:#23211d;">{{ .Token }}</span>
+                <td align="center" style="background-color:#f1f4ef;border-radius:12px;padding:28px 12px 22px;">
+                  <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:38px;line-height:1;font-weight:500;letter-spacing:12px;text-indent:12px;color:#23211d;">
+                    {{ .Token }}
+                  </p>
+                  <!-- "Expires in 60 minutes" must stay true: it is GoTrue's MAILER_OTP_EXP for this
+                       project (3600s), which governs this code as well as the sign-in one. If that
+                       setting changes, change this line in all three templates. A wrong expiry here
+                       is worse than none. -->
+                  <p style="margin:14px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;color:#6b6255;">
+                    Expires in 60 minutes &middot; single use
+                  </p>
                 </td>
               </tr>
             </table>
 
-            <p style="margin:24px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#6b6255;">
-              We&rsquo;ve sent a code to your current address too — enter both to finish the change.
+            <!-- Said before the reassurance line, not after: a reader who stops at the code needs
+                 to know a second one exists, or they will enter this and assume it failed. -->
+            <p style="margin:28px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#6b6255;">
+              We&rsquo;ve sent a different code to your current address too — enter both to finish
+              the change.
             </p>
 
-            <p style="margin:12px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.55;color:#6b6255;">
+            <!-- Divider as a filled row, for the same Outlook reason as the top rule. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0;">
+              <tr>
+                <td style="background-color:#e6e1d6;height:1px;line-height:1px;font-size:0;">&nbsp;</td>
+              </tr>
+            </table>
+
+            <p style="margin:24px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#6b6255;">
               Didn&rsquo;t ask for this? Ignore this email — nothing will change, and your current
               address keeps working.
             </p>
@@ -79,9 +118,9 @@
         </tr>
 
         <tr>
-          <td style="padding-top:20px;">
-            <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.5;color:#6b6255;">
-              Zennly — a calmer way to discover and book wellness &amp; self-care.
+          <td align="center" style="padding:24px 16px 0;">
+            <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.5;color:#6b6255;">
+              A calmer way to discover and book wellness &amp; self-care.
             </p>
           </td>
         </tr>
