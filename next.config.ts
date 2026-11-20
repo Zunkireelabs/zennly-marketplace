@@ -173,7 +173,11 @@ const bookingProxyRewrite = bookingEngineProxyTarget
 // Dev only — `next build` ignores this key entirely, so it cannot widen anything in production.
 // Private RFC-1918 space, reachable only from the same wifi.
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.1.*"],
+  // "*.ngrok-free.dev" for testing features the LAN address cannot reach: geolocation and OAuth
+  // both require a SECURE origin, and http://192.168.1.x is not one — only localhost and https
+  // qualify. A tunnel is the only way to exercise those from a real phone. Dev-only, like the
+  // subnet entry beside it; `next build` ignores this key entirely.
+  allowedDevOrigins: ["192.168.1.*", "*.ngrok-free.dev", "*.ngrok-free.app"],
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
