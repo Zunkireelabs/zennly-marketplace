@@ -21,6 +21,9 @@
   --accent-foreground: #ffffff;
   --success: #4a5a46;
   --warning: #c08a3e;
+  --warning-soft: #f6ecda;
+  --warning-border: #e9d5aa;
+  --warning-foreground: #8a5f1f;
   --error: #b23b33;
   --info: #5e86a0;
 
@@ -54,6 +57,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-warning-foreground: var(--warning-foreground);
   --color-error: var(--error);
   --color-info: var(--info);
 

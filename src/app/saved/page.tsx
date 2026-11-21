@@ -36,6 +36,7 @@ export default async function SavedPage() {
     blurb: p.intro.join(" "),
     amenities: p.amenities.slice(0, 5),
     greatFor: p.greatFor,
+    isDemo: !p.engineProviderId,
   }));
 
   return (

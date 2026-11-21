@@ -7,7 +7,7 @@ import { useProviderUi } from "./provider-shell";
 import { Price } from "@/components/ui/price";
 
 export function ServicesSection() {
-  const { provider, openBooking } = useProviderUi();
+  const { provider, availability, openBooking } = useProviderUi();
   const [category, setCategory] = useState(provider.serviceCategories[0]);
   const rows = provider.services.filter((s) => s.category === category);
 
@@ -56,6 +56,7 @@ export function ServicesSection() {
               <p className="font-mono text-base font-semibold tabular-nums">
                 <Price amount={service.price} engineProviderId={provider.engineProviderId} />
               </p>
+              {availability.state === "live" && (
               <button
                 type="button"
                 onClick={() => openBooking({ serviceId: service.id })}
@@ -64,6 +65,7 @@ export function ServicesSection() {
               >
                 Book
               </button>
+              )}
             </div>
           </li>
         ))}

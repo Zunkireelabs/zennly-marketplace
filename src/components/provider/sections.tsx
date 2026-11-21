@@ -1,3 +1,4 @@
+import { DemoPill } from "@/components/ui/demo-pill";
 import Link from "next/link";
 import type { Provider } from "@/lib/providers";
 import { isEngineActive } from "@/lib/booking/engine-flag";
@@ -35,8 +36,9 @@ export function Overview({ provider }: { provider: Provider }) {
     <section id="overview" className="scroll-mt-20 pt-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-4xl font-normal leading-[1.15] tracking-[-0.01em] sm:text-[44px]">
+          <h1 className="flex flex-wrap items-center gap-x-4 gap-y-2 text-4xl font-normal leading-[1.15] tracking-[-0.01em] sm:text-[44px]">
             {provider.name}
+            {!provider.engineProviderId && <DemoPill />}
           </h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5 text-foreground">

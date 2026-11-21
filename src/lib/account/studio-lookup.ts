@@ -140,7 +140,7 @@ export function bookingPriceRow(b: LookupRow): DetailRow | undefined {
   if (!price) return undefined;
   const pay = asText(field(b, ["payment_status"]))?.trim().toLowerCase().replace(/[\s_-]+/g, "");
   // paid_amount is what the customer paid minus refunds, so it is what we show as "Paid". A
-  // paid booking that has been fully refunded (0) is just a price again.
+  // paid booking with nothing left after refunds shows as Refunded.
   const paidSoFar = field(b, ["paid_amount"]);
   const paidNet = typeof paidSoFar === "number" ? paidSoFar : undefined;
   if (pay === "refunded") return { label: "Refunded", value: price };

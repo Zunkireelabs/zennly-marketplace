@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { RailArrows } from "@/components/ui/rail-arrows";
 import { providerHref, type Provider } from "@/lib/providers";
+import { DemoPill } from "@/components/ui/demo-pill";
 
 /** "More like this" rail. Client component so the prev/next arrows can scroll the rail. */
 export function RelatedProviders({ related }: { related: Provider[] }) {
@@ -40,6 +41,7 @@ export function RelatedProviders({ related }: { related: Provider[] }) {
             <span className="text-left">
               <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                 {p.name}
+                {!p.engineProviderId && <DemoPill className="ml-2 align-middle" />}
               </span>
               <span className="block text-sm text-muted-foreground">
                 {p.modality} · {p.location}

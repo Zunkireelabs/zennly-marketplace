@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useSaved } from "@/lib/saved/use-saved";
 import { ChevronLeftIcon, ChevronRightIcon, HeartIcon, PinIcon, StarIcon } from "@/components/provider/icons";
 import { Price } from "@/components/ui/price";
+import { DemoPill } from "@/components/ui/demo-pill";
 
 /** The slice of a Provider a collection row needs. Kept small so the page ships little JSON. */
 export type CollectionItem = {
@@ -24,6 +25,7 @@ export type CollectionItem = {
   blurb: string;
   amenities: string[];
   greatFor: string[];
+  isDemo?: boolean;
 };
 
 const OVERLINE =
@@ -116,6 +118,7 @@ export function ListingRow({ item, priority }: { item: CollectionItem; priority?
               <Link href={href} className="hover:underline focus-visible:outline-none focus-visible:underline">
                 {item.name}
               </Link>
+              {item.isDemo && <DemoPill className="ml-2 align-middle" />}
             </h3>
             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
               <PinIcon className="size-4 shrink-0" />

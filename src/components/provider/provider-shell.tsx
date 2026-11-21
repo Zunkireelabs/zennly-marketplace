@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { track } from "@/lib/analytics/track";
 import { startBooking, type ForWhom } from "@/lib/booking/start-booking";
 import type { Provider, Service } from "@/lib/providers";
+import type { BookingAvailability } from "@/lib/booking/availability";
 import { BookingDrawer } from "./booking-drawer";
 import { GalleryLightbox } from "./gallery-lightbox";
 import { TourModal } from "./tour-modal";
@@ -14,6 +15,8 @@ export type BookingStep = "location" | "services" | "time" | "confirm" | "done";
 
 type UiContext = {
   provider: Provider;
+  /** Whether this studio takes online bookings right now (decided on the server per request). */
+  availability: BookingAvailability;
   /* booking */
   bookingOpen: boolean;
   step: BookingStep;
@@ -68,7 +71,7 @@ export function useProviderUi(): UiContext {
  * "View all photos" button, wherever it sits on the page, opens the same shared overlay.
  * Showcase-only: nothing here is persisted or sent anywhere (docs/PRODUCT_CONTEXT.md §4).
  */
-export function ProviderShell({ provider, children }: { provider: Provider; children: React.ReactNode }) {
+export function ProviderShell({ provider, availability, children }: { provider: Provider; availability: BookingAvailability; children: React.ReactNode }) {
   const router = useRouter();
   const [bookingOpen, setBookingOpen] = useState(false);
   const [step, setStep] = useState<BookingStep>("services");
@@ -100,6 +103,8 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
   // Every Book button ends up here, and this goes through startBooking() (never straight to a URL).
   const openBooking = useCallback<UiContext["openBooking"]>(
     (opts) => {
+      // Booking is off (not live, a demo, or we couldn't check): nothing opens.
+      if (availability.state !== "live") return;
       const serviceIds = opts?.serviceId ? [opts.serviceId] : selectedIds;
       const result = startBooking({ provider, selection: { serviceIds }, forWhom });
       if (result.kind === "blocked") {
@@ -121,7 +126,7 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
       }
       setBookingOpen(true);
     },
-    [provider, selectedIds, forWhom, router]
+    [provider, availability, selectedIds, forWhom, router]
   );
 
   const closeBooking = useCallback(() => setBookingOpen(false), []);
@@ -174,6 +179,7 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
 
   const value: UiContext = {
     provider,
+    availability,
     bookingOpen,
     step,
     selectedIds,

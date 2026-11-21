@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DemoPill } from "@/components/ui/demo-pill";
 import { providerHref } from "@/lib/providers";
 import { useState } from "react";
 import Image from "next/image";
@@ -129,6 +130,7 @@ export function DiscoveryRow({ intents }: { intents: HomeRails["discoveryIntents
               <span className="text-left">
                 <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                   {provider.name}
+                  {provider.isDemo && <DemoPill className="ml-2 align-middle" />}
                 </span>
                 <span className="block text-sm text-muted-foreground">
                   {provider.location}

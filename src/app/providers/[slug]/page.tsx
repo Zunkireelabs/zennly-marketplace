@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteNav } from "@/components/layout/site-nav";
 import { Footer } from "@/components/layout/footer";
-import { getProvider, getProviders, getRelatedProviders } from "@/lib/providers-data";
+import { getProvider, getRelatedProviders } from "@/lib/providers-data";
 import { applyLiveServices } from "@/lib/booking/load-provider";
+import { getProviderBookingStatus } from "@/lib/booking/studio-status";
+import { availabilityFor } from "@/lib/booking/availability";
 import { ProviderShell } from "@/components/provider/provider-shell";
 import { ProviderHero } from "@/components/provider/hero";
 import { BookingCard, MobileBookBar } from "@/components/provider/booking-card";
@@ -21,13 +23,10 @@ import {
 } from "@/components/provider/sections";
 import { RelatedProviders } from "@/components/provider/related-providers";
 
-// Regenerate at most every 5 minutes, so database edits reach provider pages without a redeploy.
-export const revalidate = 300;
-
-export async function generateStaticParams() {
-  const providers = await getProviders();
-  return providers.map((provider) => ({ slug: provider.slug }));
-}
+// Rendered on every request: whether a studio takes online bookings (bookX's live switch) must
+// never be frozen into a cached page. The studio's data reads are cheap and the status check has
+// its own 60s cache.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps<"/providers/[slug]">): Promise<Metadata> {
   const { slug } = await params;
@@ -44,12 +43,16 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
   const provider = await getProvider(slug);
   if (!provider) notFound();
 
-  await applyLiveServices(provider);
+  // Checked on every request (60s cache inside), never frozen into a cached page: whether a studio
+  // takes online bookings changes the moment bookX switches it. Only a live studio's services are
+  // read from the booking engine.
+  const availability = availabilityFor(provider.engineProviderId, await getProviderBookingStatus(provider.engineProviderId));
+  if (availability.state === "live") await applyLiveServices(provider);
 
   const related = await getRelatedProviders(provider);
 
   return (
-    <ProviderShell provider={provider}>
+    <ProviderShell provider={provider} availability={availability}>
       <div className="relative flex min-h-full flex-col bg-background">
         <SiteNav variant="overlay" />
         <main className="flex-1 pb-28 lg:pb-16">

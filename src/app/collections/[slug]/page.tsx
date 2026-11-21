@@ -44,6 +44,7 @@ export default async function CollectionPage({ params }: PageProps<"/collections
     blurb: p.intro.join(" "),
     amenities: p.amenities.slice(0, 5),
     greatFor: p.greatFor,
+    isDemo: !p.engineProviderId,
   }));
 
   return (

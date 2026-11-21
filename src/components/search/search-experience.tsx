@@ -12,6 +12,7 @@ import type { MapBounds } from "./studio-map";
 import { pillClass } from "@/components/ui/pill";
 import { Price } from "@/components/ui/price";
 import { useCurrency } from "@/lib/currency/use-currency";
+import { DemoPill } from "@/components/ui/demo-pill";
 
 // MapLibre needs the browser, so the map loads client-side only, and only on this page.
 const StudioMap = dynamic(() => import("./studio-map").then((m) => m.StudioMap), {
@@ -363,7 +364,10 @@ function ResultCard({
         )}
       </span>
       <span className="flex min-w-0 flex-1 flex-col py-0.5">
-        <span className="truncate text-base font-medium text-foreground">{r.name}</span>
+        <span className="truncate text-base font-medium text-foreground">
+          {r.name}
+          {!r.engineProviderId && <DemoPill className="ml-2 align-middle" />}
+        </span>
         <span className="truncate text-sm text-muted-foreground">
           {r.city}, {r.region}
         </span>

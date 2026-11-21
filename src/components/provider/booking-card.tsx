@@ -5,6 +5,8 @@ import { isEngineActive } from "@/lib/booking/engine-flag";
 import { ShieldIcon, StarIcon } from "./icons";
 import { useProviderUi } from "./provider-shell";
 import { Price } from "@/components/ui/price";
+import { DemoPill } from "@/components/ui/demo-pill";
+import { BookingOffBar, BookingOffCard } from "./booking-off";
 
 /**
  * Sticky booking card that overlaps the bottom-right edge of the hero (structure from
@@ -12,7 +14,7 @@ import { Price } from "@/components/ui/price";
  * MobileBookBar below takes over.
  */
 export function BookingCard() {
-  const { provider, selectedIds, selectedServices, totalPrice, totalMinutes, chooseService, openBooking } =
+  const { provider, availability, selectedIds, selectedServices, totalPrice, totalMinutes, chooseService, openBooking } =
     useProviderUi();
   const multiple = selectedIds.length > 1;
 
@@ -21,7 +23,10 @@ export function BookingCard() {
       <p className="font-[family-name:var(--font-inter)] text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {provider.modality} · {provider.location}
       </p>
-      <p className="mt-2 text-2xl font-normal uppercase leading-tight tracking-[0.03em]">{provider.name}</p>
+      <p className="mt-2 flex flex-wrap items-center gap-2.5 text-2xl font-normal uppercase leading-tight tracking-[0.03em]">
+        {provider.name}
+        {availability.state === "demo" && <DemoPill />}
+      </p>
       <p className="mt-2 flex items-center gap-1.5 text-sm">
         {!provider.isNew && (
           <>
@@ -34,6 +39,10 @@ export function BookingCard() {
         </span>
       </p>
 
+      {availability.state !== "live" ? (
+        <BookingOffCard availability={availability} />
+      ) : (
+        <>
       <div className="mt-5 border-t border-border pt-5">
         <label htmlFor="card-service" className="text-sm font-medium">
           Service
@@ -95,12 +104,15 @@ export function BookingCard() {
           ? "You pay at the studio. To change or cancel, contact the studio."
           : "Free cancellation until 24 hours before. You pay at the studio."}
       </p>
+        </>
+      )}
     </div>
   );
 }
 
 export function MobileBookBar() {
-  const { provider, selectedServices, totalPrice, openBooking } = useProviderUi();
+  const { provider, availability, selectedServices, totalPrice, openBooking } = useProviderUi();
+  if (availability.state !== "live") return <BookingOffBar availability={availability} />;
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-background/95 px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
       <div>

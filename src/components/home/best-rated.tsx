@@ -7,6 +7,7 @@ import { RailArrows } from "@/components/ui/rail-arrows";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { RailProvider } from "@/lib/home-rails";
+import { DemoPill } from "@/components/ui/demo-pill";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 
@@ -170,6 +171,7 @@ export function BestRated({
                 <span className="text-left">
                   <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                     {provider.name}
+                    {provider.isDemo && <DemoPill className="ml-2 align-middle" />}
                   </span>
                   <span className="block text-sm text-muted-foreground">
                     {provider.location}

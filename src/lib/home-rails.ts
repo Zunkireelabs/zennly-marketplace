@@ -21,6 +21,8 @@ export type RailProvider = {
   tone: string;
   image: string;
   isRecommended: boolean;
+  /** A made-up listing (no bookX link); only present on the page when the demo switch is on. */
+  isDemo?: boolean;
 };
 
 export type NewRailProvider = RailProvider & { joinedLabel: string };
@@ -124,6 +126,7 @@ function toRail(p: Provider, modality = p.modality): RailProvider {
     tone: p.tone,
     image: p.image,
     isRecommended: p.isRecommended,
+    isDemo: !p.engineProviderId,
   };
 }
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { providerHref } from "@/lib/providers";
 import Image from "next/image";
 import type { RailProvider } from "@/lib/home-rails";
+import { DemoPill } from "@/components/ui/demo-pill";
 
 /**
  * "Recommended" — editorial picks, pulled from the same provider data as the "Every Studio,
@@ -50,6 +51,7 @@ export function Recommended({ providers }: { providers: RailProvider[] }) {
             <span className="text-left">
               <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                 {provider.name}
+                {provider.isDemo && <DemoPill className="ml-2 align-middle" />}
               </span>
               <span className="block text-sm text-muted-foreground">
                 {provider.modality} · {provider.location}
