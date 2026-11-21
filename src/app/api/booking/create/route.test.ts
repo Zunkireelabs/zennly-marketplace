@@ -61,6 +61,16 @@ afterEach(() => {
 
 const sentToBookx = () => JSON.parse(fetchMock.mock.calls[0][1].body as string);
 
+describe("bookX ids that are not RFC v1-v5 uuids are accepted", () => {
+  it("nil-style branch and service ids pass validation", async () => {
+    const res = await POST(
+      req({ ...goodBody, branchId: "b0000000-0000-0000-0000-000000000001", serviceId: "00000000-0000-0000-0000-000000000001" })
+    );
+    expect(res.status).not.toBe(400);
+    expect(sentToBookx().branchId ?? sentToBookx().branch_id ?? JSON.stringify(sentToBookx())).toContain("b0000000-0000-0000-0000-000000000001");
+  });
+});
+
 describe("identity: the customer's email comes from the session, never the body", () => {
   it("sends the session email even when the body tries to supply another", async () => {
     await POST(req({ ...goodBody, email: "attacker@example.com", customerEmail: "attacker@example.com", customer: { email: "attacker@example.com" } }));
@@ -99,6 +109,7 @@ describe("a missing or invalid body gives a plain error and sends nothing", () =
     ["service id not a uuid", { ...goodBody, serviceId: "nope" }],
     ["bad date", { ...goodBody, date: "24/11/2026" }],
     ["bad time", { ...goodBody, startTime: "10am" }],
+    ["service id junk", { ...goodBody, serviceId: "not-an-id-at-all-but-36-chars-long!!" }],
     ["request id not a uuid", { ...goodBody, clientRequestId: "abc" }],
     ["no request id", { ...goodBody, clientRequestId: undefined }],
   ];

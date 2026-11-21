@@ -8,6 +8,7 @@ import { earliestMissingStep } from "@/lib/booking/booking-route";
 import { timeToMinutes } from "@/lib/booking/engine-availability";
 import { changeOrCancelText, unknownOutcomeMessage } from "@/lib/booking/engine-errors";
 import type { ForWhom } from "@/lib/booking/start-booking";
+import { LockIcon } from "@/components/provider/icons";
 import { dateLabel, Field } from "@/components/provider/booking-drawer";
 import { Notice, StepHeader, SummaryPanel } from "./ui";
 import { useBookFlow } from "./flow";
@@ -137,15 +138,19 @@ export function ConfirmStep() {
                   onChange={(v) => setGuest((g) => ({ ...g, name: v }))}
                 />
                 {user?.email && (
-                  <Field
-                    id="guest-email"
-                    label={forWhom.kind === "other" ? "Your account email" : "Account email"}
-                    type="email"
-                    value={user.email}
-                    readOnly
-                    autoComplete="email"
-                    onChange={() => {}}
-                  />
+                  <div className="flex flex-col gap-1.5">
+                    <span id="guest-email-label" className="text-sm font-medium">
+                      {forWhom.kind === "other" ? "Your account email" : "Account email"}
+                    </span>
+                    {/* Not an input: it can't be edited or focused as a text box. */}
+                    <p
+                      aria-labelledby="guest-email-label"
+                      className="flex h-11 items-center justify-between gap-3 rounded-[var(--radius-sm)] border border-border bg-muted px-3 text-sm text-muted-foreground"
+                    >
+                      <span className="min-w-0 truncate">{user.email}</span>
+                      <LockIcon aria-hidden="true" width={16} height={16} className="shrink-0" />
+                    </p>
+                  </div>
                 )}
                 <Field
                   id="guest-phone"
