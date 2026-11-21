@@ -1,3 +1,5 @@
+import { formatDuration } from "@/lib/providers";
+
 /**
  * Shared shape + rendering rules for book-spa's marketplace-customer-lookup response, used by
  * both the per-studio "Your visits here" section (studio-history.tsx) and the cross-studio
@@ -46,9 +48,104 @@ function asText(value: unknown): string | undefined {
 }
 
 function asMoney(value: unknown): string | undefined {
-  if (typeof value === "number") return `Rs ${value.toLocaleString("en-IN")}`;
+  if (typeof value === "number") return `NPR ${value.toLocaleString("en-IN")}`;
   if (typeof value === "string" && value.trim()) return value;
   return undefined;
+}
+
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "2026-11-23" → "Mon 23 Nov 2026". Calendar arithmetic only, no timezone. Anything else is returned as it came. */
+export function formatLookupDate(value: unknown): string | undefined {
+  const text = asText(value);
+  if (!text) return undefined;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(text);
+  if (!m) return text;
+  const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  const dow = new Date(Date.UTC(y, mo - 1, d)).getUTCDay();
+  return `${DAYS[dow]} ${d} ${MONTHS[mo - 1]} ${y}`;
+}
+
+function clock12(hhmm: string): { h: number; m: number; suffix: "AM" | "PM" } | null {
+  const m = /^(\d{2}):(\d{2})/.exec(hhmm);
+  if (!m) return null;
+  const h = Number(m[1]);
+  return { h: h % 12 === 0 ? 12 : h % 12, m: Number(m[2]), suffix: h >= 12 ? "PM" : "AM" };
+}
+
+/**
+ * "09:50:00","10:20:00" → "9:50 – 10:20 AM"; across noon "11:30 AM – 12:30 PM"; start only → "9:50 AM".
+ * The studio's own wall-clock time (Kathmandu): stored as a local time, so nothing is converted.
+ */
+export function formatLookupTimeRange(start: unknown, end?: unknown): string | undefined {
+  const s = asText(start);
+  const a = s ? clock12(s) : null;
+  if (!s) return undefined;
+  if (!a) return s;
+  const fmt = (c: { h: number; m: number }) => `${c.h}:${String(c.m).padStart(2, "0")}`;
+  const e = asText(end);
+  const b = e ? clock12(e) : null;
+  if (!b) return `${fmt(a)} ${a.suffix}`;
+  return a.suffix === b.suffix ? `${fmt(a)} – ${fmt(b)} ${b.suffix}` : `${fmt(a)} ${a.suffix} – ${fmt(b)} ${b.suffix}`;
+}
+
+/** Minutes as "30 min" / "1 hr 30 min"; a non-numeric value is shown as it came. */
+function formatLookupDuration(value: unknown): string | undefined {
+  const n = typeof value === "number" ? value : typeof value === "string" && /^\d+$/.test(value.trim()) ? Number(value) : NaN;
+  if (Number.isFinite(n) && n > 0) return formatDuration([n]);
+  return asText(value);
+}
+
+const plainWords = (raw: string) => {
+  const t = raw.replace(/[_-]+/g, " ").trim();
+  return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+};
+
+/** book-spa's booking statuses in plain words. A status we don't know is shown as written, tidied, never hidden. */
+export function bookingStatusLabel(status: string | undefined): string | undefined {
+  if (!status) return undefined;
+  const known: Record<string, string> = {
+    pending: "Waiting for the studio to confirm",
+    confirmed: "Confirmed",
+    completed: "Completed",
+    cancelled: "Cancelled",
+    canceled: "Cancelled",
+    "no show": "Did not attend",
+    "in-progress": "In progress",
+  };
+  return known[status.trim().toLowerCase()] ?? plainWords(status);
+}
+
+/** The membership status book-spa computes ('active' | 'pending' | 'depleted' | 'lapsed') in plain words. */
+export function membershipStatusLabel(status: string | undefined): string | undefined {
+  if (!status) return undefined;
+  const known: Record<string, string> = {
+    active: "Active",
+    pending: "Not active yet",
+    depleted: "Balance used up",
+    lapsed: "Expired",
+  };
+  return known[status.trim().toLowerCase()] ?? plainWords(status);
+}
+
+/**
+ * The money row for a booking. The studio's price (final_amount) is NOT proof of payment, so it is
+ * labelled "Price" unless the lookup itself says the booking was paid. Today migration-410's
+ * booking rows carry no payment field at all, so this always answers "Price"; the paid and partly
+ * paid branches only wake up if book-spa starts sending `payment_status` (and `paid_amount` for
+ * a part payment). Never inferred from the price or the booking status.
+ */
+export function bookingPriceRow(b: LookupRow): DetailRow | undefined {
+  const price = asMoney(field(b, ["final_amount"]));
+  if (!price) return undefined;
+  const pay = asText(field(b, ["payment_status"]))?.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  if (pay === "paid") return { label: "Paid", value: price };
+  const paidSoFar = field(b, ["paid_amount"]);
+  if ((pay === "partial" || pay === "partiallypaid") && typeof paidSoFar === "number") {
+    return { label: "Paid", value: `${asMoney(paidSoFar)} of ${price}` };
+  }
+  return { label: "Price", value: price };
 }
 
 /**
@@ -65,10 +162,10 @@ function asMoney(value: unknown): string | undefined {
  */
 export function bookingLine(b: LookupRow): { title: string; detail: string; status?: string } {
   const service = asText(field(b, ["service_name_snapshot", "service_name", "serviceName", "service", "name"])) ?? "Visit";
-  const date = asText(field(b, ["date", "booking_date", "scheduled_date", "appointment_date"]));
-  const time = asText(field(b, ["start_time", "time", "booking_time", "scheduled_time"]));
+  const date = formatLookupDate(field(b, ["date", "booking_date", "scheduled_date", "appointment_date"]));
+  const time = formatLookupTimeRange(field(b, ["start_time", "time", "booking_time", "scheduled_time"]), field(b, ["end_time"]));
   const amount = asMoney(field(b, ["final_amount", "amount", "price", "total", "amount_npr"]));
-  const status = asText(field(b, ["status"]));
+  const status = bookingStatusLabel(asText(field(b, ["status"])));
   const detail = [date, time].filter(Boolean).join(" · ") || "Date to be confirmed";
   return { title: amount ? `${service} · ${amount}` : service, detail, status };
 }
@@ -76,7 +173,7 @@ export function bookingLine(b: LookupRow): { title: string; detail: string; stat
 export function membershipView(m: LookupRow): { tier: string; detail?: string; status?: string } {
   const tier = asText(field(m, ["tier_name", "tierName", "tier", "name", "plan_name"])) ?? "Member";
   const balance = asMoney(field(m, ["balance", "balance_npr", "remaining_balance"]));
-  const status = asText(field(m, ["status"]));
+  const status = membershipStatusLabel(asText(field(m, ["status"])));
   return { tier, detail: balance ? `Balance: ${balance}` : undefined, status };
 }
 
@@ -101,13 +198,13 @@ function rows(...entries: [string, string | undefined][]): DetailRow[] {
 export function membershipDetail(m: LookupRow): { tier: string; status?: string; rows: DetailRow[] } {
   return {
     tier: asText(field(m, ["tier_name", "tierName", "tier", "name", "plan_name"])) ?? "Member",
-    status: asText(field(m, ["status"])),
+    status: membershipStatusLabel(asText(field(m, ["status"]))),
     rows: rows(
       ["Membership no.", asText(field(m, ["membership_number"]))],
       ["Balance", asMoney(field(m, ["balance", "balance_npr"]))],
       ["Total deposited", asMoney(field(m, ["total_deposited"]))],
-      ["Activated", asText(field(m, ["activation_date"]))],
-      ["Expires", asText(field(m, ["expiry_date"]))]
+      ["Activated", formatLookupDate(field(m, ["activation_date"]))],
+      ["Expires", formatLookupDate(field(m, ["expiry_date"]))]
     ),
   };
 }
@@ -132,12 +229,12 @@ export function packageView(p: LookupRow): { name: string; status?: string; sess
 
   return {
     name: asText(field(p, ["package_type_name", "package_name", "name"])) ?? "Package",
-    status: asText(field(p, ["status"])),
+    status: asText(field(p, ["status"])) ? plainWords(asText(field(p, ["status"]))!) : undefined,
     sessions,
     rows: rows(
       ["Code", asText(field(p, ["package_code"]))],
-      ["Issued", asText(field(p, ["issued_date"]))],
-      ["Expires", asText(field(p, ["expiry_date"]))],
+      ["Issued", formatLookupDate(field(p, ["issued_date"]))],
+      ["Expires", formatLookupDate(field(p, ["expiry_date"]))],
       ["Paid", asMoney(field(p, ["paid_amount"]))]
     ),
   };
@@ -153,8 +250,8 @@ export function voucherView(v: LookupRow): { code: string; remaining?: string; r
     remaining: asMoney(field(v, ["remaining_balance"])),
     rows: rows(
       ["Issued for", asMoney(field(v, ["total_amount_issued"]))],
-      ["Issued", asText(field(v, ["issued_date"]))],
-      ["Expires", asText(field(v, ["expiry_date"]))]
+      ["Issued", formatLookupDate(field(v, ["issued_date"]))],
+      ["Expires", formatLookupDate(field(v, ["expiry_date"]))]
     ),
   };
 }
@@ -169,27 +266,25 @@ export function bookingDetail(b: LookupRow): {
   when?: string;
   rows: DetailRow[];
 } {
-  const date = asText(field(b, ["date", "booking_date"]));
-  const start = asText(field(b, ["start_time", "time"]));
-  const end = asText(field(b, ["end_time"]));
-  const time = start && end ? `${start}–${end}` : start;
+  const date = formatLookupDate(field(b, ["date", "booking_date"]));
+  const time = formatLookupTimeRange(field(b, ["start_time", "time"]), field(b, ["end_time"]));
   const discount = asMoney(field(b, ["discount_amount"]));
 
   return {
     service: asText(field(b, ["service_name_snapshot", "service_name", "service", "name"])) ?? "Visit",
-    status: asText(field(b, ["status"])),
+    status: bookingStatusLabel(asText(field(b, ["status"]))),
     when: [date, time].filter(Boolean).join(" · ") || undefined,
-    rows: rows(
+    rows: [...rows(
       ["Category", asText(field(b, ["service_category_snapshot"]))],
-      ["Duration", asText(field(b, ["service_duration_snapshot"]))],
+      ["Duration", formatLookupDuration(field(b, ["service_duration_snapshot"]))],
       ["Therapist", asText(field(b, ["therapist_name_snapshot"]))],
-      ["Room", asText(field(b, ["room_name_snapshot"]))],
-      ["Paid", asMoney(field(b, ["final_amount"]))],
+      ["Room", asText(field(b, ["room_name_snapshot"]))]
+    ), ...(bookingPriceRow(b) ? [bookingPriceRow(b) as DetailRow] : []), ...rows(
       // Only ever shown when non-zero: "Discount: Rs 0" on every full-price booking is noise, and
       // book-spa sends 0 rather than null for the overwhelmingly common no-discount case.
       ["Discount", typeof field(b, ["discount_amount"]) === "number" && field(b, ["discount_amount"]) !== 0 ? discount : undefined],
       ["Notes", asText(field(b, ["special_requests"]))]
-    ),
+    )],
   };
 }
 

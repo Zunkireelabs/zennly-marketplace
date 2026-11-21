@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   bookingDetail,
+  bookingPriceRow,
+  bookingStatusLabel,
+  formatLookupDate,
+  formatLookupTimeRange,
+  membershipStatusLabel,
   bookingLine,
   membershipDetail,
   membershipView,
@@ -87,9 +92,8 @@ describe("bookingLine", () => {
     const line = bookingLine(REAL_BOOKING_ROW);
     expect(line.title).toContain("Deep Tissue Massage");
     expect(line.title).not.toBe("Visit");
-    expect(line.title).toMatch(/Rs\s*3,150/);
-    expect(line.detail).toContain("2026-11-10");
-    expect(line.detail).toContain("14:30:00");
+    expect(line.title).toMatch(/NPR\s*3,150/);
+    expect(line.detail).toBe("Tue 10 Nov 2026 · 2:30 – 3:30 PM");
     expect(line.status).toBe("Completed");
   });
 
@@ -101,7 +105,7 @@ describe("bookingLine", () => {
 
   it("still finds the service name even under an older speculative key, by design", () => {
     const line = bookingLine({ service_name: "Legacy Key Massage", amount: 1000 });
-    expect(line.title).toBe("Legacy Key Massage · Rs 1,000");
+    expect(line.title).toBe("Legacy Key Massage · NPR 1,000");
   });
 });
 
@@ -109,8 +113,8 @@ describe("membershipView", () => {
   it("renders the real tier name and balance from a migration-336-shaped membership row", () => {
     const view = membershipView(REAL_MEMBERSHIP_ROW);
     expect(view.tier).toBe("Gold");
-    expect(view.detail).toMatch(/Rs\s*8,200/);
-    expect(view.status).toBe("active");
+    expect(view.detail).toMatch(/NPR\s*8,200/);
+    expect(view.status).toBe("Active");
   });
 });
 
@@ -218,9 +222,9 @@ describe("membershipDetail", () => {
   it("renders all five detail fields from a real row", () => {
     const d = membershipDetail(REAL_MEMBERSHIP_ROW);
     expect(d.tier).toBe("Gold");
-    expect(d.status).toBe("active");
+    expect(d.status).toBe("Active");
     expect(labels(d)).toEqual(["Membership no.", "Balance", "Total deposited", "Activated", "Expires"]);
-    expect(valueOf(d, "Balance")).toBe("Rs 8,200");
+    expect(valueOf(d, "Balance")).toBe("NPR 8,200");
     expect(valueOf(d, "Membership no.")).toBe("MEM-00123");
   });
 
@@ -228,14 +232,14 @@ describe("membershipDetail", () => {
     // activation_date is null for a membership that hasn't been activated — the 'pending' case.
     const d = membershipDetail({ ...REAL_MEMBERSHIP_ROW, activation_date: null, status: "pending" });
     expect(labels(d)).not.toContain("Activated");
-    expect(d.status).toBe("pending");
+    expect(d.status).toBe("Not active yet");
   });
 
-  it("takes status verbatim and never derives it from expiry_date", () => {
+  it("takes status from the studio (in plain words) and never derives it from expiry_date", () => {
     // Expired a year ago, but book-spa says active. We must not "correct" that: the server
     // computes status in Asia/Kathmandu, and a browser recomputing it would disagree abroad.
     const d = membershipDetail({ ...REAL_MEMBERSHIP_ROW, expiry_date: "2025-01-01", status: "active" });
-    expect(d.status).toBe("active");
+    expect(d.status).toBe("Active");
   });
 });
 
@@ -245,7 +249,7 @@ describe("packageView", () => {
     expect(p.name).toBe("10-Session Facial Pack");
     expect(p.sessions).toBe("3 of 10 used · 7 left");
     expect(valueOf(p, "Code")).toBe("PKG-00099");
-    expect(valueOf(p, "Paid")).toBe("Rs 25,000");
+    expect(valueOf(p, "Paid")).toBe("NPR 25,000");
   });
 
   it("omits sessions entirely when the counts aren't numbers", () => {
@@ -266,8 +270,8 @@ describe("voucherView", () => {
   it("renders remaining against the issued total", () => {
     const v = voucherView(REAL_VOUCHER_ROW);
     expect(v.code).toBe("VCH-00055");
-    expect(v.remaining).toBe("Rs 1,500");
-    expect(valueOf(v, "Issued for")).toBe("Rs 2,000");
+    expect(v.remaining).toBe("NPR 1,500");
+    expect(valueOf(v, "Issued for")).toBe("NPR 2,000");
   });
 });
 
@@ -275,21 +279,68 @@ describe("bookingDetail", () => {
   it("renders the fields bookingLine never showed", () => {
     const d = bookingDetail(REAL_BOOKING_ROW);
     expect(d.service).toBe("Deep Tissue Massage");
-    expect(d.when).toBe("2026-11-10 · 14:30:00–15:30:00");
+    expect(d.when).toBe("Tue 10 Nov 2026 · 2:30 – 3:30 PM");
     expect(valueOf(d, "Therapist")).toBe("Sita Gurung");
     expect(valueOf(d, "Room")).toBe("Room 2");
-    expect(valueOf(d, "Paid")).toBe("Rs 3,150");
-    expect(valueOf(d, "Discount")).toBe("Rs 350");
+    expect(valueOf(d, "Price")).toBe("NPR 3,150");
+    expect(labels(d)).not.toContain("Paid");
+    expect(valueOf(d, "Discount")).toBe("NPR 350");
   });
 
-  it("hides a zero discount rather than printing 'Rs 0' on every full-price booking", () => {
+  it("hides a zero discount rather than printing 'NPR 0' on every full-price booking", () => {
     const d = bookingDetail({ ...REAL_BOOKING_ROW, discount_amount: 0 });
     expect(labels(d)).not.toContain("Discount");
-    expect(valueOf(d, "Paid")).toBe("Rs 3,150");
+    expect(valueOf(d, "Price")).toBe("NPR 3,150");
   });
 
   it("falls back to the start time alone when there is no end time", () => {
     const d = bookingDetail({ ...REAL_BOOKING_ROW, end_time: null });
-    expect(d.when).toBe("2026-11-10 · 14:30:00");
+    expect(d.when).toBe("Tue 10 Nov 2026 · 2:30 PM");
+  });
+});
+
+describe("what a booking's money row says (never 'Paid' unless the studio says so)", () => {
+  const base = { final_amount: 1500 };
+  it("no payment field at all (what migration-410 sends today) → Price", () => {
+    expect(bookingPriceRow(base)).toEqual({ label: "Price", value: "NPR 1,500" });
+  });
+  it("payment_status unpaid → Price", () => {
+    expect(bookingPriceRow({ ...base, payment_status: "unpaid" })).toEqual({ label: "Price", value: "NPR 1,500" });
+  });
+  it("a Completed booking is still just Price: status is not proof of payment", () => {
+    expect(bookingPriceRow({ ...base, status: "Completed" })?.label).toBe("Price");
+  });
+  it("payment_status paid → Paid", () => {
+    expect(bookingPriceRow({ ...base, payment_status: "paid" })).toEqual({ label: "Paid", value: "NPR 1,500" });
+  });
+  it("partly paid with a paid amount → Paid X of Y; without the amount → Price", () => {
+    expect(bookingPriceRow({ ...base, payment_status: "partial", paid_amount: 500 })).toEqual({ label: "Paid", value: "NPR 500 of NPR 1,500" });
+    expect(bookingPriceRow({ ...base, payment_status: "partial" })?.label).toBe("Price");
+  });
+  it("no price → no row", () => {
+    expect(bookingPriceRow({ payment_status: "paid" })).toBeUndefined();
+  });
+});
+
+describe("plain formatting", () => {
+  it("dates", () => {
+    expect(formatLookupDate("2026-11-23")).toBe("Mon 23 Nov 2026");
+    expect(formatLookupDate("2026-11-23T00:00:00+00:00")).toBe("Mon 23 Nov 2026");
+    expect(formatLookupDate("someday")).toBe("someday");
+    expect(formatLookupDate(null)).toBeUndefined();
+  });
+  it("times, no seconds, one AM/PM when both ends share it", () => {
+    expect(formatLookupTimeRange("09:50:00", "10:20:00")).toBe("9:50 – 10:20 AM");
+    expect(formatLookupTimeRange("11:30:00", "12:30:00")).toBe("11:30 AM – 12:30 PM");
+    expect(formatLookupTimeRange("00:00:00", "00:30:00")).toBe("12:00 – 12:30 AM");
+    expect(formatLookupTimeRange("18:30:00")).toBe("6:30 PM");
+  });
+  it("duration and status words", () => {
+    expect(bookingDetail({ service_duration_snapshot: 30 }).rows.find((r) => r.label === "Duration")?.value).toBe("30 min");
+    expect(bookingDetail({ service_duration_snapshot: 90 }).rows.find((r) => r.label === "Duration")?.value).toBe("1 hr 30 min");
+    expect(bookingStatusLabel("No Show")).toBe("Did not attend");
+    expect(bookingStatusLabel("Pending")).toBe("Waiting for the studio to confirm");
+    expect(bookingStatusLabel("Rescheduled")).toBe("Rescheduled");
+    expect(membershipStatusLabel("lapsed")).toBe("Expired");
   });
 });
