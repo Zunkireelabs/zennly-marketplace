@@ -64,9 +64,15 @@ export function PromoBanners() {
               <span className="mt-3 block text-2xl font-semibold leading-tight text-foreground">
                 {banner.headline}
               </span>
-              <span className="mt-1 block max-w-md text-sm text-muted-foreground sm:text-base">
-                {banner.subcopy}
-              </span>
+              {banner.subcopy && (
+
+                <span className="mt-1 block max-w-md text-sm text-muted-foreground sm:text-base">
+
+                  {banner.subcopy}
+
+                </span>
+
+              )}
             </span>
             <span className="inline-flex shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors duration-200 group-hover:bg-primary-hover sm:mr-12">
               {banner.ctaLabel}

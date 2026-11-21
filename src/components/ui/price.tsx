@@ -3,13 +3,16 @@
 import { useCurrency } from "@/lib/currency/use-currency";
 
 /**
- * A USD amount shown in the visitor's chosen currency — EXCEPT for engine-connected providers
- * (`engineProviderId` set), whose service/fromPrice numbers are real NPR amounts from book-spa
- * (src/lib/providers-real.ts), not USD to be converted. Pass `engineProviderId` whenever the
- * amount came from a Provider so this renders correctly either way.
+ * A price in NPR.
+ *
+ * This used to branch: engine-connected studios' amounts were already real NPR and printed
+ * directly, while seed providers held USD needing conversion. The seed data is now NPR and the
+ * rate is 1, so both paths produce the same string and the branch is gone.
+ *
+ * `engineProviderId` is still accepted — deliberately unread — so the ~15 call sites don't churn
+ * and the distinction is cheap to reinstate if the two sources ever diverge again.
  */
-export function Price({ usd, engineProviderId }: { usd: number; engineProviderId?: string }) {
+export function Price({ amount }: { amount: number; engineProviderId?: string }) {
   const { format } = useCurrency();
-  if (engineProviderId) return <>Rs {usd.toLocaleString("en-IN")}</>;
-  return <>{format(usd)}</>;
+  return <>{format(amount)}</>;
 }

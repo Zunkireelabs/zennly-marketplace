@@ -56,7 +56,7 @@ export function BookingCard() {
             <option value="">Choose a service</option>
             {provider.services.map((service) => (
               <option key={service.id} value={service.id}>
-                {service.name} · {formatDuration(service.durations)} · <Price usd={service.price} engineProviderId={provider.engineProviderId} />
+                {service.name} · {formatDuration(service.durations)} · <Price amount={service.price} engineProviderId={provider.engineProviderId} />
               </option>
             ))}
           </select>
@@ -69,12 +69,12 @@ export function BookingCard() {
             <span className="text-sm text-muted-foreground">
               Total · {formatDuration([totalMinutes])}
             </span>
-            <span className="font-mono text-2xl font-semibold tabular-nums"><Price usd={totalPrice} engineProviderId={provider.engineProviderId} /></span>
+            <span className="font-mono text-2xl font-semibold tabular-nums"><Price amount={totalPrice} engineProviderId={provider.engineProviderId} /></span>
           </>
         ) : (
           <>
             <span className="text-sm text-muted-foreground">Starting from</span>
-            <span className="font-mono text-2xl font-semibold tabular-nums"><Price usd={provider.fromPrice} engineProviderId={provider.engineProviderId} /></span>
+            <span className="font-mono text-2xl font-semibold tabular-nums"><Price amount={provider.fromPrice} engineProviderId={provider.engineProviderId} /></span>
           </>
         )}
       </div>
@@ -104,7 +104,7 @@ export function MobileBookBar() {
           {selectedServices.length > 0 ? `${selectedServices.length} selected` : "Starting from"}
         </p>
         <p className="font-mono text-lg font-semibold tabular-nums">
-          <Price usd={selectedServices.length > 0 ? totalPrice : provider.fromPrice} engineProviderId={provider.engineProviderId} />
+          <Price amount={selectedServices.length > 0 ? totalPrice : provider.fromPrice} engineProviderId={provider.engineProviderId} />
         </p>
       </div>
       <button

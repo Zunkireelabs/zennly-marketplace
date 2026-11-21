@@ -37,7 +37,7 @@ export function PopupCard({
             </span>
             <span className="mt-1.5 block text-xs text-foreground">
               {studio.isNew ? "New to Zennly" : `★ ${studio.rating.toFixed(1)} (${studio.reviewCount})`} · from{" "}
-              <Price usd={studio.fromPrice} engineProviderId={studio.engineProviderId} />
+              <Price amount={studio.fromPrice} engineProviderId={studio.engineProviderId} />
             </span>
           </span>
         </Link>

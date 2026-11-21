@@ -57,12 +57,12 @@ export function ServicesSection() {
               <p className="font-mono text-base font-semibold tabular-nums">
                 {service.priceRange ? (
                   <>
-                    <Price usd={service.priceRange.min} engineProviderId={provider.engineProviderId} />
+                    <Price amount={service.priceRange.min} engineProviderId={provider.engineProviderId} />
                     {" – "}
-                    <Price usd={service.priceRange.max} engineProviderId={provider.engineProviderId} />
+                    <Price amount={service.priceRange.max} engineProviderId={provider.engineProviderId} />
                   </>
                 ) : (
-                  <Price usd={service.price} engineProviderId={provider.engineProviderId} />
+                  <Price amount={service.price} engineProviderId={provider.engineProviderId} />
                 )}
               </p>
               <button
@@ -109,7 +109,7 @@ export function ServicesSection() {
                   {item.name}
                 </span>
                 <span className="font-mono tabular-nums text-muted-foreground">
-                  {item.price === 0 ? "Free" : <>+<Price usd={item.price} /></>}
+                  {item.price === 0 ? "Free" : <>+<Price amount={item.price} /></>}
                 </span>
               </li>
             ))}

@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { CloseIcon } from "@/components/provider/icons";
 import { ListingRow, type CollectionItem } from "./listing-row";
 import { Price } from "@/components/ui/price";
-import { CurrencySwitch } from "@/components/layout/currency-picker";
 import { CURRENCIES } from "@/lib/currency/currencies";
 import { useCurrency } from "@/lib/currency/use-currency";
 
@@ -307,7 +306,6 @@ function FilterPanel({
         <div>
           <p className={OVERLINE}>Price from</p>
           <div className="mt-2">
-            <CurrencySwitch />
           </div>
           <input
             type="range"
@@ -324,8 +322,8 @@ function FilterPanel({
             className="mt-3 w-full accent-primary"
           />
           <div className="mt-1 flex justify-between font-[family-name:var(--font-space-mono)] text-xs text-muted-foreground">
-            <span><Price usd={priceFloor} /></span>
-            <span className="text-foreground">Up to <Price usd={maxPrice} /></span>
+            <span><Price amount={priceFloor} /></span>
+            <span className="text-foreground">Up to <Price amount={maxPrice} /></span>
           </div>
         </div>
       )}

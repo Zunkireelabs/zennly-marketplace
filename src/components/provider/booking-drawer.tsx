@@ -522,7 +522,7 @@ export function BookingDrawer() {
                                   <span className="min-w-0 flex-1">
                                     <span className="flex items-baseline justify-between gap-3">
                                       <span className="text-sm font-semibold">{service.name}</span>
-                                      <span className="font-mono text-sm tabular-nums"><Price usd={service.price} engineProviderId={provider.engineProviderId} /></span>
+                                      <span className="font-mono text-sm tabular-nums"><Price amount={service.price} engineProviderId={provider.engineProviderId} /></span>
                                     </span>
                                     <span className="mt-0.5 block text-xs text-muted-foreground">
                                       {formatDuration(service.durations)}
@@ -757,7 +757,7 @@ export function BookingDrawer() {
                         ? "No services selected"
                         : `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} · ${formatDuration([totalMinutes])}`}
                     </p>
-                    <p className="font-mono text-lg font-semibold tabular-nums"><Price usd={totalPrice} engineProviderId={provider.engineProviderId} /></p>
+                    <p className="font-mono text-lg font-semibold tabular-nums"><Price amount={totalPrice} engineProviderId={provider.engineProviderId} /></p>
                   </div>
                   {step === "confirm" ? (
                     <button
@@ -916,7 +916,7 @@ function SummaryBlock({
       </ul>
       <p className="mt-3 flex items-baseline justify-between border-t border-border pt-3 text-sm">
         <span className="text-muted-foreground">{formatDuration([minutes])}</span>
-        <span className="font-mono text-base font-semibold tabular-nums"><Price usd={total} engineProviderId={engineProviderId} /></span>
+        <span className="font-mono text-base font-semibold tabular-nums"><Price amount={total} engineProviderId={engineProviderId} /></span>
       </p>
     </div>
   );

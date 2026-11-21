@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { pillClass } from "@/components/ui/pill";
 import { useCurrency } from "@/lib/currency/use-currency";
 import { CURRENCIES } from "@/lib/currency/currencies";
-import { CurrencySwitch } from "@/components/layout/currency-picker";
 
 export type Filters = {
   treatments: string[];
@@ -119,7 +118,6 @@ function BudgetFields({ filters, onChange, bounds }: { filters: Filters; onChang
         </label>
       </div>
       <div className="mt-3">
-        <CurrencySwitch />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">Starting price per visit.</p>
     </div>

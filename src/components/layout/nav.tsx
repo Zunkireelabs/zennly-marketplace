@@ -9,7 +9,6 @@ import { SearchBar } from "@/components/search/search-bar";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { maskTarget } from "@/lib/auth/normalize";
 import { MARKETING_SITE_HOME } from "@/lib/marketing-links";
-import { CurrencyChip, CurrencyRow } from "./currency-picker";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 
@@ -81,7 +80,6 @@ export function Nav({
 
         <div className="flex items-center gap-3">
           <AccountControl ink={ink} solid={solid} />
-          <CurrencyChip ink={ink} edge={edge} />
           <Link
             href={providersHref}
             className={`hidden rounded-[var(--radius-full)] border px-4 py-2 font-mono text-sm font-medium transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] sm:inline-block ${ink} ${edge}`}
@@ -135,7 +133,6 @@ export function Nav({
               ))}
 
               <div className="my-1 h-px bg-border" />
-              <CurrencyRow />
               <div className="my-1 h-px bg-border sm:hidden" />
 
               <Link
