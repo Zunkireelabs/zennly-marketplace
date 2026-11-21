@@ -62,14 +62,18 @@ describe("startBooking with the flag off keeps today's handoff behaviour", () =>
   const provider = (over: Record<string, unknown>) =>
     ({ slug: "nuad", name: "Nuad", bookingUrl: "https://app.zennly.io/nuad", engineProviderId: "nuad", ...over }) as never;
 
-  it("flag off + connected + booking link → still opens the link, not the drawer", async () => {
+  it("flag off + connected + booking link → hands off to the link in the SAME tab, not the drawer", async () => {
     vi.stubEnv("NEXT_PUBLIC_ENGINE_BOOKING", "");
     const open = vi.fn();
-    vi.stubGlobal("window", { open, location: { assign: vi.fn() } });
+    const assign = vi.fn();
+    vi.stubGlobal("window", { open, location: { assign } });
     const { startBooking } = await import("./start-booking");
     const result = startBooking({ provider: provider({}), selection: { serviceIds: [] } });
     expect(result.kind).toBe("external");
-    expect(open).toHaveBeenCalledTimes(1);
+    // Anish's 8dbfee5: the hand-off navigates this tab (location.assign) and never opens a new one.
+    expect(assign).toHaveBeenCalledTimes(1);
+    expect(String(assign.mock.calls[0][0])).toContain("app.zennly.io/nuad");
+    expect(open).not.toHaveBeenCalled();
   });
 
   it("flag off + unconnected + no link → the in-page demo drawer, as before", async () => {
@@ -79,9 +83,24 @@ describe("startBooking with the flag off keeps today's handoff behaviour", () =>
     expect(result.kind).toBe("drawer");
   });
 
-  it("flag ON + connected → the real-booking drawer instead of the handoff", async () => {
+  it("flag ON + connected → the studio's booking pages in the same tab (no drawer, no hand-off)", async () => {
+    vi.stubEnv("NEXT_PUBLIC_ENGINE_BOOKING", "on");
+    const assign = vi.fn();
+    const open = vi.fn();
+    vi.stubGlobal("window", { open, location: { assign } });
+    const { startBooking } = await import("./start-booking");
+    const none = startBooking({ provider: provider({}), selection: { serviceIds: [] } });
+    expect(none).toMatchObject({ kind: "page", url: "/providers/nuad/book" });
+    const withService = startBooking({ provider: provider({}), selection: { serviceIds: ["svc-1"] } });
+    expect(withService).toMatchObject({ kind: "page", url: "/providers/nuad/book?service=svc-1" });
+    expect(assign).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
+  });
+
+  it("flag ON + UNCONNECTED → the demo drawer, unchanged", async () => {
     vi.stubEnv("NEXT_PUBLIC_ENGINE_BOOKING", "on");
     const { startBooking } = await import("./start-booking");
-    expect(startBooking({ provider: provider({}), selection: { serviceIds: [] } }).kind).toBe("drawer");
+    const result = startBooking({ provider: provider({ bookingUrl: undefined, engineProviderId: undefined }), selection: { serviceIds: ["x"] } });
+    expect(result.kind).toBe("drawer");
   });
 });

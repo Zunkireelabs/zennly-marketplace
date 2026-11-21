@@ -1,5 +1,6 @@
 import { track } from "@/lib/analytics/track";
 import { normalizeName } from "@/lib/auth/normalize";
+import { bookUrl } from "@/lib/booking/booking-route";
 import { engineBookingEnabled } from "@/lib/booking/engine-flag";
 import type { Provider } from "@/lib/providers";
 
@@ -21,6 +22,8 @@ export type StartBookingInput = {
 export type StartBookingResult =
   /** No engine link for this studio: the caller opens the in-page demo drawer. */
   | { kind: "drawer"; handoffId: string }
+  /** A connected studio: the caller continues in the same tab at the studio's booking pages. */
+  | { kind: "page"; handoffId: string; url: string }
   /** The studio's booking page was opened in a new tab. */
   | { kind: "external"; handoffId: string; url: string }
   /** The link was missing, malformed or not on the allowlist. Nothing was opened. */
@@ -116,10 +119,13 @@ export function startBooking({ provider, selection, forWhom }: StartBookingInput
     for_whom: who.kind,
   });
 
-  // The Stage 1 handoff (below) predates our own write path and only ever sent a customer to
-  // book-spa's own booking UI. Once the flag is on, a connected provider's real booking now
-  // happens in-page instead — the handoff has to yield to it, not run alongside it.
-  if (engineBookingEnabled() && provider.engineProviderId) return { kind: "drawer", handoffId };
+  // Once the flag is on, a connected studio's real booking happens on our own booking pages
+  // (/providers/:slug/book, ZNLY-338), in the same tab. It never opens the drawer or the Stage 1
+  // hand-off below. The chosen service, if any, travels in the URL so a refresh keeps it.
+  if (engineBookingEnabled() && provider.engineProviderId) {
+    const url = bookUrl(provider.slug, "location", { service: selection.serviceIds[0] });
+    return { kind: "page", handoffId, url };
+  }
 
   const base = provider.bookingUrl;
   if (!base) return { kind: "drawer", handoffId };

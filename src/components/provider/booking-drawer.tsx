@@ -40,14 +40,14 @@ const SLOT_STEP_MINUTES = 30;
 const DAYS_AHEAD = 60;
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
-function toISO(date: Date): string {
+export function toISO(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 
-function fromISO(iso: string): Date {
+export function fromISO(iso: string): Date {
   const [y, m, d] = iso.split("-").map(Number);
   return new Date(y, m - 1, d);
 }
@@ -1104,12 +1104,12 @@ function MonthCalendar({
   );
 }
 
-function dateLabel(iso: string | null): string {
+export function dateLabel(iso: string | null): string {
   if (!iso) return "";
   return fromISO(iso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 }
 
-function SummaryBlock({
+export function SummaryBlock({
   provider,
   services,
   when,
@@ -1153,7 +1153,7 @@ function SummaryBlock({
   );
 }
 
-function Field({
+export function Field({
   id,
   label,
   value,
@@ -1201,7 +1201,7 @@ function Field({
 }
 
 /** What to say on a day with no slots at all, by why. */
-function closedDayMessage(reason: ClosedReason | null, phone: string | null): string {
+export function closedDayMessage(reason: ClosedReason | null, phone: string | null): string {
   if (reason === "hours-unknown") return TIMES_UNAVAILABLE + (phone ? ` Studio phone: ${phone}.` : "");
   if (reason === "day-off") return "The studio is closed on this day. Try another date.";
   return "The studio is closed on this date. Try another date.";

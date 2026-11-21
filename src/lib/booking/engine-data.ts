@@ -30,6 +30,8 @@ export type EngineBranch = {
   name: string;
   address: string | null;
   phone: string | null;
+  /** The branch's photo in book-spa (branches.photo_url), or null. */
+  photoUrl: string | null;
   isActive: boolean;
   openTime: string | null;
   closeTime: string | null;
@@ -109,7 +111,7 @@ export async function fetchEngineBranches(orgId: string): Promise<EngineBranch[]
   const { data, error } = await client
     .from("branches")
     .select(
-      "id, name, address, phone, is_active, open_time, close_time, online_booking_capacity, advance_booking_days"
+      "id, name, address, phone, photo_url, is_active, open_time, close_time, online_booking_capacity, advance_booking_days"
     )
     .eq("org_id", orgId)
     .eq("is_active", true)
@@ -120,6 +122,7 @@ export async function fetchEngineBranches(orgId: string): Promise<EngineBranch[]
     name: b.name,
     address: b.address,
     phone: b.phone,
+    photoUrl: typeof b.photo_url === "string" && b.photo_url ? b.photo_url : null,
     isActive: b.is_active,
     openTime: b.open_time,
     closeTime: b.close_time,

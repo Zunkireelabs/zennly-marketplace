@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { track } from "@/lib/analytics/track";
 import { startBooking, type ForWhom } from "@/lib/booking/start-booking";
@@ -68,6 +69,7 @@ export function useProviderUi(): UiContext {
  * Showcase-only: nothing here is persisted or sent anywhere (docs/PRODUCT_CONTEXT.md §4).
  */
 export function ProviderShell({ provider, children }: { provider: Provider; children: React.ReactNode }) {
+  const router = useRouter();
   const [bookingOpen, setBookingOpen] = useState(false);
   const [step, setStep] = useState<BookingStep>("services");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -105,6 +107,12 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
         return;
       }
       if (result.kind === "external") return;
+      // A connected studio: continue on its booking pages, same tab (ZNLY-338). The drawer below
+      // is now only the demo path for studios with no live booking system.
+      if (result.kind === "page") {
+        router.push(result.url);
+        return;
+      }
       if (opts?.serviceId) {
         setSelectedIds((ids) => (ids.includes(opts.serviceId!) ? ids : [opts.serviceId!]));
         setStep("time");
@@ -113,7 +121,7 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
       }
       setBookingOpen(true);
     },
-    [provider, selectedIds, forWhom]
+    [provider, selectedIds, forWhom, router]
   );
 
   const closeBooking = useCallback(() => setBookingOpen(false), []);
