@@ -20,6 +20,7 @@ import { DemoPill } from "@/components/ui/demo-pill";
  */
 export function NewToZennly({ providers }: { providers: NewRailProvider[] }) {
   const rail = useRef<HTMLDivElement>(null);
+  if (providers.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-6 pt-16">
@@ -68,9 +69,11 @@ export function NewToZennly({ providers }: { providers: NewRailProvider[] }) {
               <span className="block text-sm text-muted-foreground">
                 {provider.modality} · {provider.location}
               </span>
-              <span className="mt-0.5 block text-xs text-muted-foreground/80">
-                {provider.joinedLabel}
-              </span>
+              {provider.joinedLabel && (
+                <span className="mt-0.5 block text-xs text-muted-foreground/80">
+                  {provider.joinedLabel}
+                </span>
+              )}
             </span>
           </Link>
         ))}

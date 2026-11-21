@@ -25,7 +25,8 @@ export type RailProvider = {
   isDemo?: boolean;
 };
 
-export type NewRailProvider = RailProvider & { joinedLabel: string };
+/** `joinedLabel` is editorial text for curated demo entries only; a real studio never gets a made-up one. */
+export type NewRailProvider = RailProvider & { joinedLabel?: string };
 
 export type Destination = {
   city: string;
@@ -65,6 +66,8 @@ export type HomeRails = {
   recommended: RailProvider[];
   newToZennly: NewRailProvider[];
   allInOne: RailProvider[];
+  /** False when every rail is empty: the page then shows one "studios are joining soon" block. */
+  hasStudios: boolean;
 };
 
 /** "Your Mood" tabs, three studios each. */
@@ -149,7 +152,16 @@ export async function getHomeRails(): Promise<HomeRails> {
       return p ? [build(p, slug)] : [];
     });
 
-  const bestRated = pick(BEST_RATED, (p, slug) => toRail(p, BEST_RATED_MODALITY[slug]));
+  // Every Studio, Every City is EVERY visible studio: the curated order first (when those studios
+  // exist), then everyone else by rating, then name. Real studios never need to be hand-listed.
+  const curated = new Set(BEST_RATED);
+  const rest = all
+    .filter((p) => !curated.has(p.slug))
+    .sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+  const bestRated = [
+    ...pick(BEST_RATED, (p, slug) => toRail(p, BEST_RATED_MODALITY[slug])),
+    ...rest.map((p) => toRail(p)),
+  ];
 
   const treatmentMap = new Map<string, SearchTreatment>();
   for (const p of all) {
@@ -178,20 +190,38 @@ export async function getHomeRails(): Promise<HomeRails> {
     treatments: Array.from(treatmentMap.values()),
   };
 
+  // A mood with no studio is not offered at all; a rail with none is hidden by its own component.
+  const discoveryIntents = DISCOVERY.map((d) => ({ label: d.label, providers: pick(d.slugs, (p) => toRail(p)) })).filter(
+    (d) => d.providers.length > 0
+  );
+  // Newly Welcomed: the curated entries that exist, then every other visible studio marked new.
+  const curatedNew = NEW_TO_ZENNLY.flatMap(({ slug, joinedLabel }) => {
+    const p = bySlug.get(slug);
+    return p ? [{ ...toRail(p), joinedLabel }] : [];
+  });
+  const curatedNewSlugs = new Set(NEW_TO_ZENNLY.map((n) => n.slug));
+  const newToZennly: NewRailProvider[] = [
+    ...curatedNew,
+    ...all.filter((p) => p.isNew && !curatedNewSlugs.has(p.slug)).map((p) => toRail(p)),
+  ];
+  const allInOne = pick(ALL_IN_ONE, (p) => toRail(p));
+  // Recommended stays editorial: the curated list's recommended studios only.
+  const recommended = pick(BEST_RATED, (p, slug) => toRail(p, BEST_RATED_MODALITY[slug])).filter((p) => p.isRecommended);
+
   return {
     searchIndex,
     destinations,
-    discoveryIntents: DISCOVERY.map((d) => ({ label: d.label, providers: pick(d.slugs, (p) => toRail(p)) })),
+    discoveryIntents,
     bestRated: {
       providers: bestRated,
-      modalities: BEST_RATED_TABS,
+      // The usual tabs first, then any other treatment a visible studio actually offers.
+      modalities: [...BEST_RATED_TABS, ...Array.from(new Set(bestRated.map((p) => p.modality))).filter((m) => !BEST_RATED_TABS.includes(m))],
       locations: ["All", ...Array.from(new Set(bestRated.map((p) => p.location.split(",")[0])))],
     },
-    recommended: bestRated.filter((p) => p.isRecommended),
-    newToZennly: NEW_TO_ZENNLY.flatMap(({ slug, joinedLabel }) => {
-      const p = bySlug.get(slug);
-      return p ? [{ ...toRail(p), joinedLabel }] : [];
-    }),
-    allInOne: pick(ALL_IN_ONE, (p) => toRail(p)),
+    recommended,
+    newToZennly,
+    allInOne,
+    // Any visible studio at all (already past the demo filter), not the sum of the curated rails.
+    hasStudios: all.length > 0,
   };
 }

@@ -20,6 +20,7 @@ const MESSAGES: Record<string, string> = {
   BOOKING_UNAVAILABLE: "Online booking isn't available right now. Please try again in a little while, or contact the studio.",
   LOCATION_INACTIVE: "That location isn't taking bookings right now. Please choose another location or contact the studio.",
   INVALID_BRANCH: "That location isn't available anymore. Please choose another.",
+  SERVICE_NOT_AT_LOCATION: "That service isn't offered at this location. Please choose another location or service.",
   INVALID_SERVICE: "That service isn't available to book online anymore. Please choose another.",
   INVALID_TIME: "That time isn't valid. Please pick another time.",
   NO_CONTACT_INFO: "Please enter a phone number.",

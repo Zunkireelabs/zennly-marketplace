@@ -13,6 +13,7 @@ import { DemoPill } from "@/components/ui/demo-pill";
  * docs/research/refs/onefinestay.md) — plain text, no italics per later revision.
  */
 export function Recommended({ providers }: { providers: RailProvider[] }) {
+  if (providers.length === 0) return null;
   return (
     <section className="mx-auto max-w-7xl px-6 pt-16">
       <h2 className="text-2xl font-normal leading-[1.4] text-foreground sm:text-[32px] sm:leading-[45px]">
