@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { useStudioHistory } from "@/components/account/account-data-provider";
+import { StatusPill } from "@/components/account/status-pill";
 import { bookingDetail, type DetailRow, type LookupRow } from "@/lib/account/studio-lookup";
 
 /**
@@ -101,11 +102,7 @@ function BookingCard({ studio, slug, booking }: { studio: string; slug: string; 
     <div className="rounded-[var(--radius-md)] border border-border bg-card px-4 py-3">
       <div className="flex items-baseline justify-between gap-3">
         <p className="font-medium text-foreground">{d.service}</p>
-        {d.status && (
-          <span className="shrink-0 rounded-[var(--radius-full)] bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
-            {d.status}
-          </span>
-        )}
+        {d.status && <StatusPill>{d.status}</StatusPill>}
       </div>
 
       <p className="mt-0.5 text-sm text-muted-foreground">
@@ -127,7 +124,7 @@ function Rows({ rows }: { rows: DetailRow[] }) {
       {rows.map((r) => (
         <div key={r.label} className="contents">
           <dt className="text-muted-foreground">{r.label}</dt>
-          <dd className="text-foreground">{r.value}</dd>
+          <dd className={r.mono ? "font-mono font-semibold tabular-nums text-foreground" : "text-foreground"}>{r.value}</dd>
         </div>
       ))}
     </dl>

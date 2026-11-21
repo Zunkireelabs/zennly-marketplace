@@ -186,7 +186,8 @@ export function membershipView(m: LookupRow): { tier: string; detail?: string; s
 
 /** A label/value pair for a details list. Entries whose value is absent are dropped by the
  *  builders below rather than rendered as an empty row. */
-export type DetailRow = { label: string; value: string };
+/** `mono` is for reference numbers a customer reads out on the phone (same look as the done page). */
+export type DetailRow = { label: string; value: string; mono?: boolean };
 
 function rows(...entries: [string, string | undefined][]): DetailRow[] {
   return entries.filter(([, v]) => Boolean(v)).map(([label, value]) => ({ label, value: value as string }));
@@ -263,6 +264,12 @@ export function voucherView(v: LookupRow): { code: string; remaining?: string; r
   };
 }
 
+/** The booking number the customer quotes when calling the studio, from bookX's booking_number. */
+function bookingNumberRow(b: LookupRow): DetailRow[] {
+  const n = asText(field(b, ["booking_number"]));
+  return n ? [{ label: "Booking", value: n, mono: true }] : [];
+}
+
 /** The studio's own word for the person who does the service (bookX's staff_label), never ours. */
 function staffWord(b: LookupRow): string {
   return asText(field(b, ["staff_label"])) ?? "Staff";
@@ -286,7 +293,7 @@ export function bookingDetail(b: LookupRow): {
     service: asText(field(b, ["service_name_snapshot", "service_name", "service", "name"])) ?? "Visit",
     status: bookingStatusLabel(asText(field(b, ["status"]))),
     when: [date, time].filter(Boolean).join(" · ") || undefined,
-    rows: [...rows(
+    rows: [...bookingNumberRow(b), ...rows(
       ["Category", asText(field(b, ["service_category_snapshot"]))],
       ["Duration", formatLookupDuration(field(b, ["service_duration_snapshot"]))],
       [staffWord(b), asText(field(b, ["therapist_name_snapshot"]))],
