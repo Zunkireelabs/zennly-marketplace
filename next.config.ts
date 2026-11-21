@@ -135,27 +135,18 @@ if (bookingEngineProxyTarget) {
     );
   }
 }
-// book-spa's Vite dev server has no `base` configured on its side, so the booking page's own
-// HTML references its dev client and entry module at the ROOT — /@vite/client, /src/index.jsx,
-// /@react-refresh — not under /book/. Those requests land on the marketplace (this app owns
-// localhost:3001's root) and 404 without a rewrite of their own; found empirically by loading
-// the booking page and reading its network log, not guessed. `/src/index.jsx` itself imports
-// further modules the same way (more /src/* paths), which is why that one rule is a wildcard
-// rather than listing each file.
+// book-spa serves itself under /book/ (VITE_BASE_PATH=/book/), so its own asset requests are
+// /book/@vite/client, /book/src/..., /book/node_modules/... — all already covered by the one
+// rule below, which is why the prefix is NOT stripped in the destination.
 //
-// Dev-only via the SAME mechanism as the /book/:path* rule above, not a separate check: all of
-// this lives inside `bookingEngineProxyTarget ? [...] : []`, and that variable is unset by
-// default — production never has it configured, so this array is empty there regardless of
-// these extra entries. A permanent, hashed-asset production build has no /@vite/client or
-// /src/index.jsx to forward in the first place; if it ever did, that would mean prod is
-// shipping a dev server, which is its own problem far bigger than this rewrite.
+// An earlier attempt forwarded Vite's ROOT-level paths (/@vite/client, /src/*, /node_modules/*)
+// instead, because book-spa was running without that base set. That got React loading but
+// could not fix the real problem: with no base, book-spa's BrowserRouter has no /book basename
+// either, so it answered /book/<org> with its own 404. Setting the base fixes both at once and
+// needs no root-level rewrites here. Note it must be set in the ENVIRONMENT, not just
+// book-spa's .env — its vite.config.mjs reads process.env, which .env does not populate.
 const bookingProxyRewrite = bookingEngineProxyTarget
-  ? [
-      { source: "/book/:path*", destination: `${bookingEngineProxyTarget}/book/:path*` },
-      { source: "/@vite/client", destination: `${bookingEngineProxyTarget}/@vite/client` },
-      { source: "/@react-refresh", destination: `${bookingEngineProxyTarget}/@react-refresh` },
-      { source: "/src/:path*", destination: `${bookingEngineProxyTarget}/src/:path*` },
-    ]
+  ? [{ source: "/book/:path*", destination: `${bookingEngineProxyTarget}/book/:path*` }]
   : [];
 
 // LAN testing. Next blocks cross-origin requests to dev-only assets by default, and the dev
