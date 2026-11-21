@@ -1,5 +1,6 @@
 import { track } from "@/lib/analytics/track";
 import { normalizeName } from "@/lib/auth/normalize";
+import { engineBookingEnabled } from "@/lib/booking/engine-flag";
 import type { Provider } from "@/lib/providers";
 
 /**
@@ -111,6 +112,11 @@ export function startBooking({ provider, selection, forWhom }: StartBookingInput
     service_count: selection.serviceIds.length,
     for_whom: who.kind,
   });
+
+  // The Stage 1 handoff (below) predates our own write path and only ever sent a customer to
+  // book-spa's own booking UI. Once the flag is on, a connected provider's real booking now
+  // happens in-page instead — the handoff has to yield to it, not run alongside it.
+  if (engineBookingEnabled() && provider.engineProviderId) return { kind: "drawer", handoffId };
 
   const base = provider.bookingUrl;
   if (!base) return { kind: "drawer", handoffId };

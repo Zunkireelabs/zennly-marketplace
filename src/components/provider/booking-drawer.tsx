@@ -8,6 +8,7 @@ import { normalizeEmail, normalizeName } from "@/lib/auth/normalize";
 import { formatDuration } from "@/lib/providers";
 import { useEngineBooking } from "@/lib/booking/use-engine-booking";
 import { computeSoloSlots, timeToMinutes } from "@/lib/booking/engine-availability";
+import { bookingErrorMessage } from "@/lib/booking/engine-errors";
 import type { EngineBranch } from "@/lib/booking/engine-data";
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, CloseIcon, StarIcon } from "./icons";
 import { useProviderUi, type BookingStep } from "./provider-shell";
@@ -84,6 +85,7 @@ export function BookingDrawer() {
     closeBooking,
     setStep,
     toggleService,
+    chooseService,
     setDateISO,
     setTime,
     resetBooking,
@@ -93,10 +95,16 @@ export function BookingDrawer() {
   const panelRef = useRef<HTMLDivElement>(null);
   const { user, openLogin } = useAuth();
   // undefined = untouched, so a signed-in person's details show as the default without an effect.
-  const [guest, setGuest] = useState<{ name?: string; email?: string; notes: string }>({ notes: "" });
-  const [errors, setErrors] = useState<{ name?: string; email?: string; attendee?: string }>({});
+  const [guest, setGuest] = useState<{ name?: string; email?: string; phone?: string; notes: string }>({ notes: "" });
+  const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string; attendee?: string }>({});
   const bookerName = guest.name ?? user?.name ?? "";
   const bookerEmail = guest.email ?? user?.email ?? "";
+  const bookerPhone = guest.phone ?? "";
+  const [submitting, setSubmitting] = useState(false);
+  // Generated once per booking attempt and reused on retry, so a retry after a dropped
+  // response replays the same booking instead of creating a second one (public_create_booking,
+  // migration-335, is idempotent on this key). Reset only when a fresh booking flow starts.
+  const idempotencyKeyRef = useRef<string | null>(null);
 
   // Everything below gated on `engine.active` is false (every fetch a no-op) for unconnected
   // providers or with the flag off — see src/lib/booking/engine-flag.ts. Behaviour in that case
@@ -274,22 +282,78 @@ export function BookingDrawer() {
     }
   };
 
-  const confirm = (event: React.FormEvent) => {
+  const confirm = async (event: React.FormEvent) => {
     event.preventDefault();
     const next: typeof errors = {};
     if (!normalizeName(bookerName)) next.name = "Enter your name.";
     if (!normalizeEmail(bookerEmail)) next.email = "Enter a valid email address.";
+    if (engine.active && !bookerPhone.trim()) next.phone = "Enter a phone number.";
     if (forWhom.kind === "other" && !normalizeName(forWhom.name)) next.attendee = "Enter the guest's name.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    setStep("done");
-    toast.success("Booking confirmed", {
-      description: `${provider.name} · ${dateLabel(activeISO)} at ${time}`,
-    });
+
+    // Unconnected (or flag-off) providers keep today's simulator behaviour byte-for-byte —
+    // see src/lib/booking/engine-flag.ts: a drawer that shows real availability but can't
+    // actually save a booking is worse than the honest simulator.
+    if (!engine.active || !engine.selectedBranch) {
+      setStep("done");
+      toast.success("Booking confirmed", {
+        description: `${provider.name} · ${dateLabel(activeISO)} at ${time}`,
+      });
+      return;
+    }
+
+    if (!user) {
+      openLogin("booking");
+      return;
+    }
+
+    const slot = slots.find((s) => s.label === time);
+    if (!slot) {
+      toast.error("That time is no longer available. Please pick another.");
+      return;
+    }
+    const hh = String(Math.floor(slot.minutes / 60)).padStart(2, "0");
+    const mm = String(slot.minutes % 60).padStart(2, "0");
+
+    if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID();
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/booking/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          providerSlug: provider.slug,
+          branchId: engine.selectedBranch.id,
+          serviceId: firstSelectedId,
+          date: activeISO,
+          startTime: `${hh}:${mm}:00`,
+          customerName: forWhom.kind === "other" ? forWhom.name.trim() : bookerName.trim(),
+          customerPhone: bookerPhone.trim(),
+          specialRequests: guest.notes || null,
+          clientRequestId: idempotencyKeyRef.current,
+        }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!json?.ok) {
+        toast.error(bookingErrorMessage(json?.errorCode, json?.message));
+        return;
+      }
+      setStep("done");
+      toast.success("Booking confirmed", {
+        description: `${provider.name} · ${dateLabel(activeISO)} at ${time}`,
+      });
+    } catch {
+      toast.error(bookingErrorMessage("UNREACHABLE", undefined));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const finish = () => {
     closeBooking();
+    idempotencyKeyRef.current = null;
     // Let the exit animation play before the content resets underneath it.
     window.setTimeout(() => {
       resetBooking();
@@ -410,6 +474,11 @@ export function BookingDrawer() {
                   {engine.active && !engine.servicesLoaded ? (
                     <p className="text-sm text-muted-foreground">Loading services…</p>
                   ) : null}
+                  {engine.active && (
+                    <p className="rounded-[var(--radius-md)] bg-muted px-4 py-3 text-sm text-muted-foreground">
+                      One service per booking for now — book additional services separately.
+                    </p>
+                  )}
                   {visibleCategories.map((category) => {
                     const rows = visibleServices.filter((s) => s.category === category);
                     if (rows.length === 0) return null;
@@ -421,22 +490,34 @@ export function BookingDrawer() {
                         <ul className="mt-2 flex flex-col gap-2">
                           {rows.map((service) => {
                             const checked = selectedIds.includes(service.id);
+                            // Engine-connected providers book one service at a time —
+                            // public_create_booking (migration-335) has no multi-service path;
+                            // book-spa's own createBookingGroup is what two services becomes
+                            // (Step 3's group RPC). Picking a new one here replaces the
+                            // selection instead of adding to it.
+                            const selectThis = () =>
+                              engine.active ? chooseService(checked ? "" : service.id) : toggleService(service.id);
                             return (
                               <li key={service.id}>
                                 <button
                                   type="button"
                                   aria-pressed={checked}
-                                  onClick={() => toggleService(service.id)}
+                                  onClick={selectThis}
                                   className={`flex w-full items-start gap-3 rounded-[var(--radius-md)] border p-4 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                                     checked ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
                                   }`}
                                 >
                                   <span
-                                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border ${
-                                      checked ? "border-primary bg-primary text-primary-foreground" : "border-border"
-                                    }`}
+                                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border ${
+                                      engine.active ? "rounded-[var(--radius-full)]" : "rounded-[var(--radius-sm)]"
+                                    } ${checked ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
                                   >
-                                    {checked && <CheckIcon width={14} height={14} strokeWidth={2} />}
+                                    {checked &&
+                                      (engine.active ? (
+                                        <span className="h-2 w-2 rounded-[var(--radius-full)] bg-primary-foreground" />
+                                      ) : (
+                                        <CheckIcon width={14} height={14} strokeWidth={2} />
+                                      ))}
                                   </span>
                                   <span className="min-w-0 flex-1">
                                     <span className="flex items-baseline justify-between gap-3">
@@ -597,6 +678,17 @@ export function BookingDrawer() {
                       autoComplete="email"
                       onChange={(v) => setGuest((g) => ({ ...g, email: v }))}
                     />
+                    {engine.active && (
+                      <Field
+                        id="guest-phone"
+                        label="Phone number"
+                        type="tel"
+                        value={bookerPhone}
+                        error={errors.phone}
+                        autoComplete="tel"
+                        onChange={(v) => setGuest((g) => ({ ...g, phone: v }))}
+                      />
+                    )}
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="guest-notes" className="text-sm font-medium">
                         Notes for the studio <span className="font-normal text-muted-foreground">(optional)</span>
@@ -639,7 +731,9 @@ export function BookingDrawer() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Demo booking. Nothing was sent or saved, since this site is not connected to a live booking system yet.
+                    {engine.active
+                      ? "The studio has received your booking."
+                      : "Demo booking. Nothing was sent or saved, since this site is not connected to a live booking system yet."}
                   </p>
                 </div>
               )}
@@ -670,9 +764,10 @@ export function BookingDrawer() {
                       key="confirm"
                       type="submit"
                       form="booking-confirm-form"
-                      className="h-12 min-w-36 rounded-[var(--radius-md)] bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                      disabled={submitting}
+                      className="h-12 min-w-36 rounded-[var(--radius-md)] bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      Confirm booking
+                      {submitting ? "Booking…" : "Confirm booking"}
                     </button>
                   ) : (
                     <button
