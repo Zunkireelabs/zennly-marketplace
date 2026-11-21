@@ -52,18 +52,9 @@ export function ServicesSection() {
               <p className="mt-1.5 max-w-prose text-sm text-muted-foreground">{service.description}</p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-3">
-              {/* Tiered services show the spread, matching what book-spa shows the customer
-                  on the booking side. A single figure would read as a firm price it isn't. */}
+              {/* One price: what the studio's booking system charges with no staff chosen. */}
               <p className="font-mono text-base font-semibold tabular-nums">
-                {service.priceRange ? (
-                  <>
-                    <Price amount={service.priceRange.min} engineProviderId={provider.engineProviderId} />
-                    {" – "}
-                    <Price amount={service.priceRange.max} engineProviderId={provider.engineProviderId} />
-                  </>
-                ) : (
-                  <Price amount={service.price} engineProviderId={provider.engineProviderId} />
-                )}
+                <Price amount={service.price} engineProviderId={provider.engineProviderId} />
               </p>
               <button
                 type="button"

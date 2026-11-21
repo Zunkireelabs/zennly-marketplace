@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Provider } from "@/lib/providers";
+import { isEngineActive } from "@/lib/booking/engine-flag";
 import { ChevronIcon, ClockIcon, PinIcon, StarIcon } from "./icons";
 import { SaveShare } from "./hero-actions";
 import { AmenityIcon } from "./amenity-icons";
@@ -189,14 +190,39 @@ export function Location({ provider }: { provider: Provider }) {
 
           <div>
             <h3 className={OVERLINE}>Opening hours</h3>
-            <ul className="mt-2 flex flex-col gap-1.5">
-              {provider.hours.map((row) => (
-                <li key={row.day} className="flex justify-between gap-4 text-sm">
-                  <span>{row.day}</span>
-                  <span className="text-muted-foreground tabular-nums">{row.open}</span>
-                </li>
-              ))}
-            </ul>
+            {isEngineActive(provider.engineProviderId) ? (
+              // A connected studio's hours come from book-spa, per branch, by the drawer's own rule.
+              // The seeded `hours` is a stale copy, so if the live read failed we show nothing
+              // rather than hours the booking drawer might not honour.
+              provider.branchHours ? (
+                <div className="mt-2 flex flex-col gap-4">
+                  {provider.branchHours.map((b) => (
+                    <div key={b.branch}>
+                      {provider.branchHours!.length > 1 && <p className="text-sm font-semibold">{b.branch}</p>}
+                      <ul className="mt-1 flex flex-col gap-1.5">
+                        {b.hours.map((row) => (
+                          <li key={row.day} className="flex justify-between gap-4 text-sm">
+                            <span>{row.day}</span>
+                            <span className="text-muted-foreground tabular-nums">{row.open}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">Opening hours are shown when you pick a time to book.</p>
+              )
+            ) : (
+              <ul className="mt-2 flex flex-col gap-1.5">
+                {provider.hours.map((row) => (
+                  <li key={row.day} className="flex justify-between gap-4 text-sm">
+                    <span>{row.day}</span>
+                    <span className="text-muted-foreground tabular-nums">{row.open}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </div>
@@ -229,23 +255,45 @@ const POLICY_FAQ = [
   },
 ];
 
-export function Policies() {
+// A connected studio has no online payment and no cancel path on this site, so none of the demo
+// refund tiers, "you get an email", or "we hold your slot" promises apply. Only what is true.
+const CONNECTED_POLICY_FAQ = [
+  {
+    q: "How does booking work?",
+    a: "Choose a service, pick a day and time, and confirm. You'll see your booking number on screen. To change or cancel, contact the studio.",
+  },
+  {
+    q: "How do I pay?",
+    a: "You pay at the studio. Nothing is charged when you book.",
+  },
+  POLICY_FAQ[3],
+];
+
+export function Policies({ provider }: { provider: Provider }) {
+  const connected = isEngineActive(provider.engineProviderId);
+  const faq = connected ? CONNECTED_POLICY_FAQ : POLICY_FAQ;
   return (
     <section id="policies" className="scroll-mt-20 pt-12">
       <h2 className="text-2xl font-semibold">Cancellation and policies</h2>
 
-      <ol className="mt-5 grid gap-3 sm:grid-cols-3">
-        {CANCELLATION.map((step) => (
-          <li key={step.when} className="rounded-[var(--radius-md)] border border-border bg-card p-4">
-            <span className={`block h-1.5 w-10 rounded-[var(--radius-full)] ${step.tone}`} aria-hidden />
-            <p className="mt-3 text-sm font-semibold">{step.what}</p>
-            <p className="mt-0.5 text-sm text-muted-foreground">{step.when}</p>
-          </li>
-        ))}
-      </ol>
+      {connected ? (
+        <p className="mt-5 rounded-[var(--radius-md)] border border-border bg-card p-4 text-sm">
+          You pay at the studio. To change or cancel, contact the studio.
+        </p>
+      ) : (
+        <ol className="mt-5 grid gap-3 sm:grid-cols-3">
+          {CANCELLATION.map((step) => (
+            <li key={step.when} className="rounded-[var(--radius-md)] border border-border bg-card p-4">
+              <span className={`block h-1.5 w-10 rounded-[var(--radius-full)] ${step.tone}`} aria-hidden />
+              <p className="mt-3 text-sm font-semibold">{step.what}</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">{step.when}</p>
+            </li>
+          ))}
+        </ol>
+      )}
 
       <div className="mt-6 divide-y divide-border border-y border-border">
-        {POLICY_FAQ.map((item) => (
+        {faq.map((item) => (
           <details key={item.q} className="group py-4">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-details-marker]:hidden">
               {item.q}

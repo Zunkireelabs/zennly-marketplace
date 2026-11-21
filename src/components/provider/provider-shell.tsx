@@ -32,6 +32,12 @@ type UiContext = {
   setDateISO: (iso: string | null) => void;
   setTime: (time: string | null) => void;
   resetBooking: () => void;
+  /** Reopens the drawer with previously chosen service/day/time at a given step (resume after a
+   *  login redirect). Does not go through startBooking, so no "Book clicked" event is recorded. */
+  /** A one-line notice for the booking drawer ("That time is no longer available"). */
+  notice: string | null;
+  setNotice: (notice: string | null) => void;
+  restoreBooking: (opts: { serviceId: string; dateISO: string; time: string | null; step: BookingStep }) => void;
   /** book-spa's handleBranchSelect clears service/time on a branch (re)pick, since both are
    * branch-scoped (provider-profile-flow/index.jsx). Only meaningful for connected providers'
    * location step; unused otherwise. */
@@ -68,6 +74,7 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
   const [dateISO, setDateISO] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [forWhom, setForWhom] = useState<ForWhom>({ kind: "me" });
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     track("provider_viewed", { slug: provider.slug });
@@ -138,6 +145,15 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
     setTime(null);
     setStep("services");
     setForWhom({ kind: "me" });
+    setNotice(null);
+  }, []);
+
+  const restoreBooking = useCallback<UiContext["restoreBooking"]>((opts) => {
+    setSelectedIds([opts.serviceId]);
+    setDateISO(opts.dateISO);
+    setTime(opts.time);
+    setStep(opts.step);
+    setBookingOpen(true);
   }, []);
 
   const openGallery = useCallback((index = 0) => {
@@ -168,6 +184,9 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
     setDateISO,
     setTime,
     resetBooking,
+    restoreBooking,
+    notice,
+    setNotice,
     clearServiceSelection,
     galleryOpen,
     galleryIndex,

@@ -24,8 +24,16 @@ import path from "path";
 import { pathToFileURL } from "url";
 import {
   computeSoloSlots,
-  type SoloDay,
+  type BranchHours,
+  type SoloDay as FullSoloDay,
 } from "../src/lib/booking/engine-availability";
+
+// book-spa's loop has no closedReason; compare only the fields it shares.
+type SoloDay = Omit<FullSoloDay, "closedReason">;
+
+// This differential test pins the LEGACY 10:00-18:00 window book-spa falls back to. The port now
+// reads real per-day hours, so feed it a branch whose hours are exactly that window.
+const LEGACY_HOURS: BranchHours = { weekly: [], openTime: "10:00", closeTime: "18:00" };
 
 const BOOK_SPA_DIR = path.resolve(__dirname, "../../book-spa-zennly-connectors");
 
@@ -357,7 +365,11 @@ async function main() {
   let failed = 0;
 
   for (const c of cases) {
-    const mine = computeSoloSlots(c.params);
+    const mine: SoloDay[] = computeSoloSlots({ ...c.params, hours: LEGACY_HOURS }).map((full) => {
+      const day: Partial<FullSoloDay> = { ...full };
+      delete day.closedReason;
+      return day as SoloDay;
+    });
     const theirs = bookSpaComputedDays(mods, c.params);
 
     const mineStr = JSON.stringify(mine);

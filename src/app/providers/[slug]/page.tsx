@@ -4,6 +4,7 @@ import { SiteNav } from "@/components/layout/site-nav";
 import { Footer } from "@/components/layout/footer";
 import { getProvider, getProviders, getRelatedProviders } from "@/lib/providers-data";
 import { fetchLiveServices } from "@/lib/booking/engine-live-services";
+import { engineBookingEnabled } from "@/lib/booking/engine-flag";
 import { ProviderShell } from "@/components/provider/provider-shell";
 import { ProviderHero } from "@/components/provider/hero";
 import { BookingCard, MobileBookBar } from "@/components/provider/booking-card";
@@ -49,11 +50,12 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
   // per-request instead of from the 300s ISR cache. Unconnected providers never reach this
   // branch and keep their normal static/ISR behavior.
   if (provider.engineProviderId) {
-    const live = await fetchLiveServices(provider.engineProviderId);
+    const live = await fetchLiveServices(provider.engineProviderId, { scopeToBranches: engineBookingEnabled() });
     if (live) {
       provider.services = live.services;
       provider.serviceCategories = live.serviceCategories;
       provider.fromPrice = live.fromPrice;
+      provider.branchHours = live.branchHours ?? undefined;
     }
   }
 
@@ -78,7 +80,7 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
                 <ReviewsSection provider={provider} />
                 <Amenities provider={provider} />
                 <Location provider={provider} />
-                <Policies />
+                <Policies provider={provider} />
               </div>
 
               {/* The card is pulled up over the hero's lower edge; sticky keeps it in view. */}

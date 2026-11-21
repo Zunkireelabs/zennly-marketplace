@@ -8,3 +8,11 @@
 export function engineBookingEnabled(): boolean {
   return process.env.NEXT_PUBLIC_ENGINE_BOOKING === "on";
 }
+
+/**
+ * The one gate for the whole engine path: the flag is on AND this provider is connected. When it
+ * is false, the drawer makes no engine calls at all and behaves as the simulator always did.
+ */
+export function isEngineActive(engineProviderId: string | null | undefined): boolean {
+  return engineBookingEnabled() && Boolean(engineProviderId);
+}

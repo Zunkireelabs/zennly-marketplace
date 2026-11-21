@@ -1,6 +1,7 @@
 "use client";
 
 import { formatDuration } from "@/lib/providers";
+import { isEngineActive } from "@/lib/booking/engine-flag";
 import { ShieldIcon, StarIcon } from "./icons";
 import { useProviderUi } from "./provider-shell";
 import { Price } from "@/components/ui/price";
@@ -56,7 +57,8 @@ export function BookingCard() {
             <option value="">Choose a service</option>
             {provider.services.map((service) => (
               <option key={service.id} value={service.id}>
-                {service.name} · {formatDuration(service.durations)} · <Price amount={service.price} engineProviderId={provider.engineProviderId} />
+                {service.name} · {formatDuration(service.durations)} ·{" "}
+                <Price amount={service.price} engineProviderId={provider.engineProviderId} />
               </option>
             ))}
           </select>
@@ -89,7 +91,9 @@ export function BookingCard() {
 
       <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
         <ShieldIcon width={16} height={16} className="mt-px shrink-0" />
-        Free cancellation until 24 hours before. You pay at the studio.
+        {isEngineActive(provider.engineProviderId)
+          ? "You pay at the studio. To change or cancel, contact the studio."
+          : "Free cancellation until 24 hours before. You pay at the studio."}
       </p>
     </div>
   );
