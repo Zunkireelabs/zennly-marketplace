@@ -10,7 +10,17 @@ import { seedProviders } from "./providers-seed";
  * src/lib/booking/start-booking.ts, which refuses any host not listed there.
  */
 function bookingEngineOrigin(): string {
-  return process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN || "https://app.zennly.io";
+  // TEMPORARY, owner-directed 2026-11-21: dev-app, not app. The marketplace->book-spa handoff is
+  // still being built, so booking is pointed at book-spa's dev deployment while it is exercised.
+  //
+  // Be clear about what this costs: dev-app talks to book-spa's STAGING Supabase
+  // (snzcckzfmpboeqkktmwy), production app talks to pmbvogiphelmpjdalmtv. A booking made through
+  // the live marketplace therefore lands in staging, where the studio's own dashboard cannot see
+  // it. Accepted deliberately because the live marketplace has no real booking traffic yet.
+  //
+  // REVERT to "https://app.zennly.io" before the marketplace carries real customers, or they will
+  // turn up to appointments the studio never received.
+  return process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN || "https://dev-app.zennly.io";
 }
 
 /**

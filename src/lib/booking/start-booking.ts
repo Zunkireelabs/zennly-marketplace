@@ -31,7 +31,10 @@ export type StartBookingResult =
  * database value can't send people elsewhere. book-spa's customer booking flow lives at
  * app.zennly.io/:orgSlug (docs/booking-integration-plan.md, Stage 1).
  */
-const BOOKING_HOST_ALLOWLIST: readonly string[] = ["app.zennly.io"];
+const BOOKING_HOST_ALLOWLIST: readonly string[] = ["app.zennly.io", "dev-app.zennly.io"];
+// "dev-app.zennly.io" is the temporary target above (providers-data.ts#bookingEngineOrigin).
+// Drop it from this list at the same time that target reverts — an allow-list entry that
+// outlives its reason is how a staging host quietly stays reachable from production.
 
 /**
  * Local book-spa dev servers, so the whole journey stays on localhost instead of jumping to
@@ -132,14 +135,20 @@ export function startBooking({ provider, selection, forWhom }: StartBookingInput
   if (!url) return { kind: "blocked", reason: "This studio's booking link isn't available right now." };
 
   track("handoff_started", { slug: provider.slug, destination: "engine", for_whom: who.kind });
-  // Same tab for a same-origin path (the /book/* proxy): booking is a continuation of the
-  // journey, not a detour, and a new tab strands the customer's back button. A cross-origin
-  // absolute URL still opens in its own tab — that case really is leaving the site, and
-  // noopener/noreferrer matter there.
-  if (isRelativeSameOrigin(base)) {
-    window.location.assign(url);
-  } else {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
+  // Always the same tab. Booking is a continuation of the journey, not a detour, and a new tab
+  // strands the customer's back button.
+  //
+  // This used to open a cross-origin absolute URL in its own tab, on the reasoning that leaving
+  // for another host deserves a new tab with noopener/noreferrer. Changed 2026-11-21 on the
+  // owner's instruction after seeing it in production: the jump to a new tab AND a new domain
+  // read as being thrown out of the site. The security half of that reasoning does not apply
+  // here anyway — location.assign creates no window.opener relationship, so there is nothing for
+  // noopener to protect. The destination is our own book-spa, not a third party.
+  //
+  // The address bar still changes to book-spa's host. Keeping it on zennly.io needs book-spa
+  // built with VITE_BASE_PATH=/book/ so the /book/* proxy can serve it; today its assets are
+  // root-absolute (/assets/...), and zennly.io 308s /assets/* into /businesses/assets/*, so
+  // proxying it unchanged would render a blank page.
+  window.location.assign(url);
   return { kind: "external", handoffId, url };
 }
