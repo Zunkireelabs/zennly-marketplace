@@ -8,6 +8,7 @@ import { CloseIcon, HeartIcon } from "@/components/provider/icons";
 import type { SearchResult } from "@/lib/search";
 import { Price } from "@/components/ui/price";
 import { DemoPill } from "@/components/ui/demo-pill";
+import { hasRating } from "@/lib/rating";
 
 const ROUND =
   "flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
@@ -40,7 +41,7 @@ export function PopupCard({
               {studio.modality} · {studio.city}, {studio.region}
             </span>
             <span className="mt-1.5 block text-xs text-foreground">
-              {studio.isNew ? "New to Zennly" : `★ ${studio.rating.toFixed(1)} (${studio.reviewCount})`} · from{" "}
+              {studio.isNew ? "New to Zennly · " : hasRating(studio) ? `★ ${studio.rating.toFixed(1)} (${studio.reviewCount}) · ` : ""}from{" "}
               <Price amount={studio.fromPrice} engineProviderId={studio.engineProviderId} />
             </span>
           </span>

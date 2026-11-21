@@ -8,6 +8,7 @@ import { useSaved } from "@/lib/saved/use-saved";
 import { ChevronLeftIcon, ChevronRightIcon, HeartIcon, PinIcon, StarIcon } from "@/components/provider/icons";
 import { Price } from "@/components/ui/price";
 import { DemoPill } from "@/components/ui/demo-pill";
+import { hasRating } from "@/lib/rating";
 
 /** The slice of a Provider a collection row needs. Kept small so the page ships little JSON. */
 export type CollectionItem = {
@@ -125,11 +126,13 @@ export function ListingRow({ item, priority }: { item: CollectionItem; priority?
               {item.location}
             </p>
           </div>
-          <p className="flex shrink-0 items-center gap-1 text-sm font-semibold text-foreground">
-            <StarIcon className="size-4 text-warning" />
-            {item.rating.toFixed(1)}
-            <span className="font-normal text-muted-foreground">({item.reviewCount})</span>
-          </p>
+          {hasRating(item) && (
+            <p className="flex shrink-0 items-center gap-1 text-sm font-semibold text-foreground">
+              <StarIcon className="size-4 text-warning" />
+              {item.rating.toFixed(1)}
+              <span className="font-normal text-muted-foreground">({item.reviewCount})</span>
+            </p>
+          )}
         </div>
 
         <ul className="flex flex-wrap gap-2" aria-label="Services">

@@ -9,6 +9,7 @@ import { ListingRow, type CollectionItem } from "./listing-row";
 import { Price } from "@/components/ui/price";
 import { CURRENCIES } from "@/lib/currency/currencies";
 import { useCurrency } from "@/lib/currency/use-currency";
+import { compareByRating } from "@/lib/rating";
 
 const OVERLINE =
   "font-[family-name:var(--font-inter)] text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground";
@@ -78,7 +79,7 @@ export function CollectionBrowser({
   const results = useMemo(() => {
     const filtered = items.filter((i) => matches(i, groups, maxPrice));
     const sorted = [...filtered];
-    if (sort === "rated") sorted.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
+    if (sort === "rated") sorted.sort(compareByRating);
     if (sort === "price") sorted.sort((a, b) => a.fromPrice - b.fromPrice);
     // "loved" keeps the editorial order from the collection.
     return sorted;

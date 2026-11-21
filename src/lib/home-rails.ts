@@ -1,6 +1,7 @@
 import "server-only";
 import type { Provider } from "./providers";
 import { getProviders } from "./providers-data";
+import { compareByRating } from "./rating";
 
 /**
  * Homepage provider rails, derived from the `providers` table.
@@ -142,7 +143,7 @@ export async function getHomeRails(): Promise<HomeRails> {
   for (const p of all) byCity.set(p.city, [...(byCity.get(p.city) ?? []), p]);
   const destinations: Destination[] = Array.from(byCity.values())
     .map((ps) => {
-      const best = [...ps].sort((a, b) => b.rating - a.rating)[0];
+      const best = [...ps].sort(compareByRating)[0];
       return { city: best.city, region: best.region, count: ps.length, image: best.image, lat: best.lat, lng: best.lng };
     })
     .sort((a, b) => b.count - a.count || a.city.localeCompare(b.city));
@@ -157,7 +158,7 @@ export async function getHomeRails(): Promise<HomeRails> {
   const curated = new Set(BEST_RATED);
   const rest = all
     .filter((p) => !curated.has(p.slug))
-    .sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name));
+    .sort((a, b) => compareByRating(a, b) || a.name.localeCompare(b.name));
   const bestRated = [
     ...pick(BEST_RATED, (p, slug) => toRail(p, BEST_RATED_MODALITY[slug])),
     ...rest.map((p) => toRail(p)),

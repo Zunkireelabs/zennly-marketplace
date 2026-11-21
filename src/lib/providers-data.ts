@@ -4,6 +4,7 @@ import type { Provider } from "./providers";
 import { prisma } from "./prisma";
 import { seedProviders } from "./providers-seed";
 import { showDemoStudios, visibleProviders } from "./booking/demo-studios";
+import { compareByRating } from "./rating";
 
 /**
  * Where book-spa's customer booking flow lives. Production is app.zennly.io (absolute,
@@ -118,7 +119,7 @@ export async function getRelatedProviders(provider: Provider, limit = 6): Promis
         (p.modalities.some((m) => provider.modalities.includes(m)) ? 2 : 0) +
         (p.city === provider.city ? 1 : 0),
     }))
-    .sort((a, b) => b.score - a.score || b.p.rating - a.p.rating)
+    .sort((a, b) => b.score - a.score || compareByRating(a.p, b.p))
     .slice(0, limit)
     .map(({ p }) => p);
 }

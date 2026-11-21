@@ -7,6 +7,7 @@ import { useProviderUi } from "./provider-shell";
 import { Price } from "@/components/ui/price";
 import { DemoPill } from "@/components/ui/demo-pill";
 import { BookingOffBar, BookingOffCard } from "./booking-off";
+import { hasRating } from "@/lib/rating";
 
 /**
  * Sticky booking card that overlaps the bottom-right edge of the hero (structure from
@@ -28,15 +29,17 @@ export function BookingCard() {
         {availability.state === "demo" && <DemoPill />}
       </p>
       <p className="mt-2 flex items-center gap-1.5 text-sm">
-        {!provider.isNew && (
+        {!provider.isNew && hasRating(provider) && (
           <>
             <StarIcon width={14} height={14} className="text-warning" />
             <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
           </>
         )}
-        <span className="text-muted-foreground">
-          {provider.isNew ? "New to Zennly" : `· ${provider.reviewCount} reviews`}
-        </span>
+        {(provider.isNew || hasRating(provider)) && (
+          <span className="text-muted-foreground">
+            {provider.isNew ? "New to Zennly" : `· ${provider.reviewCount} reviews`}
+          </span>
+        )}
       </p>
 
       {availability.state !== "live" ? (

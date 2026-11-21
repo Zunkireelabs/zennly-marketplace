@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Provider, ReviewTopic } from "@/lib/providers";
 import { StarIcon } from "./icons";
+import { hasRating } from "@/lib/rating";
 
 const FILTERS: ("All" | ReviewTopic)[] = ["All", "Service", "Ambience", "Value", "Cleanliness"];
 
@@ -19,6 +20,8 @@ export function ReviewsSection({ provider }: { provider: Provider }) {
         <div className="shrink-0">
           {provider.isNew ? (
             <p className="text-2xl font-semibold">New to Zennly</p>
+          ) : !hasRating(provider) ? (
+            <p className="text-2xl font-semibold">No reviews yet</p>
           ) : (
             <>
               <p className="text-5xl font-semibold tabular-nums">{provider.rating.toFixed(1)}</p>

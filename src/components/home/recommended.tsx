@@ -3,6 +3,7 @@ import { providerHref } from "@/lib/providers";
 import Image from "next/image";
 import type { RailProvider } from "@/lib/home-rails";
 import { DemoPill } from "@/components/ui/demo-pill";
+import { hasRating } from "@/lib/rating";
 
 /**
  * "Recommended" — editorial picks, pulled from the same provider data as the "Every Studio,
@@ -45,9 +46,11 @@ export function Recommended({ providers }: { providers: RailProvider[] }) {
                   style={{ background: provider.tone }}
                 />
               )}
-              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-                ★ {provider.rating.toFixed(1)}
-              </span>
+              {hasRating(provider) && (
+                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
+                  ★ {provider.rating.toFixed(1)}
+                </span>
+              )}
             </span>
             <span className="text-left">
               <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">

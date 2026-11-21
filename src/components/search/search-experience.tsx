@@ -13,6 +13,7 @@ import { Price } from "@/components/ui/price";
 import { useCurrency } from "@/lib/currency/use-currency";
 import { DemoPill } from "@/components/ui/demo-pill";
 import { SearchEmpty } from "./search-empty";
+import { compareByRating, hasRating } from "@/lib/rating";
 
 // MapLibre needs the browser, so the map loads client-side only, and only on this page.
 const StudioMap = dynamic(() => import("./studio-map").then((m) => m.StudioMap), {
@@ -75,7 +76,7 @@ export function SearchExperience({
         (!filters.onlyNew || r.isNew)
     );
     return [...list].sort((a, b) =>
-      sort === "price-asc" ? a.fromPrice - b.fromPrice : sort === "price-desc" ? b.fromPrice - a.fromPrice : b.rating - a.rating
+      sort === "price-asc" ? a.fromPrice - b.fromPrice : sort === "price-desc" ? b.fromPrice - a.fromPrice : compareByRating(a, b)
     );
   }, [results, filters, sort, toDisplay]);
 
@@ -376,9 +377,9 @@ function ResultCard({
         <span className="mt-1 hidden line-clamp-2 text-sm text-muted-foreground sm:block">{r.blurb}</span>
         <span className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-sm">
           <span className="text-foreground">
-            {r.isNew ? "New to Zennly" : (
+            {r.isNew ? "New to Zennly" : hasRating(r) ? (
               <>★ {r.rating.toFixed(1)} <span className="text-muted-foreground">({r.reviewCount})</span></>
-            )}
+            ) : null}
           </span>
           <span className="text-muted-foreground">{r.modalities.slice(0, 2).join(" · ")}</span>
           <span className="ml-auto font-medium text-foreground">from <Price amount={r.fromPrice} engineProviderId={r.engineProviderId} /></span>

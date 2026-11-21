@@ -5,6 +5,7 @@ import { isEngineActive } from "@/lib/booking/engine-flag";
 import { ChevronIcon, ClockIcon, PinIcon, StarIcon } from "./icons";
 import { SaveShare } from "./hero-actions";
 import { AmenityIcon } from "./amenity-icons";
+import { hasRating } from "@/lib/rating";
 
 const OVERLINE =
   "font-[family-name:var(--font-inter)] text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground";
@@ -42,15 +43,17 @@ export function Overview({ provider }: { provider: Provider }) {
           </h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5 text-foreground">
-              {!provider.isNew && (
+              {!provider.isNew && hasRating(provider) && (
                 <>
                   <StarIcon width={15} height={15} className="text-warning" />
                   <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
                 </>
               )}
-              <span className="text-muted-foreground">
-                {provider.isNew ? "New to Zennly" : `${provider.reviewCount} reviews`}
-              </span>
+              {(provider.isNew || hasRating(provider)) && (
+                <span className="text-muted-foreground">
+                  {provider.isNew ? "New to Zennly" : `${provider.reviewCount} reviews`}
+                </span>
+              )}
             </span>
             {/* Names the areas a multi-outlet studio trades in rather than implying one.
                 Deliberately NOT a count: `areas` is a search aid, and may hold a municipality
