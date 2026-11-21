@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/account/server";
 import { isSameOriginJson, noStore } from "@/lib/supabase/api";
 import { prisma } from "@/lib/prisma";
 import { mergeLookupResults, type LookupResult } from "@/lib/account/studio-lookup";
+import { emptyResult, lookupOne } from "@/lib/account/studio-lookup-fetch";
 
 /**
  * A logged-in customer's past/upcoming bookings and membership at one or more engine-connected
@@ -34,65 +35,12 @@ import { mergeLookupResults, type LookupResult } from "@/lib/account/studio-look
  * client sends, never taken from the client directly.
  */
 
-// reachable: false is the default here on purpose — this constant is returned by every path that
-// DIDN'T get a real answer from book-spa (config missing, non-2xx, unparseable body, network
-// error/timeout). The one path that genuinely asked and got a real response builds its own object
-// with reachable: true explicitly, below.
-const emptyResult: LookupResult = {
-  found: false,
-  reachable: false,
-  bookings: [],
-  membership: null,
-  packages: [],
-  vouchers: [],
-  totalVisits: 0,
-  referralEarnings: 0,
-};
-
 const Body = z.union([
   z.object({ providerSlug: z.string().min(1).max(200) }),
   z.object({ providerSlugs: z.array(z.string().min(1).max(200)).min(1).max(50) }),
 ]);
 
-const LOOKUP_TIMEOUT_MS = 6000;
 const MAX_FACTORS = 10;
-
-async function lookupOne(orgSlug: string, email: string, functionsUrl: string, secret: string): Promise<LookupResult> {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), LOOKUP_TIMEOUT_MS);
-    const res = await fetch(`${functionsUrl}/marketplace-customer-lookup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${secret}` },
-      body: JSON.stringify({ org_slug: orgSlug, email }),
-      signal: controller.signal,
-    }).finally(() => clearTimeout(timeout));
-
-    // 404 means the org is unknown or not marketplace-enabled to book-spa; 401 means our secret
-    // is wrong. Neither is the customer's problem — both fall through to the calm empty state.
-    if (!res.ok) return emptyResult;
-
-    const json: unknown = await res.json().catch(() => null);
-    if (!json || typeof json !== "object" || !("found" in json)) return emptyResult;
-    const data = json as Record<string, unknown>;
-    return {
-      found: Boolean(data.found),
-      reachable: true,
-      bookings: Array.isArray(data.bookings) ? data.bookings : [],
-      membership: data.membership && typeof data.membership === "object" ? (data.membership as Record<string, unknown>) : null,
-      packages: Array.isArray(data.packages) ? data.packages : [],
-      // Added in migration-336 alongside bookings/membership/packages — previously parsed off this
-      // object and then dropped before the function returned, which is the same "compiles, runs,
-      // delivers nothing" failure shape as the field-name bug in bookingLine().
-      vouchers: Array.isArray(data.vouchers) ? data.vouchers : [],
-      totalVisits: typeof data.total_visits === "number" ? data.total_visits : 0,
-      referralEarnings: typeof data.referral_earnings === "number" ? data.referral_earnings : 0,
-    };
-  } catch {
-    // Network error, timeout, or book-spa down — fail soft, same shape as "nothing found".
-    return emptyResult;
-  }
-}
 
 /** Every verified email for this user, session email first (so it wins membership ties in
  * mergeLookupResults), then other verified factors oldest-first, deduped, capped at MAX_FACTORS —
