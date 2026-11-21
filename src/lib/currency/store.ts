@@ -1,44 +1,23 @@
-import { DEFAULT_CURRENCY, isCurrency, type CurrencyCode } from "./currencies";
+import { DEFAULT_CURRENCY, type CurrencyCode } from "./currencies";
 
-/** The visitor's chosen display currency, kept on the device. Read back values are validated. */
-const STORAGE_KEY = "zennly:currency:v1";
+/**
+ * The display currency. Fixed to DEFAULT_CURRENCY (NPR) — the picker that let a visitor change
+ * it was removed, so a per-device choice no longer exists to read back.
+ *
+ * Deliberately does NOT read the old `zennly:currency:v1` value: anyone who had once picked USD
+ * or INR would be held on that currency forever, with no control left to undo it. The key is
+ * left unread rather than cleared — harmless, and it means re-introducing a picker is a change
+ * to this file alone.
+ */
 const listeners = new Set<() => void>();
-let current: CurrencyCode | null = null;
-
-function read(): CurrencyCode {
-  if (current) return current;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    current = isCurrency(raw) ? raw : DEFAULT_CURRENCY;
-  } catch {
-    current = DEFAULT_CURRENCY;
-  }
-  return current;
-}
 
 export const currencyStore = {
   subscribe(cb: () => void) {
     listeners.add(cb);
-    const onStorage = (e: StorageEvent) => {
-      if (e.key !== STORAGE_KEY) return;
-      current = null;
-      cb();
-    };
-    window.addEventListener("storage", onStorage);
     return () => {
       listeners.delete(cb);
-      window.removeEventListener("storage", onStorage);
     };
   },
-  getSnapshot: read,
+  getSnapshot: (): CurrencyCode => DEFAULT_CURRENCY,
   getServerSnapshot: (): CurrencyCode => DEFAULT_CURRENCY,
-  set(code: CurrencyCode) {
-    current = code;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, code);
-    } catch {
-      // Storage unavailable: the choice holds for this tab only.
-    }
-    listeners.forEach((l) => l());
-  },
 };

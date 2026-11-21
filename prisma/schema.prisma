@@ -36,6 +36,11 @@ model Provider {
   addOns            Json     @map("add_ons")
   amenities         String[]
   address           String
+  /// Areas this studio trades in — one entry per connected book-spa branch, plus the
+  /// municipality when outlets straddle more than one. Searched alongside city/region so a
+  /// visitor who types a neighbourhood finds the studio; deliberately NOT a Destination, which
+  /// is built from `city` and carries counts and a photo per place.
+  areas             String[] @default([])
   hours             Json
   nearby            Json
   reviewSummary     String   @default("") @map("review_summary")
@@ -91,12 +96,87 @@ model CollectionProvider {
 
 model Profile {
   id        String   @id @db.Uuid
+  /// Derived display string, recomputed server-side as [firstName, lastName].filter(Boolean).join(" ")
+  /// on every write — never edited directly. Kept so /api/auth/me's existing `name` contract
+  /// (read by book-spa's marketplaceIdentity.js and booking-drawer.tsx) needs no coordinated change.
   name      String?
-  avatar    String?
+  firstName String?  @map("first_name")
+  /// Nullable and excluded from profile completeness: a single-word Nepali given name is common,
+  /// and the full name still round-trips through `name` above regardless of whether this is set.
+  lastName  String?  @map("last_name")
+  /// Default photo, entirely provider-managed: set and refreshed by ensureProfile() from the
+  /// OAuth provider's metadata (Google's avatar_url, currently) on every sign-in that has one.
+  /// NEVER touched by a profile edit or an avatar upload — see avatarUploaded for that.
+  avatarProvider String? @map("avatar_provider")
+  /// The customer's own uploaded photo, entirely user-managed: set only by the (future) avatar
+  /// upload endpoint, cleared only by the customer removing it. NEVER touched by ensureProfile —
+  /// signing in must not be able to overwrite or revive a photo the customer chose, and clearing
+  /// it must fall back to avatarProvider (the Google photo) rather than to nothing, matching what
+  /// the customer actually expects "remove my photo" to do when they signed up with Google.
+  /// Two columns instead of one "avatar" field + a clear-marker: an upload can then never be
+  /// overwritten by a later sign-in, structurally, with no fill-only-null discipline required to
+  /// keep that true. Resolved to a single URL ONLY in toAuthUser() (avatarUploaded ?? avatarProvider)
+  /// — nothing downstream, including book-spa, should ever see both columns or implement this
+  /// precedence itself.
+  avatarUploaded String? @map("avatar_uploaded")
+  /// E.164 only (src/lib/auth/normalize.ts#normalizePhone). Self-asserted — see phoneVerifiedAt.
+  phone     String?
+  /// Timestamp, not a boolean: always null today (no SMS provider), but gets the "when" for free
+  /// the day phone verification ships, where a boolean would need a migration to add it. An
+  /// unverified phone (phoneVerifiedAt IS NULL) must never grant booking-history visibility — see
+  /// the PATCH /api/account handler's header comment for the full list of what it may never do.
+  phoneVerifiedAt DateTime? @map("phone_verified_at")
+  /// Exactly 'male' | 'female' | 'other', lowercase — matches book-spa's CustomerForm.jsx verbatim
+  /// so nothing maps on the way into p_customer_gender. Enforced in Zod AND a raw CHECK in the
+  /// migration SQL; not a Prisma enum, since book-spa's own customers.gender is deliberately free
+  /// text and a Postgres enum is painful to extend later.
+  gender    String?
+  /// ISO-2 code behind the phone's dial code (e.g. "US" vs "CA" both dial +1) — load-bearing for
+  /// the edit form to round-trip the country selector; the E.164 string alone is ambiguous.
   country   String?
+  /// Date of birth. A DATE column, not a timestamp and not text: Postgres rejects an impossible
+  /// calendar date (2026-02-31) natively, where text would need a CHECK to do the same.
+  ///
+  /// The cost is at the JS edge, and it is a real trap — Prisma hands this back as a JS Date at
+  /// UTC midnight, so ANY local-time formatter (toLocaleDateString, getDate, date-fns `format`)
+  /// renders it a day early for a reader in a negative-offset timezone: someone born on the 1st
+  /// shown as the 31st of the month before. **Always format with UTC methods** —
+  /// `d.toISOString().slice(0, 10)` — and always construct from a plain "YYYY-MM-DD" string,
+  /// which `new Date()` parses as UTC midnight. There is no time-of-day here to preserve.
+  ///
+  /// Optional, and deliberately excluded from profile completeness: it is useful for birthday
+  /// offers later, not for completing a booking now.
+  dob       DateTime? @db.Date
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("profiles")
+}
+
+/// Every email or phone the customer has proven they control — the login email at signup/seed,
+/// plus any address/number since verified through step-up (§D of the profile plan: changing a
+/// contact channel requires proving the new value AND proving control of one factor already
+/// held). One table for both kinds, not parallel ProfileEmail/ProfilePhone tables: the rule this
+/// exists for is inherently "any verified factor" — the cross-studio history fan-out
+/// (studio-lookup.ts), the 10-factor cap, and (once phone verification ships) choosing which
+/// factor to challenge for a step-up all become one code path instead of two kept in step by hand.
+///
+/// Seeded by this table's own migration with one kind:'email' row per existing profile's current
+/// confirmed login email — skipping that seed makes every existing user's cross-studio booking
+/// history silently disappear (studio-history's lookup only ever sees verified factors), with
+/// nothing logged anywhere to explain why.
+model ProfileFactor {
+  userId     String   @map("user_id") @db.Uuid
+  /// 'email' | 'phone', enforced by a raw CHECK in the migration SQL — same posture as
+  /// Profile.gender above, and for the same reason (free text here is cheaper to extend than a
+  /// Postgres enum, and Zod enforces it independently at the API layer too).
+  kind       String
+  value      String
+  verifiedAt DateTime @map("verified_at")
+
+  @@id([userId, kind, value])
+  @@index([userId])
+  @@map("profile_factors")
 }
 
 model SavedStudio {

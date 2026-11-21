@@ -1,3 +1,5 @@
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
 import type { NextConfig } from "next";
 
 // Baseline security headers for every route. A full script-src Content-Security-Policy needs a
@@ -7,7 +9,13 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "DENY" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+  // `geolocation=(self)`, not `()`: the mobile search's "Near me" asks the browser where the
+  // visitor is, and a blanket `geolocation=()` denies our own page the permission before the
+  // prompt is ever shown — getCurrentPosition fails with "disabled in this document by
+  // permissions policy", which is indistinguishable from the visitor refusing. `self` still
+  // denies every embedded third party; camera, microphone and payment stay fully off because
+  // nothing here uses them.
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self), payment=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
   {
     key: "Content-Security-Policy",
@@ -15,13 +23,165 @@ const securityHeaders = [
   },
 ];
 
+// web-zenly's marketing site used to own the root of zennly.io; it now lives under
+// /businesses. Both trailing-slash shapes are in the wild — the old sitemap published
+// `/pricing/` while web-zenly's own nav linked `/pricing` — and both resolve. Next's
+// trailing-slash normalization runs *before* redirects, so `/pricing/` 308s to `/pricing`
+// first and then matches the rule below; a rule for the slashed shape would be dead code.
+// Verified: both shapes end at /businesses/pricing, the slashed one via one extra hop.
+//
+// The prefix list used to be a hand-maintained array here. It drifted the first time
+// web-zenly added or removed a top-level section (ten sections — compare, contact,
+// cookie-policy, daily-close-checklist, faq, feed, global, nepal, press, and more —
+// appeared with zero signal here, while how-it-works was deleted and the stale entry
+// would have kept 308ing to a page that no longer exists). Deriving it from the actual
+// mirrored tree means a new web-zenly section is covered automatically on the next sync,
+// with no edit to this file — the same reasoning src/app/sitemap.ts already uses for the
+// marketing half of the sitemap.
+//
+// This reads public/businesses/ synchronously at config-eval time, which depends on the
+// mirror already existing on disk. That ordering is guaranteed by npm's script lifecycle,
+// not by anything in Next itself: `npm run build` always runs the `prebuild` script (which
+// runs scripts/sync-businesses-site.mjs) to completion in its own process *before* starting
+// the `build` script (`next build`), which is what loads and evaluates this file. Same for
+// `predev` before `next dev`. Verified empirically, not just assumed: deleted
+// public/businesses/, ran `npm run build` end-to-end, and confirmed the derived prefix set
+// was non-empty and correct in the resulting route table — if the ordering didn't hold, this
+// would throw (see the missing-mirror branch below) rather than silently building with zero
+// marketing redirects.
+function deriveMarketingPrefixes(): string[] {
+  const businessesDir = path.join(process.cwd(), "public", "businesses");
+  if (!existsSync(businessesDir)) {
+    throw new Error(
+      "public/businesses/ not found while deriving marketing-site redirect prefixes in " +
+        "next.config.ts. This should only happen if next build/dev was invoked without its " +
+        "npm script (prebuild/predev runs scripts/sync-businesses-site.mjs first). Run " +
+        "`npm run sync:businesses` and retry, or use the npm script instead of calling the " +
+        "Next CLI directly."
+    );
+  }
+
+  // "assets" has its own dedicated rule below (assetRedirect) with its own reasoning —
+  // excluded here so it isn't redirected twice.
+  const prefixes = readdirSync(businessesDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name !== "assets")
+    .map((entry) => entry.name);
+
+  // The marketplace owns these top-level segments (plus /businesses itself). If web-zenly
+  // ever ships a top-level section with one of these names, a derived redirect would SHADOW
+  // a real marketplace route — e.g. a web-zenly "/search" page would silently 308 every
+  // search request into the marketing mirror. That is a far worse failure than a 404, and a
+  // silent one, so this fails the build loudly instead of skipping or overriding. The sets
+  // are disjoint today; this guard is for when that stops being true.
+  const reservedByMarketplace = new Set(["api", "auth", "businesses", "collections", "providers", "saved", "search"]);
+  const collisions = prefixes.filter((prefix) => reservedByMarketplace.has(prefix));
+  if (collisions.length > 0) {
+    throw new Error(
+      `web-zenly now ships a top-level section (${collisions.join(", ")}) whose name collides ` +
+        "with a marketplace route. A derived redirect would shadow that route. Resolve the " +
+        "naming collision (rename the web-zenly section, or carve out an exception here) " +
+        "before building."
+    );
+  }
+
+  return prefixes;
+}
+
+const MOVED_MARKETING_PREFIXES = deriveMarketingPrefixes();
+
+// `permanent: true` is a 308, not a 301: it is the permanent redirect that preserves the
+// request method. Search engines treat it the same as a 301 for canonicalization.
+const marketingRedirects = MOVED_MARKETING_PREFIXES.map((prefix) => ({
+  source: `/${prefix}/:path*`,
+  destination: `/businesses/${prefix}/:path*`,
+  permanent: true,
+}));
+
+// web-zenly's old build referenced its own CSS/JS/images at /assets/*, and those URLs are
+// already in the wild (indexed pages, cached social cards, anything that scraped the old HTML)
+// — see phase-3 doc §2. The marketplace has no /assets route today and doesn't reference one
+// anywhere in src/ (it serves its own images/videos straight from public/images, public/videos);
+// if a future marketplace feature ever wants a top-level /assets path, this redirect would need
+// to move or narrow first — flagging that dependency rather than leaving it implicit.
+const assetRedirect = {
+  source: "/assets/:path*",
+  destination: "/businesses/assets/:path*",
+  permanent: true,
+};
+
+// Proxies /book/* to a local book-spa dev server, so "Book now" stays on localhost:3001
+// instead of the address bar jumping to book-spa's own port. Opt-in and unset by default —
+// production is untouched until book-spa's own origin is wired up here deliberately.
+// book-spa serves itself at a /book/ base path (vite base + BrowserRouter basename, on its own
+// side), so its own asset requests are also /book/assets/... — the same single rule covers
+// those too, which is why the prefix is NOT stripped in the destination.
+//
+// This is next.config.ts's own `rewrites()`, not src/proxy.ts: Next's documented, supported
+// mechanism for rewriting to an *external* origin is a rewrite with an absolute-URL
+// destination (node_modules/next/dist/docs/.../rewrites.md, "Rewriting to an external URL") —
+// checked rather than assumed, since proxy.ts's NextResponse.rewrite() is a same-app,
+// same-process rewrite (how /businesses's mirrored index.html resolution works) and isn't the
+// primitive for forwarding to a different server. The two don't interact: proxy.ts never sees
+// /book/* at all, since next.config.ts's routing layer (headers -> redirects -> Proxy ->
+// beforeFiles rewrites -> ...) runs rewrites independently of it.
+const bookingEngineProxyTarget = process.env.BOOKING_ENGINE_PROXY_TARGET;
+if (bookingEngineProxyTarget) {
+  try {
+    new URL(bookingEngineProxyTarget);
+  } catch {
+    throw new Error(
+      `BOOKING_ENGINE_PROXY_TARGET is set to "${bookingEngineProxyTarget}", which isn't a valid ` +
+        "absolute URL (expected something like http://localhost:4028). Fix or unset it."
+    );
+  }
+}
+// book-spa serves itself under /book/ (VITE_BASE_PATH=/book/), so its own asset requests are
+// /book/@vite/client, /book/src/..., /book/node_modules/... — all already covered by the one
+// rule below, which is why the prefix is NOT stripped in the destination.
+//
+// An earlier attempt forwarded Vite's ROOT-level paths (/@vite/client, /src/*, /node_modules/*)
+// instead, because book-spa was running without that base set. That got React loading but
+// could not fix the real problem: with no base, book-spa's BrowserRouter has no /book basename
+// either, so it answered /book/<org> with its own 404. Setting the base fixes both at once and
+// needs no root-level rewrites here. Note it must be set in the ENVIRONMENT, not just
+// book-spa's .env — its vite.config.mjs reads process.env, which .env does not populate.
+const bookingProxyRewrite = bookingEngineProxyTarget
+  ? [{ source: "/book/:path*", destination: `${bookingEngineProxyTarget}/book/:path*` }]
+  : [];
+
+// LAN testing. Next blocks cross-origin requests to dev-only assets by default, and the dev
+// server allows only localhost, its subdomains, and the hostname it was started with — so opening
+// http://192.168.1.68:3001 from a phone on the same wifi got the HTML but no working dev client:
+// /_next/hmr was refused, the client runtime never booted, nothing hydrated, and every
+// framer-motion element stayed at the `opacity:0` the SERVER rendered. The page looked blank
+// above the fold while unanimated sections further down showed normally — which reads as a broken
+// page, not as a blocked request. The only trace is a warning in the dev server's own stdout.
+//
+// A whole-subnet wildcard rather than this machine's current address: `*` matches exactly one
+// hostname label, so this covers 192.168.1.1–254 and survives the router handing this Mac a
+// different lease mid-session — the failure above is far too indirect to want to debug twice.
+//
+// Dev only — `next build` ignores this key entirely, so it cannot widen anything in production.
+// Private RFC-1918 space, reachable only from the same wifi.
 const nextConfig: NextConfig = {
   // Standalone output: the Docker image copies only the traced server bundle,
   // not the full node_modules tree. Required for the production Dockerfile.
   output: "standalone",
+
+  // "*.ngrok-free.dev" for testing features the LAN address cannot reach: geolocation and OAuth
+  // both require a SECURE origin, and http://192.168.1.x is not one — only localhost and https
+  // qualify. A tunnel is the only way to exercise those from a real phone. Dev-only, like the
+  // subnet entry beside it; `next build` ignores this key entirely.
+  allowedDevOrigins: ["192.168.1.*", "*.ngrok-free.dev", "*.ngrok-free.app"],
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
+  },
+  async redirects() {
+    return [...marketingRedirects, assetRedirect];
+  },
+  async rewrites() {
+    return bookingProxyRewrite;
   },
   images: {
     remotePatterns: [
@@ -35,6 +195,24 @@ const nextConfig: NextConfig = {
         hostname: "images.pexels.com",
         pathname: "/**",
       },
+      // Google account photos (profiles.avatarProvider, backfilled from Google sign-in metadata).
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      // Supabase Storage (profiles.avatarUploaded — customer-uploaded photos, "avatars" bucket).
+      // Derived from the same project the app already talks to, rather than hardcoding a project
+      // ref, so this doesn't silently point at the wrong project in a different environment.
+      ...(process.env.NEXT_PUBLIC_SUPABASE_URL
+        ? [
+            {
+              protocol: "https" as const,
+              hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+              pathname: "/storage/v1/object/public/**",
+            },
+          ]
+        : []),
     ],
   },
 };

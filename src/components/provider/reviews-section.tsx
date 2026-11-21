@@ -17,21 +17,27 @@ export function ReviewsSection({ provider }: { provider: Provider }) {
 
       <div className="mt-5 flex flex-col gap-6 rounded-[var(--radius-lg)] bg-muted/60 p-6 sm:flex-row sm:items-center">
         <div className="shrink-0">
-          <p className="text-5xl font-semibold tabular-nums">{provider.rating.toFixed(1)}</p>
-          <p className="mt-1 flex items-center gap-0.5 text-warning" aria-hidden>
-            {Array.from({ length: 5 }, (_, i) => (
-              <StarIcon key={i} width={14} height={14} />
-            ))}
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {provider.isNew ? "New to Zennly" : `${provider.reviewCount} reviews`}
-          </p>
+          {provider.isNew ? (
+            <p className="text-2xl font-semibold">New to Zennly</p>
+          ) : (
+            <>
+              <p className="text-5xl font-semibold tabular-nums">{provider.rating.toFixed(1)}</p>
+              <p className="mt-1 flex items-center gap-0.5 text-warning" aria-hidden>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <StarIcon key={i} width={14} height={14} />
+                ))}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{provider.reviewCount} reviews</p>
+            </>
+          )}
         </div>
         <div className="min-w-0">
           <p className="font-[family-name:var(--font-inter)] text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             What guests say
           </p>
-          <p className="mt-1.5 max-w-prose text-sm leading-relaxed">{provider.reviewSummary}</p>
+          <p className="mt-1.5 max-w-prose text-sm leading-relaxed">
+            {provider.reviewSummary || "No reviews yet."}
+          </p>
         </div>
       </div>
 

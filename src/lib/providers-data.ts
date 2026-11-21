@@ -5,6 +5,26 @@ import { prisma } from "./prisma";
 import { seedProviders } from "./providers-seed";
 
 /**
+ * Where book-spa's customer booking flow lives. Production is app.zennly.io (absolute,
+ * cross-origin); whatever this resolves to must also be on BOOKING_HOST_ALLOWLIST in
+ * src/lib/booking/start-booking.ts, which refuses any host not listed there.
+ */
+function bookingEngineOrigin(): string {
+  return process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN || "https://app.zennly.io";
+}
+
+/**
+ * Once next.config.ts's /book/* rewrite is actually proxying to book-spa (same env var drives
+ * both, single source of truth), the booking link can be a same-origin relative path instead of
+ * an absolute cross-origin URL — this is what keeps "Book now" on localhost:3001's own origin
+ * rather than visibly jumping to book-spa's port. BOOKING_ENGINE_PROXY_TARGET is server-only
+ * and this file is server-only, so no NEXT_PUBLIC_ duplicate of it is needed here.
+ */
+function bookingProxyEnabled(): boolean {
+  return Boolean(process.env.BOOKING_ENGINE_PROXY_TARGET);
+}
+
+/**
  * Server-side provider reads. Source of truth is the `providers` table (prisma/schema.prisma).
  * Until DATABASE_URL is set, falls back to the placeholder generator so local dev keeps working.
  */
@@ -16,6 +36,7 @@ function toProvider(r: ProviderRow): Provider {
     city: r.city,
     region: r.region,
     location: r.location,
+    areas: r.areas,
     modality: r.modality,
     modalities: r.modalities,
     rating: r.rating,
@@ -42,6 +63,15 @@ function toProvider(r: ProviderRow): Provider {
     fromPrice: r.fromPrice,
     lat: r.lat ?? undefined,
     lng: r.lng ?? undefined,
+    // Stage 1 handoff (docs/booking-integration-plan.md): engineProviderId is the book-spa org
+    // slug. Connected providers get a real booking link; everyone else keeps bookingUrl
+    // undefined, which startBooking() reads as "open the demo drawer instead."
+    bookingUrl: r.engineProviderId
+      ? bookingProxyEnabled()
+        ? `/book/${r.engineProviderId}`
+        : `${bookingEngineOrigin()}/${r.engineProviderId}`
+      : undefined,
+    engineProviderId: r.engineProviderId ?? undefined,
   };
 }
 

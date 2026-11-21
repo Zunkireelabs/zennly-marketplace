@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteNav } from "@/components/layout/site-nav";
 import { Footer } from "@/components/layout/footer";
 import { getProvider, getProviders, getRelatedProviders } from "@/lib/providers-data";
+import { fetchLiveServices } from "@/lib/booking/engine-live-services";
 import { ProviderShell } from "@/components/provider/provider-shell";
 import { ProviderHero } from "@/components/provider/hero";
 import { BookingCard, MobileBookBar } from "@/components/provider/booking-card";
@@ -10,6 +11,7 @@ import { TabBar } from "@/components/provider/tab-bar";
 import { ServicesSection } from "@/components/provider/services-section";
 import { ReviewsSection } from "@/components/provider/reviews-section";
 import { LookInside } from "@/components/provider/look-inside";
+import { StudioHistory } from "@/components/provider/studio-history";
 import {
   Amenities,
   Breadcrumb,
@@ -42,6 +44,19 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
   const provider = await getProvider(slug);
   if (!provider) notFound();
 
+  // Live services/prices for connected providers only — this fetch is deliberately
+  // cache: "no-store" (see engine-live-services.ts), so this one page renders dynamically
+  // per-request instead of from the 300s ISR cache. Unconnected providers never reach this
+  // branch and keep their normal static/ISR behavior.
+  if (provider.engineProviderId) {
+    const live = await fetchLiveServices(provider.engineProviderId);
+    if (live) {
+      provider.services = live.services;
+      provider.serviceCategories = live.serviceCategories;
+      provider.fromPrice = live.fromPrice;
+    }
+  }
+
   const related = await getRelatedProviders(provider);
 
   return (
@@ -57,6 +72,7 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
                 <Breadcrumb provider={provider} />
                 <TabBar />
                 <Overview provider={provider} />
+                <StudioHistory provider={provider} />
                 <ServicesSection />
                 <LookInside />
                 <ReviewsSection provider={provider} />
@@ -76,7 +92,7 @@ export default async function ProviderPage({ params }: PageProps<"/providers/[sl
 
           <RelatedProviders related={related} />
         </main>
-        <Footer providersHref="https://zennly.io/" />
+        <Footer />
       </div>
       <MobileBookBar />
     </ProviderShell>

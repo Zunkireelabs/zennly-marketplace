@@ -1,22 +1,23 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import { toast } from "sonner";
-import { CURRENCIES, convert, formatMoney, type CurrencyCode } from "./currencies";
+import { convert, formatMoney, type CurrencyCode } from "./currencies";
 import { currencyStore } from "./store";
 
-/** The display currency, plus helpers that turn USD amounts into it. USD on the server and during hydration. */
+/**
+ * The display currency, plus helpers that turn USD amounts into it.
+ *
+ * There is no setter: the currency picker was removed and the currency is fixed to NPR. Amounts
+ * from engine-connected studios are already real NPR and must NOT pass through here — see
+ * `Price` in components/ui/price.tsx, which renders those directly.
+ */
 export function useCurrency() {
-  const currency = useSyncExternalStore(currencyStore.subscribe, currencyStore.getSnapshot, currencyStore.getServerSnapshot);
-  const format = useCallback((usd: number) => formatMoney(usd, currency), [currency]);
-  const toDisplay = useCallback((usd: number) => convert(usd, currency), [currency]);
-  const setCurrency = useCallback(
-    (code: CurrencyCode) => {
-      if (code === currency) return;
-      currencyStore.set(code);
-      toast.success(`Currency changed to ${code} · ${CURRENCIES[code].label}`);
-    },
-    [currency],
+  const currency: CurrencyCode = useSyncExternalStore(
+    currencyStore.subscribe,
+    currencyStore.getSnapshot,
+    currencyStore.getServerSnapshot,
   );
-  return { currency, setCurrency, format, toDisplay };
+  const format = useCallback((amount: number) => formatMoney(amount, currency), [currency]);
+  const toDisplay = useCallback((amount: number) => convert(amount, currency), [currency]);
+  return { currency, format, toDisplay };
 }

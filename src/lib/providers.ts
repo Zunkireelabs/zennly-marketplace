@@ -17,6 +17,14 @@ export type Service = {
   /** Minutes. One entry = fixed length, two = a range ("60 – 90 min"). */
   durations: number[];
   price: number;
+  /**
+   * Set only when the engine prices this service per therapist tier, in which case `price` is
+   * the default rate and the customer could pay anywhere in this range depending on who they
+   * book. Showing the default alone reads as a firm price and is wrong in both directions —
+   * book-spa itself renders the range, so the marketplace must agree or the two disagree about
+   * what a treatment costs.
+   */
+  priceRange?: { min: number; max: number };
   description: string;
 };
 
@@ -50,6 +58,9 @@ export type Provider = {
   city: string;
   region: string;
   location: string;
+  /** Neighbourhoods/municipalities this studio trades in — one per connected book-spa branch.
+   *  Searched alongside city and region; not a place in its own right (see Destination). */
+  areas?: string[];
   modality: string;
   modalities: string[];
   rating: number;
@@ -79,6 +90,8 @@ export type Provider = {
   lng?: number;
   /** The studio's engine booking page, once connected (Phase 3). Unset: Book opens the demo drawer. */
   bookingUrl?: string;
+  /** book-spa org slug, once connected. Drives the real-booking drawer (NEXT_PUBLIC_ENGINE_BOOKING). */
+  engineProviderId?: string;
 };
 
 export function slugify(name: string): string {

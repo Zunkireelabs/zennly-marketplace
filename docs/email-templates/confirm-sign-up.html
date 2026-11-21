@@ -1,0 +1,122 @@
+<!--
+  Supabase Auth → Emails → Templates → "Confirm sign up"
+  Project: fninbtezzrzsmszorfgt (zennly-marketplace)
+
+  Paste the markup below (everything after this comment) into the template's Body field.
+  Suggested subject: Your Zennly sign-in code
+
+  WHY THIS TEMPLATE MATTERS, and why it was missed: signing in and signing UP are the same action
+  in this app — /api/auth/email calls signInWithOtp({ shouldCreateUser: true }), so there is no
+  separate signup form. But GoTrue does NOT use one template for both: an address that already has
+  an account gets "Magic link or OTP", while a brand-new address gets THIS one. The former was
+  switched to {{ .Token }} long ago; this one was still Supabase's default, which sends a
+  ConfirmationURL link. So every existing customer got a working 6-digit code and every NEW
+  customer got a link, while the login dialog sat waiting for a code they had never been sent.
+
+  That is the third template in this project found sending a link to a UI expecting a code
+  (login, then change-email, now sign-up). If a fourth auth email is ever introduced, check its
+  template before shipping the flow.
+
+  WHAT CHANGED FROM SUPABASE'S DEFAULT:
+    - {{ .ConfirmationURL }} (a clickable link) → {{ .Token }} (a 6-digit code).
+      Consistency with the login flow is the lesser reason. The real one: the confirmation link
+      carries a PKCE verifier bound to the browser that STARTED the sign-in. Someone who begins on
+      a laptop and taps the link on their phone gets an error with no explanation. A code works
+      from any device, which is how people actually read email.
+
+  WHY IT LOOKS LIKE THIS: it is deliberately the same design as the "Magic link or OTP" template
+  already live in the dashboard — cream ground, green rule, serif wordmark and heading, the code
+  in a sage panel. A customer cannot tell which template GoTrue picked for them, and should not be
+  able to: whether their address was new or returning is our implementation detail, not a reason
+  to send them a differently-branded email. The first version of this file did not match, and the
+  difference was visible the moment the two landed in one inbox.
+
+  Note {{ .NewEmail }} is NOT available here (that is the change-email template only) — the
+  address being confirmed is {{ .Email }}.
+
+  EMAIL-CLIENT CONSTRAINTS this markup respects: table layout (not flexbox/grid), inline styles
+  only (no <style> block, which Gmail strips), no web fonts (Outfit and Instrument Serif won't
+  load — the stacks fall back to system sans and Georgia), no external images (nothing to block or
+  fail), and a max-width that survives a phone.
+
+  Brand tokens copied from src/app/globals.css — keep in sync if those change:
+    background #fefdfb · foreground #23211d · muted #ede9e0 · muted-foreground #6b6255
+    border #e6e1d6 · card #ffffff · primary #5b6e56 · radius-lg 18px · radius-md 12px
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ede9e0;margin:0;padding:40px 16px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+
+        <!-- The card. The green rule across the top is a <td> with a background colour rather than
+             a border-top, because Outlook drops border-radius and renders a stray square corner on
+             a bordered element; a filled row degrades to a plain green bar, which is fine. -->
+        <tr>
+          <td style="background-color:#5b6e56;height:6px;line-height:6px;font-size:0;border-radius:18px 18px 0 0;">&nbsp;</td>
+        </tr>
+
+        <tr>
+          <td style="background-color:#ffffff;border-radius:0 0 18px 18px;padding:44px 44px 40px;">
+
+            <!-- Wordmark. Text, not an image: images are blocked by default in most clients, and a
+                 blocked logo looks broken where a styled word never does. -->
+            <p style="margin:0 0 36px;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:42px;line-height:1;font-weight:400;color:#5b6e56;letter-spacing:-0.02em;">
+              zennly
+            </p>
+
+            <p style="margin:0 0 10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6b6255;">
+              Sign in
+            </p>
+
+            <h1 style="margin:0 0 14px;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:36px;line-height:1.15;font-weight:400;color:#23211d;">
+              Here&rsquo;s your code
+            </h1>
+
+            <p style="margin:0 0 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#6b6255;">
+              Enter it on the sign-in screen to finish creating your Zennly account for
+              <span style="color:#23211d;">{{ .Email }}</span>.
+            </p>
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" style="background-color:#f1f4ef;border-radius:12px;padding:28px 12px 22px;">
+                  <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:38px;line-height:1;font-weight:500;letter-spacing:12px;text-indent:12px;color:#23211d;">
+                    {{ .Token }}
+                  </p>
+                  <!-- "Expires in 60 minutes" must stay true: it is GoTrue's MAILER_OTP_EXP for this
+                       project (3600s). If that setting changes, change this line and the matching
+                       one in the Magic link template. A wrong expiry here is worse than none. -->
+                  <p style="margin:14px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;color:#6b6255;">
+                    Expires in 60 minutes &middot; single use
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Divider as a filled row, for the same Outlook reason as the top rule. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0;">
+              <tr>
+                <td style="background-color:#e6e1d6;height:1px;line-height:1px;font-size:0;">&nbsp;</td>
+              </tr>
+            </table>
+
+            <p style="margin:24px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#6b6255;">
+              Didn&rsquo;t try to sign in? Ignore this email — no account will be created, and
+              nobody can get in without this code.
+            </p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td align="center" style="padding:24px 16px 0;">
+            <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.5;color:#6b6255;">
+              A calmer way to discover and book wellness &amp; self-care.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

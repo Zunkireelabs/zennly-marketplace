@@ -52,7 +52,19 @@ export function ServicesSection() {
               <p className="mt-1.5 max-w-prose text-sm text-muted-foreground">{service.description}</p>
             </div>
             <div className="flex shrink-0 flex-col items-end gap-3">
-              <p className="font-mono text-base font-semibold tabular-nums"><Price usd={service.price} /></p>
+              {/* Tiered services show the spread, matching what book-spa shows the customer
+                  on the booking side. A single figure would read as a firm price it isn't. */}
+              <p className="font-mono text-base font-semibold tabular-nums">
+                {service.priceRange ? (
+                  <>
+                    <Price amount={service.priceRange.min} engineProviderId={provider.engineProviderId} />
+                    {" – "}
+                    <Price amount={service.priceRange.max} engineProviderId={provider.engineProviderId} />
+                  </>
+                ) : (
+                  <Price amount={service.price} engineProviderId={provider.engineProviderId} />
+                )}
+              </p>
               <button
                 type="button"
                 onClick={() => openBooking({ serviceId: service.id })}
@@ -66,6 +78,11 @@ export function ServicesSection() {
         ))}
       </ul>
 
+      {/* `included` and `addOns` are seeded placeholder content. book-spa's services RPC supplies
+          neither, so for engine-connected providers these would render invented extras (and in USD)
+          next to the studio's real catalogue. Hide the whole block for them rather than show
+          fabricated items on a real business's page; demo providers keep it. */}
+      {!provider.engineProviderId && (
       <div className="mt-8 grid gap-8 sm:grid-cols-2">
         <div>
           <h3 className="font-[family-name:var(--font-inter)] text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -92,13 +109,14 @@ export function ServicesSection() {
                   {item.name}
                 </span>
                 <span className="font-mono tabular-nums text-muted-foreground">
-                  {item.price === 0 ? "Free" : <>+<Price usd={item.price} /></>}
+                  {item.price === 0 ? "Free" : <>+<Price amount={item.price} /></>}
                 </span>
               </li>
             ))}
           </ul>
         </div>
       </div>
+      )}
     </section>
   );
 }

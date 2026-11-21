@@ -8,15 +8,27 @@ import type { Destination, SearchIndex } from "@/lib/home-rails";
 import { SearchBar } from "@/components/search/search-bar";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { maskTarget } from "@/lib/auth/normalize";
-import { CurrencyChip, CurrencyRow } from "./currency-picker";
+import { MARKETING_SITE_HOME } from "@/lib/marketing-links";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 
+// On mobile this menu is the ONLY navigation — the header's search is hidden below `sm`, so a
+// customer deep in /account/* has nothing else to get back to browsing with. "Discover" and
+// "Collections" both pointed at "#" and did nothing, which made that a dead end rather than a
+// narrow one. Every entry here must go somewhere real; there is no /collections index route, so
+// that concept lives on the homepage rails rather than as a link that lies.
 const MENU_LINKS = [
-  { label: "Discover", href: "#" },
-  { label: "Collections", href: "#" },
+  { label: "Browse studios", href: "/search" },
   { label: "Saved", href: "/saved" },
 ];
+
+// Menu rows were 36px tall with a 4px gap. That is comfortable with a mouse and too small on a
+// phone — below the ~44px both Apple and Android publish as the minimum touch target — and the
+// row directly under "Profile" is "Log out". A tap aimed at Profile that drifts a few pixels low
+// signs you out instead, which is exactly what it looked like from the server: no /account
+// request at all, then a sign-out. `min-h-11` is 44px on touch; desktop keeps the compact row.
+const MENU_ITEM =
+  "flex min-h-11 items-center rounded-[var(--radius-sm)] px-3 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted sm:min-h-9";
 
 /**
  * `overlay` floats transparent with white text over the homepage hero. `solid` sits in normal
@@ -31,7 +43,7 @@ export function Nav({
   search?: { destinations: Destination[]; searchIndex: SearchIndex };
 }) {
   const solid = variant === "solid";
-  const providersHref = "https://zennly.io/";
+  const providersHref = MARKETING_SITE_HOME;
   const ink = solid ? "text-foreground" : "text-white";
   const edge = solid ? "border-foreground/25 hover:border-foreground" : "border-white/40 hover:border-white";
   const bar = solid ? "bg-foreground" : "bg-white";
@@ -68,12 +80,11 @@ export function Nav({
 
         <div className="flex items-center gap-3">
           <AccountControl ink={ink} solid={solid} />
-          <CurrencyChip ink={ink} edge={edge} />
           <Link
             href={providersHref}
             className={`hidden rounded-[var(--radius-full)] border px-4 py-2 font-mono text-sm font-medium transition-colors duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] sm:inline-block ${ink} ${edge}`}
           >
-            For Providers
+            For Businesses
           </Link>
           <button
             type="button"
@@ -114,7 +125,7 @@ export function Nav({
                   key={link.label}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="rounded-[var(--radius-sm)] px-3 py-2 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted"
+                  className={MENU_ITEM}
                   role="menuitem"
                 >
                   {link.label}
@@ -122,16 +133,15 @@ export function Nav({
               ))}
 
               <div className="my-1 h-px bg-border" />
-              <CurrencyRow />
               <div className="my-1 h-px bg-border sm:hidden" />
 
               <Link
                 href={providersHref}
                 onClick={() => setMenuOpen(false)}
-                className="rounded-[var(--radius-sm)] px-3 py-2 text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted sm:hidden"
+                className={`${MENU_ITEM} sm:hidden`}
                 role="menuitem"
               >
-                For Providers
+                For Businesses
               </Link>
               {ready && !user && (
                 <button
@@ -140,7 +150,7 @@ export function Nav({
                     setMenuOpen(false);
                     openLogin();
                   }}
-                  className="rounded-[var(--radius-sm)] px-3 py-2 text-left text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted sm:hidden"
+                  className={`${MENU_ITEM} sm:hidden`}
                   role="menuitem"
                 >
                   Log in
@@ -149,6 +159,18 @@ export function Nav({
               {ready && user && (
                 <div className="flex flex-col gap-1 sm:hidden">
                   <p className="truncate px-3 pt-1 text-xs text-muted-foreground">{accountLabel(user)}</p>
+                  <Link
+                    href="/account"
+                    role="menuitem"
+                    onClick={() => setMenuOpen(false)}
+                    className={MENU_ITEM}
+                  >
+                    Profile
+                  </Link>
+                  {/* Log out is the one irreversible item in this menu and it sits right under
+                      the one people reach for most. A rule and a margin, so a tap that lands
+                      between the two hits neither rather than silently signing someone out. */}
+                  <div className="my-1 h-px bg-border" />
                   <button
                     type="button"
                     role="menuitem"
@@ -156,15 +178,17 @@ export function Nav({
                       setMenuOpen(false);
                       void signOut();
                     }}
-                    className="rounded-[var(--radius-sm)] px-3 py-2 text-left text-sm text-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-muted"
+                    className={MENU_ITEM}
                   >
                     Log out
                   </button>
                 </div>
               )}
 
+              {/* Was hardcoded to /collections/restore-and-retreat — a button labelled "Explore
+                  studios" that dropped you into one curated list. Goes to the real browse page. */}
               <Link
-                href="/collections/restore-and-retreat"
+                href="/search"
                 onClick={() => setMenuOpen(false)}
                 className="mt-1 rounded-[var(--radius-sm)] bg-primary px-3 py-2 text-center text-sm font-semibold text-primary-foreground transition-colors duration-150 ease-[cubic-bezier(0.16,1,0.3,1)] hover:bg-primary-hover"
                 role="menuitem"
@@ -235,11 +259,11 @@ function AccountControl({ ink, solid }: { ink: string; solid: boolean }) {
         aria-expanded={open}
         aria-label="Account menu"
         onClick={() => setOpen((o) => !o)}
-        className={`flex size-9 items-center justify-center rounded-[var(--radius-full)] text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+        className={`relative flex size-9 items-center justify-center overflow-hidden rounded-[var(--radius-full)] text-sm font-semibold transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
           solid ? "bg-primary text-primary-foreground hover:bg-primary-hover" : "bg-white text-foreground hover:bg-white/85"
         }`}
       >
-        {initial}
+        {user.avatar ? <Image src={user.avatar} alt="" fill sizes="36px" className="object-cover" /> : initial}
       </button>
       {open && (
         <div
@@ -247,6 +271,14 @@ function AccountControl({ ink, solid }: { ink: string; solid: boolean }) {
           className="absolute right-0 top-[calc(100%+8px)] flex w-60 flex-col gap-1 rounded-[var(--radius-md)] border border-border bg-card p-2 text-foreground shadow-[var(--shadow-modal)]"
         >
           <p className="truncate px-3 pb-1 pt-1 text-xs text-muted-foreground">{accountLabel(user)}</p>
+          <Link
+            href="/account/profile"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="rounded-[var(--radius-sm)] px-3 py-2 text-sm transition-colors duration-150 hover:bg-muted"
+          >
+            Profile
+          </Link>
           <Link
             href="/saved"
             role="menuitem"

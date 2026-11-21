@@ -19,11 +19,19 @@ export const heroFeature = {
  * (docs/research/refs/stayvista.md ~line 324), own copy/imagery only — no coupon codes or
  * pricing claims, since payment/discount mechanics are still undecided (§6).
  */
-export const promoBanners = [
+export const promoBanners: {
+  badge: string;
+  headline: string;
+  /** Optional: a banner with no honest, settled claim to make should omit this rather than invent one. */
+  subcopy?: string;
+  ctaLabel: string;
+  tone: string;
+  image: string;
+  alt: string;
+}[] = [
   {
     badge: "New here",
     headline: "First Visit, On Us",
-    subcopy: "New customers get $20 off their first booking with any provider.",
     ctaLabel: "Claim offer",
     tone: "linear-gradient(135deg, #d8c9b3, #a9875f)",
     image: "/images/promo/first-visit-banner.jpg",
@@ -72,7 +80,7 @@ export const valueProps = [
  * used in heroFeature and the homepage rails (lib/home-rails.ts) so the placeholder universe stays coherent.
  */
 export const providerPitch = {
-  eyebrow: "For Providers",
+  eyebrow: "For Businesses",
   headline: "Zennly for Business",
   subcopy:
     "Reach self-care clients who are already looking for what you offer. List your studio free — no setup fees, no long-term contracts.",

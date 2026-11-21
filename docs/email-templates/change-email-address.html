@@ -1,0 +1,135 @@
+<!--
+  Supabase Auth → Emails → Templates → "Change email address"
+  Project: fninbtezzrzsmszorfgt (zennly-marketplace)
+
+  Paste the markup below (everything after this comment) into the template's Body field.
+
+  WHY THIS FILE EXISTS: Supabase email templates live only in the dashboard. They are not in any
+  migration, they do not travel with a database restore, and they must be set per project — so a
+  staging/production split means setting them twice, by hand, with nothing to diff against. This
+  project has already been bitten four times by dashboard-only configuration (migrations 013/337/
+  338, the untracked pin-login Edge Function). Keeping the source here makes the template
+  reviewable, re-pasteable, and visible to anyone wondering why customers get a code.
+
+  WHAT CHANGED FROM SUPABASE'S DEFAULT, and why it matters:
+    - {{ .ConfirmationURL }} (a clickable link) → {{ .Token }} (a 6-digit code).
+      Matching the login flow is the lesser reason. The real one: the confirmation link carries a
+      PKCE verifier bound to the browser that STARTED the change. A customer who begins on a
+      laptop and taps the link on their phone gets an error with no explanation. A code works from
+      any device, which is how people actually read email.
+
+  TWO EMAILS, ONE TEMPLATE: with "Secure email change" ON (it is), GoTrue sends this template to
+  BOTH the old and the new address, each with its own {{ .Token }}. The customer receives two
+  near-identical messages carrying different numbers. That is why the body names the address being
+  confirmed via {{ .NewEmail }}, and why the dialog must label which inbox each input belongs to.
+
+  WHY IT LOOKS LIKE THIS: shared design with "Magic link or OTP" (dashboard-only) and
+  confirm-sign-up.html — cream ground, green rule, serif wordmark and heading, the code in a sage
+  panel. Three auth emails that look like three different companies is worse than any one of them
+  looking plain, and this is the email where a customer is most likely to be checking whether the
+  message is genuine. See README.md for the token list.
+
+  The eyebrow reads "Email change" rather than "Sign in": it is the one line that tells a reader
+  at a glance which of our emails this is, which matters precisely because two of them arrive at
+  once and a third looks nearly identical.
+
+  EMAIL-CLIENT CONSTRAINTS this markup respects: table layout (not flexbox/grid), inline styles
+  only (no <style> block, which Gmail strips), no web fonts (Outfit and Instrument Serif won't
+  load — the stacks fall back to system sans and Georgia), no external images (nothing to block or
+  fail), and a max-width that survives a phone.
+
+  Brand tokens copied from src/app/globals.css — keep in sync if those change:
+    background #fefdfb · foreground #23211d · muted #ede9e0 · muted-foreground #6b6255
+    border #e6e1d6 · card #ffffff · primary #5b6e56 · radius-lg 18px · radius-md 12px
+-->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ede9e0;margin:0;padding:40px 16px;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+
+        <!-- The card. The green rule across the top is a <td> with a background colour rather than
+             a border-top, because Outlook drops border-radius and renders a stray square corner on
+             a bordered element; a filled row degrades to a plain green bar, which is fine. -->
+        <tr>
+          <td style="background-color:#5b6e56;height:6px;line-height:6px;font-size:0;border-radius:18px 18px 0 0;">&nbsp;</td>
+        </tr>
+
+        <tr>
+          <td style="background-color:#ffffff;border-radius:0 0 18px 18px;padding:44px 44px 40px;">
+
+            <!-- Wordmark. Text, not an image: images are blocked by default in most clients, and a
+                 blocked logo looks broken where a styled word never does. -->
+            <p style="margin:0 0 36px;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:42px;line-height:1;font-weight:400;color:#5b6e56;letter-spacing:-0.02em;">
+              zennly
+            </p>
+
+            <p style="margin:0 0 10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;line-height:1;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#6b6255;">
+              Email change
+            </p>
+
+            <h1 style="margin:0 0 14px;font-family:'Instrument Serif',Georgia,'Times New Roman',serif;font-size:36px;line-height:1.15;font-weight:400;color:#23211d;">
+              Confirm your new address
+            </h1>
+
+            <p style="margin:0 0 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;line-height:1.55;color:#6b6255;">
+              Enter this code in Zennly to confirm
+              <span style="color:#23211d;">{{ .NewEmail }}</span> as your email address.
+            </p>
+
+            <!-- The code. Sage-tinted panel rather than a plain line: it is the one thing the
+                 reader needs, and on a phone it has to be findable without reading the sentence. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td align="center" style="background-color:#f1f4ef;border-radius:12px;padding:28px 12px 22px;">
+                  <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:38px;line-height:1;font-weight:500;letter-spacing:12px;text-indent:12px;color:#23211d;">
+                    {{ .Token }}
+                  </p>
+                  <!-- "Expires in 60 minutes" must stay true: it is GoTrue's MAILER_OTP_EXP for this
+                       project (3600s), which governs this code as well as the sign-in one. If that
+                       setting changes, change this line in all three templates. A wrong expiry here
+                       is worse than none. -->
+                  <p style="margin:14px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.4;color:#6b6255;">
+                    Expires in 60 minutes &middot; single use
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Said before the reassurance line, not after: a reader who stops at the code needs
+                 to know a second one exists, or they will enter this and assume it failed.
+                 Names the ORDER, because the dialog asks for one code at a time (current address
+                 first) as of 2026-11-20. Both emails still arrive at once — Supabase won't hold
+                 the second back — so a customer opening this one first sees a screen asking for
+                 the OTHER code, and without this line that reads as the wrong email or a bug. -->
+            <p style="margin:28px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#6b6255;">
+              We&rsquo;ve also sent a code to your current address. Start with that one — we&rsquo;ll
+              ask for this code next.
+            </p>
+
+            <!-- Divider as a filled row, for the same Outlook reason as the top rule. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0;">
+              <tr>
+                <td style="background-color:#e6e1d6;height:1px;line-height:1px;font-size:0;">&nbsp;</td>
+              </tr>
+            </table>
+
+            <p style="margin:24px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#6b6255;">
+              Didn&rsquo;t ask for this? Ignore this email — nothing will change, and your current
+              address keeps working.
+            </p>
+
+          </td>
+        </tr>
+
+        <tr>
+          <td align="center" style="padding:24px 16px 0;">
+            <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.5;color:#6b6255;">
+              A calmer way to discover and book wellness &amp; self-care.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

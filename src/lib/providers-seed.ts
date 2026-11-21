@@ -69,13 +69,13 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   massage: {
     categories: ["Featured", "Massage", "Body rituals", "Add-ons"],
     services: [
-      svc("Featured", "Signature Deep Tissue", [60, 90], 95, "Slow, sustained pressure through the back, shoulders and hips."),
-      svc("Featured", "Hot Stone Ritual", [75], 120, "Heated basalt stones, warm oil and long, unhurried strokes."),
-      svc("Massage", "Swedish Relaxation", [60], 85, "A lighter, flowing massage to settle the nervous system."),
-      svc("Massage", "Prenatal Massage", [60], 100, "Side-lying support and gentle pressure, for the second and third trimester."),
-      svc("Body rituals", "Salt Scrub + Massage", [90], 140, "A mineral salt exfoliation followed by a full-body oil massage."),
-      svc("Body rituals", "Couples Sanctuary", [90], 260, "Two therapists in one quiet room, with tea to finish."),
-      svc("Add-ons", "Scalp + Neck Extension", [15], 20, "Fifteen extra minutes of focused work, added to any massage."),
+      svc("Featured", "Signature Deep Tissue", [60, 90], 12600, "Slow, sustained pressure through the back, shoulders and hips."),
+      svc("Featured", "Hot Stone Ritual", [75], 16000, "Heated basalt stones, warm oil and long, unhurried strokes."),
+      svc("Massage", "Swedish Relaxation", [60], 11300, "A lighter, flowing massage to settle the nervous system."),
+      svc("Massage", "Prenatal Massage", [60], 13300, "Side-lying support and gentle pressure, for the second and third trimester."),
+      svc("Body rituals", "Salt Scrub + Massage", [90], 18600, "A mineral salt exfoliation followed by a full-body oil massage."),
+      svc("Body rituals", "Couples Sanctuary", [90], 34600, "Two therapists in one quiet room, with tea to finish."),
+      svc("Add-ons", "Scalp + Neck Extension", [15], 2700, "Fifteen extra minutes of focused work, added to any massage."),
     ],
     features: [
       { label: "Private rooms", detail: "5 treatment rooms" },
@@ -86,9 +86,9 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Deep rest", "Sore shoulders", "Couples", "First visit"],
     included: ["Robe and slippers", "Herbal tea before and after", "Shower and towels", "Aromatherapy of your choice"],
     addOns: [
-      { name: "Aromatherapy upgrade", price: 15 },
-      { name: "Hot towel finish", price: 10 },
-      { name: "CBD balm", price: 18 },
+      { name: "Aromatherapy upgrade", price: 2000 },
+      { name: "Hot towel finish", price: 1300 },
+      { name: "CBD balm", price: 2400 },
     ],
     amenities: ["Private treatment rooms", "Showers", "Tea lounge", "Free parking", "Heated tables", "Wheelchair access", "Locker storage", "Gift cards"],
     intro: (name, city) => [
@@ -105,12 +105,12 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   heat: {
     categories: ["Featured", "Sauna", "Contrast", "Add-ons"],
     services: [
-      svc("Featured", "Private Sauna Session", [60], 55, "A private cedar sauna for one or two, with water and towels."),
-      svc("Featured", "Sauna + Cold Plunge Circuit", [90], 85, "Three rounds of heat and cold, guided the first time."),
-      svc("Sauna", "Group Sauna (up to 6)", [90], 180, "Book the whole room for friends, with a hot-tea service."),
-      svc("Sauna", "Aufguss Ritual", [45], 40, "A hosted steam infusion with aromatic oils, twice each evening."),
-      svc("Contrast", "Recovery Contrast Session", [75], 70, "Infrared, steam and a cold rinse in a set sequence."),
-      svc("Add-ons", "Guest Pass", [60], 25, "Bring a friend into your booked session."),
+      svc("Featured", "Private Sauna Session", [60], 7300, "A private cedar sauna for one or two, with water and towels."),
+      svc("Featured", "Sauna + Cold Plunge Circuit", [90], 11300, "Three rounds of heat and cold, guided the first time."),
+      svc("Sauna", "Group Sauna (up to 6)", [90], 23900, "Book the whole room for friends, with a hot-tea service."),
+      svc("Sauna", "Aufguss Ritual", [45], 5300, "A hosted steam infusion with aromatic oils, twice each evening."),
+      svc("Contrast", "Recovery Contrast Session", [75], 9300, "Infrared, steam and a cold rinse in a set sequence."),
+      svc("Add-ons", "Guest Pass", [60], 3300, "Bring a friend into your booked session."),
     ],
     features: [
       { label: "Cedar sauna", detail: "Wood-fired, 85 – 95°C" },
@@ -121,9 +121,9 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Recovery", "Winter days", "Friends", "Stress"],
     included: ["Towel and robe", "Filtered water and herbal tea", "Shower amenities", "First-time orientation"],
     addOns: [
-      { name: "Eucalyptus infusion", price: 8 },
-      { name: "Robe rental", price: 6 },
-      { name: "Cold-pressed juice", price: 9 },
+      { name: "Eucalyptus infusion", price: 1100 },
+      { name: "Robe rental", price: 800 },
+      { name: "Cold-pressed juice", price: 1200 },
     ],
     amenities: ["Wood-fired sauna", "Cold plunge", "Showers", "Quiet lounge", "Lockers", "Filtered water", "Towel service", "Free parking"],
     intro: (name, city) => [
@@ -140,12 +140,12 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   cold: {
     categories: ["Featured", "Cold plunge", "Recovery", "Add-ons"],
     services: [
-      svc("Featured", "Guided Cold Plunge", [30], 40, "Breathing, a three-minute plunge, and a warm-up in the lounge."),
-      svc("Featured", "Contrast Circuit", [60], 65, "Infrared sauna into cold plunge, twice, with a coach."),
-      svc("Cold plunge", "Solo Plunge Session", [30], 30, "Your own private tub and a timer, without guidance."),
-      svc("Recovery", "Compression Boots", [30], 35, "Pneumatic leg compression for tired legs."),
-      svc("Recovery", "Full Recovery Package", [90], 110, "Plunge, sauna and compression in one sitting."),
-      svc("Add-ons", "Breathwork Primer", [15], 15, "A short guided breathing session before you enter the water."),
+      svc("Featured", "Guided Cold Plunge", [30], 5300, "Breathing, a three-minute plunge, and a warm-up in the lounge."),
+      svc("Featured", "Contrast Circuit", [60], 8600, "Infrared sauna into cold plunge, twice, with a coach."),
+      svc("Cold plunge", "Solo Plunge Session", [30], 4000, "Your own private tub and a timer, without guidance."),
+      svc("Recovery", "Compression Boots", [30], 4700, "Pneumatic leg compression for tired legs."),
+      svc("Recovery", "Full Recovery Package", [90], 14600, "Plunge, sauna and compression in one sitting."),
+      svc("Add-ons", "Breathwork Primer", [15], 2000, "A short guided breathing session before you enter the water."),
     ],
     features: [
       { label: "Private tubs", detail: "Chilled to 3 – 10°C" },
@@ -156,8 +156,8 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Athletes", "Recovery", "Focus", "First timers"],
     included: ["Towel and changing robe", "Water and electrolytes", "Timer and temperature guide", "Shower access"],
     addOns: [
-      { name: "Electrolyte pack", price: 4 },
-      { name: "Change of towel", price: 5 },
+      { name: "Electrolyte pack", price: 500 },
+      { name: "Change of towel", price: 700 },
     ],
     amenities: ["Private plunge tubs", "Infrared sauna", "Showers", "Lockers", "Water and electrolytes", "Compression boots", "Coach on site", "Street parking"],
     intro: (name, city) => [
@@ -174,13 +174,13 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   movement: {
     categories: ["Featured", "Classes", "Private", "Add-ons"],
     services: [
-      svc("Featured", "Drop-in Class", [60], 28, "Any class on the schedule, mats and props provided."),
-      svc("Featured", "First-Week Trial", [60], 49, "Unlimited classes for seven days, for new students."),
-      svc("Classes", "Slow Flow", [60], 28, "A steady, breath-led practice for all levels."),
-      svc("Classes", "Restorative Evening", [75], 32, "Supported poses held for longer, lit by candle."),
-      svc("Private", "Private 1:1 Session", [60], 95, "A practice built around your body and your goals."),
-      svc("Private", "Small Group (up to 4)", [60], 160, "Book the room for friends, with a teacher of your choice."),
-      svc("Add-ons", "Mat and towel rental", [0], 4, "If you would rather not bring your own."),
+      svc("Featured", "Drop-in Class", [60], 3700, "Any class on the schedule, mats and props provided."),
+      svc("Featured", "First-Week Trial", [60], 6500, "Unlimited classes for seven days, for new students."),
+      svc("Classes", "Slow Flow", [60], 3700, "A steady, breath-led practice for all levels."),
+      svc("Classes", "Restorative Evening", [75], 4300, "Supported poses held for longer, lit by candle."),
+      svc("Private", "Private 1:1 Session", [60], 12600, "A practice built around your body and your goals."),
+      svc("Private", "Small Group (up to 4)", [60], 21300, "Book the room for friends, with a teacher of your choice."),
+      svc("Add-ons", "Mat and towel rental", [0], 500, "If you would rather not bring your own."),
     ],
     features: [
       { label: "Bright studio", detail: "Sprung floor, natural light" },
@@ -191,8 +191,8 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Beginners", "Flexibility", "Calm", "Regular practice"],
     included: ["Mat, blocks and straps", "Tea after class", "Lockers", "Changing room"],
     addOns: [
-      { name: "Mat rental", price: 4 },
-      { name: "Towel rental", price: 3 },
+      { name: "Mat rental", price: 500 },
+      { name: "Towel rental", price: 400 },
       { name: "Eye pillow", price: 0 },
     ],
     amenities: ["Sprung floor", "Props provided", "Showers", "Lockers", "Tea bar", "Bike parking", "Beginner-friendly", "Online classes"],
@@ -210,12 +210,12 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   skin: {
     categories: ["Featured", "Facials", "Skin treatments", "Add-ons"],
     services: [
-      svc("Featured", "Signature Facial", [60], 110, "A tailored cleanse, exfoliation, massage and mask for your skin today."),
-      svc("Featured", "Glow Ritual", [75], 145, "Enzyme peel, lymphatic massage and a hydrating mask."),
-      svc("Facials", "Clarifying Facial", [60], 105, "Deep cleanse and extractions for congested or oily skin."),
-      svc("Facials", "Sensitive Skin Facial", [45], 90, "Fragrance-free products and a very light touch."),
-      svc("Skin treatments", "Microcurrent Lift", [60], 160, "Gentle current to tone and lift, best in a series."),
-      svc("Add-ons", "LED Light Therapy", [15], 25, "A calming red-light finish for any facial."),
+      svc("Featured", "Signature Facial", [60], 14600, "A tailored cleanse, exfoliation, massage and mask for your skin today."),
+      svc("Featured", "Glow Ritual", [75], 19300, "Enzyme peel, lymphatic massage and a hydrating mask."),
+      svc("Facials", "Clarifying Facial", [60], 14000, "Deep cleanse and extractions for congested or oily skin."),
+      svc("Facials", "Sensitive Skin Facial", [45], 12000, "Fragrance-free products and a very light touch."),
+      svc("Skin treatments", "Microcurrent Lift", [60], 21300, "Gentle current to tone and lift, best in a series."),
+      svc("Add-ons", "LED Light Therapy", [15], 3300, "A calming red-light finish for any facial."),
     ],
     features: [
       { label: "Licensed estheticians", detail: "Averaging 8+ years" },
@@ -226,9 +226,9 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Glow", "Sensitive skin", "Special occasions", "Routine care"],
     included: ["Skin consultation", "Cleansing tea", "Take-home care notes", "Heated bed"],
     addOns: [
-      { name: "Lip treatment", price: 15 },
-      { name: "Eye mask upgrade", price: 18 },
-      { name: "Scalp massage", price: 12 },
+      { name: "Lip treatment", price: 2000 },
+      { name: "Eye mask upgrade", price: 2400 },
+      { name: "Scalp massage", price: 1600 },
     ],
     amenities: ["Private treatment rooms", "Heated beds", "Skin consultation", "Clean product line", "Sensitive-skin options", "Parking nearby", "Gift cards", "Series packages"],
     intro: (name, city) => [
@@ -245,12 +245,12 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   hair: {
     categories: ["Featured", "Cut & style", "Colour", "Treatments"],
     services: [
-      svc("Featured", "Cut + Finish", [60], 85, "Consultation, shampoo, precision cut and blow-dry."),
-      svc("Featured", "Full Colour", [120, 150], 165, "Single-process colour, gloss and finish."),
-      svc("Cut & style", "Blow-dry", [45], 55, "Wash, treat and style, with a lasting finish."),
-      svc("Cut & style", "Fringe Trim", [15], 20, "A quick reshape between cuts."),
-      svc("Colour", "Balayage", [180, 240], 260, "Hand-painted lightness with a natural grow-out."),
-      svc("Treatments", "Scalp + Repair Ritual", [45], 70, "Scalp massage and a bond-repair treatment."),
+      svc("Featured", "Cut + Finish", [60], 11300, "Consultation, shampoo, precision cut and blow-dry."),
+      svc("Featured", "Full Colour", [120, 150], 21900, "Single-process colour, gloss and finish."),
+      svc("Cut & style", "Blow-dry", [45], 7300, "Wash, treat and style, with a lasting finish."),
+      svc("Cut & style", "Fringe Trim", [15], 2700, "A quick reshape between cuts."),
+      svc("Colour", "Balayage", [180, 240], 34600, "Hand-painted lightness with a natural grow-out."),
+      svc("Treatments", "Scalp + Repair Ritual", [45], 9300, "Scalp massage and a bond-repair treatment."),
     ],
     features: [
       { label: "Senior stylists", detail: "Average 10 years" },
@@ -261,9 +261,9 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Fresh cut", "Colour", "Events", "Repair"],
     included: ["Consultation", "Scalp massage at shampoo", "Refreshments", "Take-home styling tips"],
     addOns: [
-      { name: "Gloss", price: 35 },
-      { name: "Bond repair", price: 30 },
-      { name: "Deep-condition", price: 25 },
+      { name: "Gloss", price: 4700 },
+      { name: "Bond repair", price: 4000 },
+      { name: "Deep-condition", price: 3300 },
     ],
     amenities: ["Consultation", "Ammonia-free colour", "Refreshments", "Free wifi", "Street parking", "Gift cards", "Kids welcome", "Late appointments"],
     intro: (name, city) => [
@@ -280,12 +280,12 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   lash: {
     categories: ["Featured", "Lashes", "Brows", "Add-ons"],
     services: [
-      svc("Featured", "Classic Lash Set", [90, 120], 130, "One extension per natural lash for a soft, defined look."),
-      svc("Featured", "Brow Lamination + Tint", [60], 85, "Set, shaped and tinted brows that stay put for weeks."),
-      svc("Lashes", "Hybrid Lash Set", [120], 155, "A mix of classic and volume for texture and depth."),
-      svc("Lashes", "Lash Lift + Tint", [60], 90, "A curl and tint to your own lashes, no extensions."),
-      svc("Brows", "Brow Shape + Wax", [30], 40, "A tidy, natural shape with wax and trimming."),
-      svc("Add-ons", "Lash Fill (2 – 3 weeks)", [60], 75, "Keep an existing set full."),
+      svc("Featured", "Classic Lash Set", [90, 120], 17300, "One extension per natural lash for a soft, defined look."),
+      svc("Featured", "Brow Lamination + Tint", [60], 11300, "Set, shaped and tinted brows that stay put for weeks."),
+      svc("Lashes", "Hybrid Lash Set", [120], 20600, "A mix of classic and volume for texture and depth."),
+      svc("Lashes", "Lash Lift + Tint", [60], 12000, "A curl and tint to your own lashes, no extensions."),
+      svc("Brows", "Brow Shape + Wax", [30], 5300, "A tidy, natural shape with wax and trimming."),
+      svc("Add-ons", "Lash Fill (2 – 3 weeks)", [60], 10000, "Keep an existing set full."),
     ],
     features: [
       { label: "Certified artists", detail: "Lash and brow specialists" },
@@ -296,9 +296,9 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Everyday wear", "Events", "Low maintenance", "First set"],
     included: ["Consultation", "Aftercare guide", "Patch test on request", "Comfortable bed"],
     addOns: [
-      { name: "Lower lash tint", price: 12 },
-      { name: "Lash bath", price: 10 },
-      { name: "Removal", price: 25 },
+      { name: "Lower lash tint", price: 1600 },
+      { name: "Lash bath", price: 1300 },
+      { name: "Removal", price: 3300 },
     ],
     amenities: ["Private rooms", "Patch tests", "Aftercare kit", "Heated beds", "Street parking", "Gift cards", "Group bookings", "Late appointments"],
     intro: (name, city) => [
@@ -315,12 +315,12 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   beauty: {
     categories: ["Featured", "Makeup", "Skin prep", "Add-ons"],
     services: [
-      svc("Featured", "Makeup Application", [60], 95, "A full look for an event, matched to your skin and outfit."),
-      svc("Featured", "Glow Prep + Makeup", [90], 145, "A facial-style prep followed by a soft, luminous makeup look."),
-      svc("Makeup", "Bridal Trial", [90], 130, "A complete practice run before the day."),
-      svc("Makeup", "Lesson: Everyday Makeup", [60], 110, "Learn a simple routine using products you own."),
-      svc("Skin prep", "Express Glow Facial", [30], 60, "Cleanse, mask and massage for skin that photographs well."),
-      svc("Add-ons", "Lash Strips Applied", [10], 15, "Strip lashes fitted to your eye shape."),
+      svc("Featured", "Makeup Application", [60], 12600, "A full look for an event, matched to your skin and outfit."),
+      svc("Featured", "Glow Prep + Makeup", [90], 19300, "A facial-style prep followed by a soft, luminous makeup look."),
+      svc("Makeup", "Bridal Trial", [90], 17300, "A complete practice run before the day."),
+      svc("Makeup", "Lesson: Everyday Makeup", [60], 14600, "Learn a simple routine using products you own."),
+      svc("Skin prep", "Express Glow Facial", [30], 8000, "Cleanse, mask and massage for skin that photographs well."),
+      svc("Add-ons", "Lash Strips Applied", [10], 2000, "Strip lashes fitted to your eye shape."),
     ],
     features: [
       { label: "Working artists", detail: "Editorial and event" },
@@ -331,9 +331,9 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Events", "Weddings", "Photos", "Learning"],
     included: ["Skin consultation", "Setting mist", "Touch-up kit", "Refreshments"],
     addOns: [
-      { name: "Lash strips", price: 15 },
-      { name: "Touch-up kit", price: 20 },
-      { name: "Second look", price: 45 },
+      { name: "Lash strips", price: 2000 },
+      { name: "Touch-up kit", price: 2700 },
+      { name: "Second look", price: 6000 },
     ],
     amenities: ["Natural light", "Consultation", "Group bookings", "On-site service available", "Street parking", "Gift cards", "Trial sessions", "Refreshments"],
     intro: (name, city) => [
@@ -350,11 +350,11 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
   float: {
     categories: ["Featured", "Float", "Combination", "Add-ons"],
     services: [
-      svc("Featured", "60-Minute Float", [60], 75, "A private pod of warm, salted water, with light and sound off."),
-      svc("Featured", "90-Minute Float", [90], 105, "More time to let go, especially for a first float."),
-      svc("Float", "Float + Sauna", [120], 135, "Sauna before and float after, with tea between."),
-      svc("Combination", "Float + Massage", [120], 190, "A 60-minute massage followed by a 60-minute float."),
-      svc("Add-ons", "Guided Breathwork", [15], 15, "A short breathing practice before you enter the pod."),
+      svc("Featured", "60-Minute Float", [60], 10000, "A private pod of warm, salted water, with light and sound off."),
+      svc("Featured", "90-Minute Float", [90], 14000, "More time to let go, especially for a first float."),
+      svc("Float", "Float + Sauna", [120], 18000, "Sauna before and float after, with tea between."),
+      svc("Combination", "Float + Massage", [120], 25300, "A 60-minute massage followed by a 60-minute float."),
+      svc("Add-ons", "Guided Breathwork", [15], 2000, "A short breathing practice before you enter the pod."),
     ],
     features: [
       { label: "Private pods", detail: "Roomy, with a shower" },
@@ -365,9 +365,9 @@ const TEMPLATES: Record<Family, FamilyTemplate> = {
     greatFor: ["Deep rest", "Mind quiet", "Sleep", "Recovery"],
     included: ["Towels and earplugs", "Shower amenities", "Tea in the lounge", "Orientation for first floats"],
     addOns: [
-      { name: "Extra 30 minutes", price: 30 },
-      { name: "Robe rental", price: 6 },
-      { name: "Herbal tea flight", price: 8 },
+      { name: "Extra 30 minutes", price: 4000 },
+      { name: "Robe rental", price: 800 },
+      { name: "Herbal tea flight", price: 1100 },
     ],
     amenities: ["Private float pods", "Showers", "Quiet lounge", "Filtered water", "Lockers", "Towel service", "Street parking", "Gift cards"],
     intro: (name, city) => [

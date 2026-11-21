@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { normalizeEmail } from "@/lib/auth/normalize";
-import { fail, isSameOriginJson, noStore, notConfigured, ok, safeNext } from "@/lib/supabase/api";
+import { fail, isSameOriginJson, noStore, notConfigured, ok, requestOrigin, safeNext } from "@/lib/supabase/api";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 const Body = z.object({ email: z.string().max(254), next: z.string().max(300).optional() });
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   if (!email) return fail({ code: "invalid_input", message: "Enter a valid email address." }, 400);
 
   // If the email template carries a link, it returns here and /auth/callback starts the session.
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? request.nextUrl.origin;
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? requestOrigin(request);
   const next = safeNext(body.success ? (body.data.next ?? null) : null);
   const { error } = await supabase.auth.signInWithOtp({
     email,

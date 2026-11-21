@@ -85,7 +85,7 @@ export function useSearchResults(
         (s) =>
           !q ||
           norm(s.name).includes(q) ||
-          norm(`${s.city} ${s.region}`).includes(q) ||
+          norm(`${s.city} ${s.region} ${s.areas.join(" ")} ${s.address}`).includes(q) ||
           s.modalities.some((m) => norm(m).includes(q)),
       )
       .sort((a, b) => b.rating - a.rating)
@@ -93,7 +93,7 @@ export function useSearchResults(
         kind: "studio" as const,
         key: `s-${s.slug}`,
         label: s.name,
-        sub: `${s.city}, ${s.region} · ★ ${s.rating.toFixed(1)}`,
+        sub: `${s.city}, ${s.region}${s.isNew ? " · New to Zennly" : ` · ★ ${s.rating.toFixed(1)}`}`,
         image: s.image,
         href: `/providers/${s.slug}`,
       }));

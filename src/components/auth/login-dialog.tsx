@@ -8,6 +8,7 @@ import { auth, type AuthError, type CodeTarget } from "@/lib/auth";
 import { useAuth, type LoginReason } from "@/lib/auth/auth-provider";
 import { COUNTRIES, DEFAULT_COUNTRY, maskTarget } from "@/lib/auth/normalize";
 import { CloseIcon } from "@/components/provider/icons";
+import { fieldClass } from "@/components/ui/field";
 
 const SUBTITLE: Record<LoginReason, string> = {
   login: "Keep your saved studios and book faster.",
@@ -15,8 +16,7 @@ const SUBTITLE: Record<LoginReason, string> = {
   booking: "Log in to book with a verified phone or email.",
 };
 
-const FIELD =
-  "h-12 rounded-[14px] border border-border bg-card px-4 text-base text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+const FIELD = fieldClass({ size: "lg" });
 const PRIMARY_BTN =
   "h-12 w-full rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground";
 
@@ -259,25 +259,39 @@ function LoginForm({
                 aria-label="Sign in with"
                 className="grid grid-cols-2 rounded-full bg-muted p-1 text-sm font-medium"
               >
-                {(["phone", "email"] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    role="tab"
-                    aria-selected={method === m}
-                    onClick={() => {
-                      setMethod(m);
-                      setError(null);
-                    }}
-                    className={`h-10 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                      method === m
-                        ? "bg-card text-foreground shadow-[var(--shadow-low)]"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {m === "phone" ? "Phone" : "Email"}
-                  </button>
-                ))}
+                {(["phone", "email"] as const).map((m) => {
+                  // Phone sign-in isn't wired yet (supabase-adapter.ts's signInWithPhone always
+                  // returns "unavailable") — shown so people know it's planned, but disabled
+                  // rather than letting them fill in a number and fail at submit.
+                  const comingSoon = m === "phone";
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      role="tab"
+                      aria-selected={method === m}
+                      disabled={comingSoon}
+                      onClick={() => {
+                        setMethod(m);
+                        setError(null);
+                      }}
+                      className={`flex h-10 items-center justify-center gap-1.5 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        method === m
+                          ? "bg-card text-foreground shadow-[var(--shadow-low)]"
+                          : comingSoon
+                            ? "cursor-not-allowed text-muted-foreground/40"
+                            : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {m === "phone" ? "Phone" : "Email"}
+                      {comingSoon && (
+                        <span className="rounded-[var(--radius-full)] bg-accent px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.04em] text-accent-foreground">
+                          Soon
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -418,7 +432,7 @@ function LoginForm({
                 }
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "login-error" : undefined}
-                className={`${FIELD} text-center font-mono text-2xl tracking-[0.5em]`}
+                className={fieldClass({ size: "lg", code: true })}
               />
             </div>
 

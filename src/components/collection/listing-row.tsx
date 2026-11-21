@@ -168,7 +168,7 @@ export function ListingRow({ item, priority }: { item: CollectionItem; priority?
           <p className="text-sm text-muted-foreground">
             From{" "}
             <span className="font-[family-name:var(--font-space-mono)] text-lg font-semibold text-foreground">
-              <Price usd={item.fromPrice} />
+              <Price amount={item.fromPrice} />
             </span>
           </p>
           <Link

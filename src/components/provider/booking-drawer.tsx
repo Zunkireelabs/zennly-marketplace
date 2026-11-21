@@ -6,16 +6,24 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth/auth-provider";
 import { normalizeEmail, normalizeName } from "@/lib/auth/normalize";
 import { formatDuration } from "@/lib/providers";
+import { useEngineBooking } from "@/lib/booking/use-engine-booking";
+import { computeSoloSlots, timeToMinutes } from "@/lib/booking/engine-availability";
+import { bookingErrorMessage } from "@/lib/booking/engine-errors";
+import type { EngineBranch } from "@/lib/booking/engine-data";
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, CloseIcon, StarIcon } from "./icons";
 import { useProviderUi, type BookingStep } from "./provider-shell";
 import { Price } from "@/components/ui/price";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 
-const STEPS: { id: Exclude<BookingStep, "done">; label: string }[] = [
+const BASE_STEPS: { id: Exclude<BookingStep, "done" | "location">; label: string }[] = [
   { id: "services", label: "Services" },
   { id: "time", label: "Time" },
   { id: "confirm", label: "Confirm" },
+];
+const STEPS_WITH_LOCATION: { id: Exclude<BookingStep, "done">; label: string }[] = [
+  { id: "location", label: "Location" },
+  ...BASE_STEPS,
 ];
 
 const SLOT_STEP_MINUTES = 30;
@@ -77,34 +85,152 @@ export function BookingDrawer() {
     closeBooking,
     setStep,
     toggleService,
+    chooseService,
     setDateISO,
     setTime,
     resetBooking,
+    clearServiceSelection,
   } = useProviderUi();
   const reduceMotion = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   const { user, openLogin } = useAuth();
   // undefined = untouched, so a signed-in person's details show as the default without an effect.
-  const [guest, setGuest] = useState<{ name?: string; email?: string; notes: string }>({ notes: "" });
-  const [errors, setErrors] = useState<{ name?: string; email?: string; attendee?: string }>({});
+  const [guest, setGuest] = useState<{ name?: string; email?: string; phone?: string; notes: string }>({ notes: "" });
+  const [errors, setErrors] = useState<{ name?: string; email?: string; phone?: string; attendee?: string }>({});
   const bookerName = guest.name ?? user?.name ?? "";
   const bookerEmail = guest.email ?? user?.email ?? "";
+  const bookerPhone = guest.phone ?? "";
+  const [submitting, setSubmitting] = useState(false);
+  // Generated once per booking attempt and reused on retry, so a retry after a dropped
+  // response replays the same booking instead of creating a second one (public_create_booking,
+  // migration-335, is idempotent on this key). Reset only when a fresh booking flow starts.
+  const idempotencyKeyRef = useRef<string | null>(null);
+
+  // Everything below gated on `engine.active` is false (every fetch a no-op) for unconnected
+  // providers or with the flag off — see src/lib/booking/engine-flag.ts. Behaviour in that case
+  // is byte-identical to the simulator this replaces.
+  const engine = useEngineBooking(provider, bookingOpen);
+  const showLocationStep = engine.active && engine.branches.length > 1;
+  const STEPS = showLocationStep ? STEPS_WITH_LOCATION : BASE_STEPS;
+
+  // book-spa's own BranchGate-vs-auto-select rule (provider-profile-flow/index.jsx:104-120):
+  // land on the location step whenever there's more than one branch and none is chosen yet,
+  // regardless of which step provider-shell's openBooking() initially picked — a service
+  // selected on the studio page before opening the drawer does not skip this; location is
+  // branch-scoped in book-spa and nothing is known to be bookable at a branch that hasn't been
+  // picked yet.
+  useEffect(() => {
+    if (!bookingOpen || !engine.needsLocationStep || step === "location") return;
+    setStep("location");
+  }, [bookingOpen, engine.needsLocationStep, step, setStep]);
+
+  // book-spa's handleBranchSelect: picking (or changing) a branch clears service/time, since
+  // both are branch-scoped — a service valid at one branch may not exist at another, and a
+  // time slot's availability is branch-specific. This also means a service pre-selected via the
+  // studio page's per-service Book button does NOT survive the location step when a connected
+  // provider has more than one branch: book-spa's own customer flow never lets a service be
+  // chosen before a branch either (location is always first there), so there is no "preserve a
+  // pre-selection across a branch-scoped reset" behaviour to match — the branch MUST be picked
+  // before anything branch-scoped can be trusted. The customer re-picks after the location step.
+  const pickLocation = (branch: EngineBranch) => {
+    engine.pickBranch(branch);
+    clearServiceSelection();
+    setStep("services");
+  };
+
+  // The gender-eligible headcount RPC is per-service, so it's loaded for whichever service is
+  // first selected (matching book-spa's own single-service-at-a-time gender-preference fetch;
+  // the drawer's multi-select is a marketplace-only convenience with no book-spa counterpart to
+  // match more precisely than this).
+  const firstSelectedId = selectedIds[0];
+  useEffect(() => {
+    if (!engine.active || !engine.selectedBranch || !firstSelectedId) return;
+    engine.loadGenderCounts(firstSelectedId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [engine.active, engine.selectedBranch, firstSelectedId]);
+
+  const visibleServiceIds = useMemo(
+    () => (engine.active && engine.selectedBranch ? new Set(engine.services.map((s) => s.id)) : null),
+    [engine.active, engine.selectedBranch, engine.services]
+  );
+  // Branch-scoped narrowing only changes WHICH of provider.services are offered here — the
+  // service data itself (name/price/duration) is already real engine data for every id
+  // (src/lib/booking/engine-live-services.ts, fetched org-wide on the page), so there is no
+  // separate source to reconcile, just a filter.
+  const visibleServices = visibleServiceIds ? provider.services.filter((s) => visibleServiceIds.has(s.id)) : provider.services;
+  const visibleCategories = visibleServiceIds
+    ? provider.serviceCategories.filter((c) => visibleServices.some((s) => s.category === c))
+    : provider.serviceCategories;
 
   // The bookable window is computed client-side after the drawer opens (this component only
-  // renders its body while open), so server HTML never depends on "today".
+  // renders its body while open), so server HTML never depends on "today". For a connected
+  // provider this respects the branch's real advance_booking_days instead of the simulator's
+  // fixed 60 — book-spa's own calendar wouldn't offer a date beyond that either, so matching it
+  // is what makes the two sites' calendars agree, not just their slot grids.
+  const daysAhead = engine.active ? engine.advanceBookingDays : DAYS_AHEAD;
   const bounds = useMemo(() => {
     if (!bookingOpen) return null;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const last = new Date(today);
-    last.setDate(today.getDate() + DAYS_AHEAD - 1);
+    last.setDate(today.getDate() + daysAhead - 1);
     return { minISO: toISO(today), maxISO: toISO(last) };
-  }, [bookingOpen]);
+  }, [bookingOpen, daysAhead]);
 
   const activeISO = dateISO ?? bounds?.minISO ?? null;
 
+  // Real availability for the whole window, computed once per branch/duration/gender-count
+  // change — mirrors book-spa's own DateTimeSelection.jsx, which also computes every day's
+  // slots in one pass rather than per date click. null outside the engine path.
+  const engineDays = useMemo(() => {
+    if (!engine.active || !engine.selectedBranch || !engine.availabilityLoaded || !bounds) return null;
+    const dates: string[] = [];
+    let d = fromISO(bounds.minISO);
+    while (toISO(d) <= bounds.maxISO) {
+      dates.push(toISO(d));
+      d = new Date(d.getTime() + 86400000);
+    }
+    return computeSoloSlots({
+      dates,
+      rooms: engine.rooms,
+      bookings: engine.bookings,
+      therapistWindowRows: null,
+      therapistWindowError: false,
+      therapistFilter: null,
+      durationMinutes: totalMinutes || 60,
+      genderPreference: "no-preference",
+      enableRooms: engine.enableRooms,
+      therapistCounts: engine.genderCounts,
+      closedRanges: engine.closedRanges,
+      onlineCapacity: engine.selectedBranch.onlineBookingCapacity,
+    });
+  }, [
+    engine.active,
+    engine.selectedBranch,
+    engine.availabilityLoaded,
+    engine.rooms,
+    engine.bookings,
+    engine.enableRooms,
+    engine.genderCounts,
+    engine.closedRanges,
+    bounds,
+    totalMinutes,
+  ]);
+
   const slots = useMemo(() => {
     if (!activeISO || totalMinutes === 0) return [];
+
+    if (engine.active) {
+      if (!engineDays) return [];
+      const day = engineDays.find((d) => d.date === activeISO);
+      if (!day) return [];
+      return day.slots.map((s) => ({
+        minutes: timeToMinutes(s.time24),
+        label: s.time12,
+        available: s.isAvailable,
+      }));
+    }
+
     const date = fromISO(activeISO);
     const { open, close } = hoursFor(date);
     const now = new Date();
@@ -120,7 +246,7 @@ export function BookingDrawer() {
       });
     }
     return out;
-  }, [activeISO, totalMinutes, provider.slug]);
+  }, [activeISO, totalMinutes, provider.slug, engine.active, engineDays]);
 
   // Lock page scroll, close on Escape, move focus into the panel.
   useEffect(() => {
@@ -142,6 +268,7 @@ export function BookingDrawer() {
   const stepIndex = step === "done" ? STEPS.length : STEPS.findIndex((s) => s.id === step);
 
   const goBack = () => {
+    if (step === "services" && showLocationStep) setStep("location");
     if (step === "time") setStep("services");
     if (step === "confirm") setStep("time");
   };
@@ -155,22 +282,78 @@ export function BookingDrawer() {
     }
   };
 
-  const confirm = (event: React.FormEvent) => {
+  const confirm = async (event: React.FormEvent) => {
     event.preventDefault();
     const next: typeof errors = {};
     if (!normalizeName(bookerName)) next.name = "Enter your name.";
     if (!normalizeEmail(bookerEmail)) next.email = "Enter a valid email address.";
+    if (engine.active && !bookerPhone.trim()) next.phone = "Enter a phone number.";
     if (forWhom.kind === "other" && !normalizeName(forWhom.name)) next.attendee = "Enter the guest's name.";
     setErrors(next);
     if (Object.keys(next).length > 0) return;
-    setStep("done");
-    toast.success("Booking confirmed", {
-      description: `${provider.name} · ${dateLabel(activeISO)} at ${time}`,
-    });
+
+    // Unconnected (or flag-off) providers keep today's simulator behaviour byte-for-byte —
+    // see src/lib/booking/engine-flag.ts: a drawer that shows real availability but can't
+    // actually save a booking is worse than the honest simulator.
+    if (!engine.active || !engine.selectedBranch) {
+      setStep("done");
+      toast.success("Booking confirmed", {
+        description: `${provider.name} · ${dateLabel(activeISO)} at ${time}`,
+      });
+      return;
+    }
+
+    if (!user) {
+      openLogin("booking");
+      return;
+    }
+
+    const slot = slots.find((s) => s.label === time);
+    if (!slot) {
+      toast.error("That time is no longer available. Please pick another.");
+      return;
+    }
+    const hh = String(Math.floor(slot.minutes / 60)).padStart(2, "0");
+    const mm = String(slot.minutes % 60).padStart(2, "0");
+
+    if (!idempotencyKeyRef.current) idempotencyKeyRef.current = crypto.randomUUID();
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/booking/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          providerSlug: provider.slug,
+          branchId: engine.selectedBranch.id,
+          serviceId: firstSelectedId,
+          date: activeISO,
+          startTime: `${hh}:${mm}:00`,
+          customerName: forWhom.kind === "other" ? forWhom.name.trim() : bookerName.trim(),
+          customerPhone: bookerPhone.trim(),
+          specialRequests: guest.notes || null,
+          clientRequestId: idempotencyKeyRef.current,
+        }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!json?.ok) {
+        toast.error(bookingErrorMessage(json?.errorCode, json?.message));
+        return;
+      }
+      setStep("done");
+      toast.success("Booking confirmed", {
+        description: `${provider.name} · ${dateLabel(activeISO)} at ${time}`,
+      });
+    } catch {
+      toast.error(bookingErrorMessage("UNREACHABLE", undefined));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const finish = () => {
     closeBooking();
+    idempotencyKeyRef.current = null;
     // Let the exit animation play before the content resets underneath it.
     window.setTimeout(() => {
       resetBooking();
@@ -210,7 +393,7 @@ export function BookingDrawer() {
             {/* Header */}
             <div className="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
               <div className="flex min-w-0 items-center gap-3">
-                {step !== "services" && step !== "done" && (
+                {step !== STEPS[0]?.id && step !== "done" && (
                   <button
                     type="button"
                     onClick={goBack}
@@ -260,10 +443,44 @@ export function BookingDrawer() {
 
             {/* Body */}
             <div className="flex-1 overflow-y-auto px-6 py-5">
+              {step === "location" && (
+                <div className="flex flex-col gap-6">
+                  <section aria-label="Choose a location">
+                    <h3 className="text-base font-semibold">Choose a location</h3>
+                    {!engine.branchesLoaded ? (
+                      <p className="mt-3 text-sm text-muted-foreground">Loading locations…</p>
+                    ) : (
+                      <ul className="mt-3 flex flex-col gap-2">
+                        {engine.branches.map((branch) => (
+                          <li key={branch.id}>
+                            <button
+                              type="button"
+                              onClick={() => pickLocation(branch)}
+                              className="flex w-full flex-col items-start gap-0.5 rounded-[var(--radius-md)] border border-border p-4 text-left transition-colors duration-150 hover:border-foreground/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                            >
+                              <span className="text-sm font-semibold">{branch.name}</span>
+                              {branch.address && <span className="text-sm text-muted-foreground">{branch.address}</span>}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                </div>
+              )}
+
               {step === "services" && (
                 <div className="flex flex-col gap-6">
-                  {provider.serviceCategories.map((category) => {
-                    const rows = provider.services.filter((s) => s.category === category);
+                  {engine.active && !engine.servicesLoaded ? (
+                    <p className="text-sm text-muted-foreground">Loading services…</p>
+                  ) : null}
+                  {engine.active && (
+                    <p className="rounded-[var(--radius-md)] bg-muted px-4 py-3 text-sm text-muted-foreground">
+                      One service per booking for now — book additional services separately.
+                    </p>
+                  )}
+                  {visibleCategories.map((category) => {
+                    const rows = visibleServices.filter((s) => s.category === category);
                     if (rows.length === 0) return null;
                     return (
                       <section key={category} aria-label={category}>
@@ -273,27 +490,39 @@ export function BookingDrawer() {
                         <ul className="mt-2 flex flex-col gap-2">
                           {rows.map((service) => {
                             const checked = selectedIds.includes(service.id);
+                            // Engine-connected providers book one service at a time —
+                            // public_create_booking (migration-335) has no multi-service path;
+                            // book-spa's own createBookingGroup is what two services becomes
+                            // (Step 3's group RPC). Picking a new one here replaces the
+                            // selection instead of adding to it.
+                            const selectThis = () =>
+                              engine.active ? chooseService(checked ? "" : service.id) : toggleService(service.id);
                             return (
                               <li key={service.id}>
                                 <button
                                   type="button"
                                   aria-pressed={checked}
-                                  onClick={() => toggleService(service.id)}
+                                  onClick={selectThis}
                                   className={`flex w-full items-start gap-3 rounded-[var(--radius-md)] border p-4 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                                     checked ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
                                   }`}
                                 >
                                   <span
-                                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border ${
-                                      checked ? "border-primary bg-primary text-primary-foreground" : "border-border"
-                                    }`}
+                                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center border ${
+                                      engine.active ? "rounded-[var(--radius-full)]" : "rounded-[var(--radius-sm)]"
+                                    } ${checked ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
                                   >
-                                    {checked && <CheckIcon width={14} height={14} strokeWidth={2} />}
+                                    {checked &&
+                                      (engine.active ? (
+                                        <span className="h-2 w-2 rounded-[var(--radius-full)] bg-primary-foreground" />
+                                      ) : (
+                                        <CheckIcon width={14} height={14} strokeWidth={2} />
+                                      ))}
                                   </span>
                                   <span className="min-w-0 flex-1">
                                     <span className="flex items-baseline justify-between gap-3">
                                       <span className="text-sm font-semibold">{service.name}</span>
-                                      <span className="font-mono text-sm tabular-nums"><Price usd={service.price} /></span>
+                                      <span className="font-mono text-sm tabular-nums"><Price amount={service.price} engineProviderId={provider.engineProviderId} /></span>
                                     </span>
                                     <span className="mt-0.5 block text-xs text-muted-foreground">
                                       {formatDuration(service.durations)}
@@ -378,6 +607,7 @@ export function BookingDrawer() {
                     when={`${dateLabel(activeISO)} · ${time}`}
                     total={totalPrice}
                     minutes={totalMinutes}
+                    engineProviderId={provider.engineProviderId}
                   />
 
                   {!user && (
@@ -448,6 +678,17 @@ export function BookingDrawer() {
                       autoComplete="email"
                       onChange={(v) => setGuest((g) => ({ ...g, email: v }))}
                     />
+                    {engine.active && (
+                      <Field
+                        id="guest-phone"
+                        label="Phone number"
+                        type="tel"
+                        value={bookerPhone}
+                        error={errors.phone}
+                        autoComplete="tel"
+                        onChange={(v) => setGuest((g) => ({ ...g, phone: v }))}
+                      />
+                    )}
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="guest-notes" className="text-sm font-medium">
                         Notes for the studio <span className="font-normal text-muted-foreground">(optional)</span>
@@ -486,10 +727,13 @@ export function BookingDrawer() {
                       when={`${dateLabel(activeISO)} · ${time}`}
                       total={totalPrice}
                       minutes={totalMinutes}
+                      engineProviderId={provider.engineProviderId}
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Demo booking. Nothing was sent or saved, since this site is not connected to a live booking system yet.
+                    {engine.active
+                      ? "The studio has received your booking."
+                      : "Demo booking. Nothing was sent or saved, since this site is not connected to a live booking system yet."}
                   </p>
                 </div>
               )}
@@ -513,16 +757,17 @@ export function BookingDrawer() {
                         ? "No services selected"
                         : `${selectedServices.length} service${selectedServices.length > 1 ? "s" : ""} · ${formatDuration([totalMinutes])}`}
                     </p>
-                    <p className="font-mono text-lg font-semibold tabular-nums"><Price usd={totalPrice} /></p>
+                    <p className="font-mono text-lg font-semibold tabular-nums"><Price amount={totalPrice} engineProviderId={provider.engineProviderId} /></p>
                   </div>
                   {step === "confirm" ? (
                     <button
                       key="confirm"
                       type="submit"
                       form="booking-confirm-form"
-                      className="h-12 min-w-36 rounded-[var(--radius-md)] bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+                      disabled={submitting}
+                      className="h-12 min-w-36 rounded-[var(--radius-md)] bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors duration-150 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      Confirm booking
+                      {submitting ? "Booking…" : "Confirm booking"}
                     </button>
                   ) : (
                     <button
@@ -648,12 +893,14 @@ function SummaryBlock({
   when,
   total,
   minutes,
+  engineProviderId,
 }: {
   provider: string;
   services: string[];
   when: string;
   total: number;
   minutes: number;
+  engineProviderId?: string;
 }) {
   return (
     <div className="rounded-[var(--radius-md)] border border-border p-4">
@@ -669,7 +916,7 @@ function SummaryBlock({
       </ul>
       <p className="mt-3 flex items-baseline justify-between border-t border-border pt-3 text-sm">
         <span className="text-muted-foreground">{formatDuration([minutes])}</span>
-        <span className="font-mono text-base font-semibold tabular-nums"><Price usd={total} /></span>
+        <span className="font-mono text-base font-semibold tabular-nums"><Price amount={total} engineProviderId={engineProviderId} /></span>
       </p>
     </div>
   );

@@ -25,15 +25,30 @@ export type RailProvider = {
 
 export type NewRailProvider = RailProvider & { joinedLabel: string };
 
-export type Destination = { city: string; region: string; count: number; image: string };
+export type Destination = {
+  city: string;
+  region: string;
+  count: number;
+  image: string;
+  /** From the city's top-rated studio, same sourcing as `image` — absent if that studio has none. */
+  lat?: number;
+  lng?: number;
+};
 
 export type SearchStudio = {
   slug: string;
   name: string;
   city: string;
   region: string;
+  /** Same fields the results page matches on — carried here so the search box and /search
+   *  cannot disagree about whether a neighbourhood finds this studio. `address` earns its
+   *  place because some studios carry their area only there (Quiet Practice Yoga sits on
+   *  "Thamel Marg, Thamel" and has no `areas` of its own). */
+  areas: string[];
+  address: string;
   image: string;
   rating: number;
+  isNew: boolean;
   modalities: string[];
 };
 export type SearchTreatment = { name: string; fromPrice: number; studios: string[] };
@@ -122,7 +137,7 @@ export async function getHomeRails(): Promise<HomeRails> {
   const destinations: Destination[] = Array.from(byCity.values())
     .map((ps) => {
       const best = [...ps].sort((a, b) => b.rating - a.rating)[0];
-      return { city: best.city, region: best.region, count: ps.length, image: best.image };
+      return { city: best.city, region: best.region, count: ps.length, image: best.image, lat: best.lat, lng: best.lng };
     })
     .sort((a, b) => b.count - a.count || a.city.localeCompare(b.city));
   const pick = <T,>(slugs: string[], build: (p: Provider, slug: string) => T): T[] =>
@@ -150,8 +165,11 @@ export async function getHomeRails(): Promise<HomeRails> {
       name: p.name,
       city: p.city,
       region: p.region,
+      areas: p.areas ?? [],
+      address: p.address,
       image: p.image,
       rating: p.rating,
+      isNew: p.isNew,
       modalities: p.modalities,
     })),
     treatments: Array.from(treatmentMap.values()),

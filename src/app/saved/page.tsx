@@ -6,7 +6,8 @@ import { SavedList } from "@/components/saved/saved-list";
 import type { CollectionItem } from "@/components/collection/listing-row";
 import { getProviders } from "@/lib/providers-data";
 
-// Saved studios live on the visitor's device, so this page is never worth indexing.
+// Signed in, saves sync to the account (saved-sync.tsx); signed out, they're device-only. Either
+// way this is a personal list, never worth indexing.
 export const metadata: Metadata = {
   title: "Saved studios | Zennly",
   robots: { index: false, follow: false },
@@ -59,7 +60,7 @@ export default async function SavedPage() {
           <SavedList items={items} />
         </div>
       </main>
-      <Footer providersHref="https://zennly.io/" />
+      <Footer />
     </div>
   );
 }

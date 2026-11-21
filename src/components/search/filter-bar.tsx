@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { pillClass } from "@/components/ui/pill";
 import { useCurrency } from "@/lib/currency/use-currency";
 import { CURRENCIES } from "@/lib/currency/currencies";
-import { CurrencySwitch } from "@/components/layout/currency-picker";
 
 export type Filters = {
   treatments: string[];
@@ -119,7 +118,6 @@ function BudgetFields({ filters, onChange, bounds }: { filters: Filters; onChang
         </label>
       </div>
       <div className="mt-3">
-        <CurrencySwitch />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">Starting price per visit.</p>
     </div>
@@ -188,7 +186,13 @@ export function FilterBar({
   const activeCount =
     (filters.treatments.length ? 1 : 0) + (budgetOn ? 1 : 0) + (filters.minRating ? 1 : 0) + (filters.onlyNew ? 1 : 0);
 
-  const chip = (on: boolean) => pillClass({ selected: on, floating });
+  // Tighter than the site-wide pill below `sm`: at 375px the four chips at full size overflow
+  // and Rating drops to a second row. `flex-wrap` is kept as a safety valve rather than removed
+  // — an applied filter lengthens its own label ("Treatment · 2", "$20 – $100+"), and wrapping
+  // then is better than truncating. A horizontal scroller would be the usual answer but this
+  // container anchors the dropdowns; `overflow-x` would clip them.
+  const chip = (on: boolean) =>
+    `${pillClass({ selected: on, floating })} max-sm:gap-1 max-sm:px-2 max-sm:py-3 max-sm:text-xs`;
 
   const popover = "absolute left-0 top-full z-30 mt-2 rounded-[var(--radius-lg)] bg-card p-4 shadow-[var(--shadow-floating)] ring-1 ring-border";
   const heading = "mb-2 text-xs font-medium text-foreground";
@@ -201,7 +205,7 @@ export function FilterBar({
   const toggle = (m: Menu) => setOpen(open === m ? null : m);
 
   return (
-    <div ref={root} className="flex flex-wrap items-start gap-2">
+    <div ref={root} className="flex flex-wrap items-start gap-1.5 sm:gap-2">
       <div className="relative">
         <button type="button" aria-expanded={open === "all"} onClick={() => toggle("all")} className={chip(activeCount > 0)}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
@@ -209,7 +213,9 @@ export function FilterBar({
             <circle cx="15" cy="8" r="2" />
             <circle cx="9" cy="16" r="2" />
           </svg>
-          All filters{activeCount > 0 && ` · ${activeCount}`}
+          <span className="sm:hidden">Filters</span>
+          <span className="max-sm:hidden">All filters</span>
+          {activeCount > 0 && ` · ${activeCount}`}
         </button>
         {open === "all" && (
           <div className={`${popover} flex max-h-[70vh] w-[min(24rem,calc(100vw-2rem))] flex-col p-0`}>

@@ -9,7 +9,7 @@ import { BookingDrawer } from "./booking-drawer";
 import { GalleryLightbox } from "./gallery-lightbox";
 import { TourModal } from "./tour-modal";
 
-export type BookingStep = "services" | "time" | "confirm" | "done";
+export type BookingStep = "location" | "services" | "time" | "confirm" | "done";
 
 type UiContext = {
   provider: Provider;
@@ -32,6 +32,10 @@ type UiContext = {
   setDateISO: (iso: string | null) => void;
   setTime: (time: string | null) => void;
   resetBooking: () => void;
+  /** book-spa's handleBranchSelect clears service/time on a branch (re)pick, since both are
+   * branch-scoped (provider-profile-flow/index.jsx). Only meaningful for connected providers'
+   * location step; unused otherwise. */
+  clearServiceSelection: () => void;
   /* gallery */
   galleryOpen: boolean;
   galleryIndex: number;
@@ -123,6 +127,11 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
     [clearSlot]
   );
 
+  const clearServiceSelection = useCallback(() => {
+    setSelectedIds([]);
+    setTime(null);
+  }, []);
+
   const resetBooking = useCallback(() => {
     setSelectedIds([]);
     setDateISO(null);
@@ -159,6 +168,7 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
     setDateISO,
     setTime,
     resetBooking,
+    clearServiceSelection,
     galleryOpen,
     galleryIndex,
     openGallery,

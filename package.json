@@ -3,14 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/sync-businesses-site.mjs --if-missing",
     "dev": "next dev -p 3001",
+    "prebuild": "node scripts/sync-businesses-site.mjs",
     "build": "next build",
+    "sync:businesses": "node scripts/sync-businesses-site.mjs",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate && node scripts/copy-maplibre-worker.mjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "verify:availability": "tsx scripts/verify-solo-availability.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -27,6 +32,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.5",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.5",
@@ -43,6 +49,7 @@
     "prisma": "^7.10.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.9"
   }
 }

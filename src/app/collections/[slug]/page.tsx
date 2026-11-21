@@ -68,7 +68,7 @@ export default async function CollectionPage({ params }: PageProps<"/collections
           <CollectionBrowser items={items} title={collection.title} intro={collection.intro} />
         </div>
       </main>
-      <Footer providersHref="https://zennly.io/" />
+      <Footer />
     </div>
   );
 }

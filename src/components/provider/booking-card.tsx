@@ -22,10 +22,14 @@ export function BookingCard() {
       </p>
       <p className="mt-2 text-2xl font-normal uppercase leading-tight tracking-[0.03em]">{provider.name}</p>
       <p className="mt-2 flex items-center gap-1.5 text-sm">
-        <StarIcon width={14} height={14} className="text-warning" />
-        <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
+        {!provider.isNew && (
+          <>
+            <StarIcon width={14} height={14} className="text-warning" />
+            <span className="font-semibold tabular-nums">{provider.rating.toFixed(1)}</span>
+          </>
+        )}
         <span className="text-muted-foreground">
-          {provider.isNew ? "· New to Zennly" : `· ${provider.reviewCount} reviews`}
+          {provider.isNew ? "New to Zennly" : `· ${provider.reviewCount} reviews`}
         </span>
       </p>
 
@@ -52,7 +56,7 @@ export function BookingCard() {
             <option value="">Choose a service</option>
             {provider.services.map((service) => (
               <option key={service.id} value={service.id}>
-                {service.name} · {formatDuration(service.durations)} · <Price usd={service.price} />
+                {service.name} · {formatDuration(service.durations)} · <Price amount={service.price} engineProviderId={provider.engineProviderId} />
               </option>
             ))}
           </select>
@@ -65,12 +69,12 @@ export function BookingCard() {
             <span className="text-sm text-muted-foreground">
               Total · {formatDuration([totalMinutes])}
             </span>
-            <span className="font-mono text-2xl font-semibold tabular-nums"><Price usd={totalPrice} /></span>
+            <span className="font-mono text-2xl font-semibold tabular-nums"><Price amount={totalPrice} engineProviderId={provider.engineProviderId} /></span>
           </>
         ) : (
           <>
-            <span className="text-sm text-muted-foreground">From</span>
-            <span className="font-mono text-2xl font-semibold tabular-nums"><Price usd={provider.fromPrice} /></span>
+            <span className="text-sm text-muted-foreground">Starting from</span>
+            <span className="font-mono text-2xl font-semibold tabular-nums"><Price amount={provider.fromPrice} engineProviderId={provider.engineProviderId} /></span>
           </>
         )}
       </div>
@@ -97,10 +101,10 @@ export function MobileBookBar() {
     <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t border-border bg-background/95 px-5 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur lg:hidden">
       <div>
         <p className="text-xs text-muted-foreground">
-          {selectedServices.length > 0 ? `${selectedServices.length} selected` : "From"}
+          {selectedServices.length > 0 ? `${selectedServices.length} selected` : "Starting from"}
         </p>
         <p className="font-mono text-lg font-semibold tabular-nums">
-          <Price usd={selectedServices.length > 0 ? totalPrice : provider.fromPrice} />
+          <Price amount={selectedServices.length > 0 ? totalPrice : provider.fromPrice} engineProviderId={provider.engineProviderId} />
         </p>
       </div>
       <button

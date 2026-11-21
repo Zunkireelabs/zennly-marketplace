@@ -6,6 +6,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { seedProviders } from "../src/lib/providers-seed";
+import { realProviders } from "../src/lib/providers-real";
 import { collectionSeeds } from "../src/lib/collections-seed";
 
 const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
@@ -39,6 +40,7 @@ async function main() {
       addOns: p.addOns,
       amenities: p.amenities,
       address: p.address,
+      areas: p.areas ?? [],
       hours: p.hours,
       nearby: p.nearby,
       reviewSummary: p.reviewSummary,
@@ -49,7 +51,49 @@ async function main() {
     };
     await prisma.provider.upsert({ where: { slug: p.slug }, create: { slug: p.slug, ...data }, update: data });
   }
-  console.log(`Seeded ${seedProviders.length} providers`);
+  console.log(`Seeded ${seedProviders.length} placeholder providers`);
+
+  // Real, book-spa-connected businesses — see src/lib/providers-real.ts. Kept as a separate
+  // loop (not merged into the array above) so this list stays visibly distinct from generated
+  // placeholder content in both files.
+  for (const p of realProviders) {
+    const data = {
+      name: p.name,
+      city: p.city,
+      region: p.region,
+      location: p.location,
+      modality: p.modality,
+      modalities: p.modalities,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      isNew: p.isNew,
+      isRecommended: p.isRecommended,
+      tone: p.tone,
+      image: p.image,
+      gallery: p.gallery,
+      tour: p.tour ?? undefined,
+      intro: p.intro,
+      greatFor: p.greatFor,
+      features: p.features,
+      serviceCategories: p.serviceCategories,
+      services: p.services,
+      included: p.included,
+      addOns: p.addOns,
+      amenities: p.amenities,
+      address: p.address,
+      areas: p.areas ?? [],
+      hours: p.hours,
+      nearby: p.nearby,
+      reviewSummary: p.reviewSummary,
+      reviews: p.reviews,
+      fromPrice: p.fromPrice,
+      lat: p.lat ?? null,
+      lng: p.lng ?? null,
+      engineProviderId: p.engineProviderId,
+    };
+    await prisma.provider.upsert({ where: { slug: p.slug }, create: { slug: p.slug, ...data }, update: data });
+  }
+  console.log(`Seeded ${realProviders.length} real providers`);
 
   // Collections come after providers, since each membership row points at a provider.
   for (const [sortOrder, c] of collectionSeeds.entries()) {

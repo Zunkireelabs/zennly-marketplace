@@ -122,10 +122,13 @@ export function SearchExperience({
     document.getElementById(`card-${activeSlug}`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [activeSlug]);
 
+  // A blank field means "any", not "none" — so its place in this line says so explicitly rather
+  // than silently disappearing, which otherwise reads as an unfiltered list rather than a
+  // deliberately unrestricted one.
   const summary = [
-    query.where || "All locations",
+    query.where || "Anywhere",
     query.what,
-    query.date ? `${formatDay(query.date)}${query.time ? ` · ${query.time}` : ""}` : "",
+    query.date ? `${formatDay(query.date)}${query.time ? ` · ${query.time}` : ""}` : "Any time",
   ].filter(Boolean);
 
   const resetArea = () => {
@@ -367,10 +370,12 @@ function ResultCard({
         <span className="mt-1 hidden line-clamp-2 text-sm text-muted-foreground sm:block">{r.blurb}</span>
         <span className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-sm">
           <span className="text-foreground">
-            ★ {r.rating.toFixed(1)} <span className="text-muted-foreground">({r.reviewCount})</span>
+            {r.isNew ? "New to Zennly" : (
+              <>★ {r.rating.toFixed(1)} <span className="text-muted-foreground">({r.reviewCount})</span></>
+            )}
           </span>
           <span className="text-muted-foreground">{r.modalities.slice(0, 2).join(" · ")}</span>
-          <span className="ml-auto font-medium text-foreground">from <Price usd={r.fromPrice} /></span>
+          <span className="ml-auto font-medium text-foreground">from <Price amount={r.fromPrice} engineProviderId={r.engineProviderId} /></span>
         </span>
       </span>
     </Link>

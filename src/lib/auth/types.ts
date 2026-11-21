@@ -11,6 +11,23 @@ export type AuthUser = {
   phone?: string;
   email?: string;
   name?: string;
+  /** From the profiles row — the auth adapter's own `AuthResult<AuthUser>` returns (sign-in,
+   * verifyCode) never populate these; only the server-read path (toAuthUser with a profile) does. */
+  firstName?: string;
+  lastName?: string;
+  /** From the profiles row — ensureProfile's Google backfill today, a customer upload later.
+   * Absent for most users (email-OTP signups get none); render an initial-letter fallback. */
+  avatar?: string;
+  gender?: string;
+  /** ISO-2, behind the phone's dial code (see Profile.country in schema.prisma). */
+  country?: string;
+  /** YYYY-MM-DD. Optional, excluded from profile completeness — see completeness.ts. */
+  dob?: string;
+  /** An email change started but not finished — Supabase's `auth.users.new_email`, read live, never
+   * mirrored into a column of ours. Present means two codes are outstanding (one per address);
+   * WHICH of them is already spent is not exposed by GoTrue at all, so the UI can only offer to
+   * continue or to start over. */
+  pendingEmail?: string;
   phoneVerified: boolean;
   emailVerified: boolean;
 };
@@ -44,7 +61,11 @@ export interface AuthAdapter {
   readonly name: string;
   /** Set only by demo adapters. Shown in the login UI; real adapters leave it undefined. */
   readonly demoHint?: string;
-  /** False when phone sign in isn't offered yet; the login screen then shows email and Google only. */
+  /**
+   * False hides the Phone tab entirely (email and Google only). The Supabase adapter currently
+   * leaves this true but disables the tab in the UI instead (login-dialog.tsx) — phone is a
+   * known-coming method, worth showing as planned, not just absent.
+   */
   readonly supportsPhone?: boolean;
   /** "link": email sends a sign-in link (no code to type). Default "code". */
   readonly emailMethod?: "code" | "link";
