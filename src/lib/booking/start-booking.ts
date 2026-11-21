@@ -1,5 +1,6 @@
 import { track } from "@/lib/analytics/track";
 import { normalizeName } from "@/lib/auth/normalize";
+import { bookUrl } from "@/lib/booking/booking-route";
 import { engineBookingEnabled } from "@/lib/booking/engine-flag";
 import type { Provider } from "@/lib/providers";
 
@@ -21,6 +22,8 @@ export type StartBookingInput = {
 export type StartBookingResult =
   /** No engine link for this studio: the caller opens the in-page demo drawer. */
   | { kind: "drawer"; handoffId: string }
+  /** A connected studio: the caller continues in the same tab at the studio's booking pages. */
+  | { kind: "page"; handoffId: string; url: string }
   /** The studio's booking page was opened in a new tab. */
   | { kind: "external"; handoffId: string; url: string }
   /** The link was missing, malformed or not on the allowlist. Nothing was opened. */
@@ -31,10 +34,24 @@ export type StartBookingResult =
  * database value can't send people elsewhere. book-spa's customer booking flow lives at
  * app.zennly.io/:orgSlug (docs/booking-integration-plan.md, Stage 1).
  */
-const BOOKING_HOST_ALLOWLIST: readonly string[] = ["app.zennly.io", "dev-app.zennly.io"];
-// "dev-app.zennly.io" is the temporary target above (providers-data.ts#bookingEngineOrigin).
-// Drop it from this list at the same time that target reverts — an allow-list entry that
-// outlives its reason is how a staging host quietly stays reachable from production.
+const PROD_BOOKING_HOST = "app.zennly.io";
+const STAGING_BOOKING_HOST = "dev-app.zennly.io";
+
+/**
+ * Production allows only app.zennly.io. The staging host is allowed ONLY when the configured
+ * engine origin (NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN) is itself the staging host, so a production
+ * build, which sets it to app.zennly.io, can never hand anyone to staging.
+ */
+export function allowedBookingHosts(): readonly string[] {
+  const origin = process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN;
+  let configuredHost = "";
+  try {
+    if (origin) configuredHost = new URL(origin).hostname;
+  } catch {
+    /* unparsable origin: treat as not staging */
+  }
+  return configuredHost === STAGING_BOOKING_HOST ? [PROD_BOOKING_HOST, STAGING_BOOKING_HOST] : [PROD_BOOKING_HOST];
+}
 
 /**
  * Local book-spa dev servers, so the whole journey stays on localhost instead of jumping to
@@ -83,7 +100,7 @@ export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWho
   const loopback = isLoopback(url.hostname);
   if (!loopback && url.protocol !== "https:") return null;
   if (loopback && url.protocol !== "http:" && url.protocol !== "https:") return null;
-  if (!loopback && !BOOKING_HOST_ALLOWLIST.includes(url.hostname)) return null;
+  if (!loopback && !allowedBookingHosts().includes(url.hostname)) return null;
   url.searchParams.set("source", "zennly");
   url.searchParams.set("handoff_id", handoffId);
   // Only the flag travels in the URL. The attendee's name stays in the app: URLs end up in
@@ -116,10 +133,13 @@ export function startBooking({ provider, selection, forWhom }: StartBookingInput
     for_whom: who.kind,
   });
 
-  // The Stage 1 handoff (below) predates our own write path and only ever sent a customer to
-  // book-spa's own booking UI. Once the flag is on, a connected provider's real booking now
-  // happens in-page instead — the handoff has to yield to it, not run alongside it.
-  if (engineBookingEnabled() && provider.engineProviderId) return { kind: "drawer", handoffId };
+  // Once the flag is on, a connected studio's real booking happens on our own booking pages
+  // (/providers/:slug/book, ZNLY-338), in the same tab. It never opens the drawer or the Stage 1
+  // hand-off below. The chosen service, if any, travels in the URL so a refresh keeps it.
+  if (engineBookingEnabled() && provider.engineProviderId) {
+    const url = bookUrl(provider.slug, "location", { service: selection.serviceIds[0] });
+    return { kind: "page", handoffId, url };
+  }
 
   const base = provider.bookingUrl;
   if (!base) return { kind: "drawer", handoffId };

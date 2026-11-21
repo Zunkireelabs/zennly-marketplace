@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RailArrows } from "@/components/ui/rail-arrows";
 import { providerHref } from "@/lib/providers";
 import type { NewRailProvider } from "@/lib/home-rails";
+import { DemoPill } from "@/components/ui/demo-pill";
 
 /**
  * "New to Zennly" — recently-joined studios, platform-wide. Same card shape/rail pattern as
@@ -19,6 +20,7 @@ import type { NewRailProvider } from "@/lib/home-rails";
  */
 export function NewToZennly({ providers }: { providers: NewRailProvider[] }) {
   const rail = useRef<HTMLDivElement>(null);
+  if (providers.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-6 pt-16">
@@ -62,13 +64,16 @@ export function NewToZennly({ providers }: { providers: NewRailProvider[] }) {
             <span className="text-left">
               <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                 {provider.name}
+                {provider.isDemo && <DemoPill className="ml-2 align-middle" />}
               </span>
               <span className="block text-sm text-muted-foreground">
                 {provider.modality} · {provider.location}
               </span>
-              <span className="mt-0.5 block text-xs text-muted-foreground/80">
-                {provider.joinedLabel}
-              </span>
+              {provider.joinedLabel && (
+                <span className="mt-0.5 block text-xs text-muted-foreground/80">
+                  {provider.joinedLabel}
+                </span>
+              )}
             </span>
           </Link>
         ))}

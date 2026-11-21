@@ -3,24 +3,19 @@ import type { Provider as ProviderRow } from "@/generated/prisma/client";
 import type { Provider } from "./providers";
 import { prisma } from "./prisma";
 import { seedProviders } from "./providers-seed";
+import { showDemoStudios, visibleProviders } from "./booking/demo-studios";
+import { compareByRating } from "./rating";
 
 /**
  * Where book-spa's customer booking flow lives. Production is app.zennly.io (absolute,
- * cross-origin); whatever this resolves to must also be on BOOKING_HOST_ALLOWLIST in
+ * cross-origin); whatever this resolves to must also be allowed by allowedBookingHosts() in
  * src/lib/booking/start-booking.ts, which refuses any host not listed there.
  */
-function bookingEngineOrigin(): string {
-  // TEMPORARY, owner-directed 2026-11-21: dev-app, not app. The marketplace->book-spa handoff is
-  // still being built, so booking is pointed at book-spa's dev deployment while it is exercised.
-  //
-  // Be clear about what this costs: dev-app talks to book-spa's STAGING Supabase
-  // (snzcckzfmpboeqkktmwy), production app talks to pmbvogiphelmpjdalmtv. A booking made through
-  // the live marketplace therefore lands in staging, where the studio's own dashboard cannot see
-  // it. Accepted deliberately because the live marketplace has no real booking traffic yet.
-  //
-  // REVERT to "https://app.zennly.io" before the marketplace carries real customers, or they will
-  // turn up to appointments the studio never received.
-  return process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN || "https://dev-app.zennly.io";
+export function bookingEngineOrigin(): string | null {
+  // No default on purpose: a missing value must read as "booking unavailable", never fall back to
+  // book-spa's dev deployment (dev-app.zennly.io talks to the STAGING Supabase, so a booking made
+  // there never reaches the studio). Prod sets this to https://app.zennly.io (build-time var).
+  return process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN || null;
 }
 
 /**
@@ -79,7 +74,9 @@ function toProvider(r: ProviderRow): Provider {
     bookingUrl: r.engineProviderId
       ? bookingProxyEnabled()
         ? `/book/${r.engineProviderId}`
-        : `${bookingEngineOrigin()}/${r.engineProviderId}`
+        : bookingEngineOrigin()
+          ? `${bookingEngineOrigin()}/${r.engineProviderId}`
+          : undefined
       : undefined,
     engineProviderId: r.engineProviderId ?? undefined,
   };
@@ -88,16 +85,21 @@ function toProvider(r: ProviderRow): Provider {
 export async function getProviders(): Promise<Provider[]> {
   if (!prisma) {
     console.warn("[providers] DATABASE_URL not set, using placeholder data.");
-    return seedProviders;
+    return visibleProviders(seedProviders);
   }
   const rows = await prisma.provider.findMany({ orderBy: { name: "asc" } });
-  return rows.map(toProvider);
+  // Demo listings (no bookX link) are hidden unless NEXT_PUBLIC_SHOW_DEMO_STUDIOS=on. Every
+  // listing, search, rail, collection and sitemap reads through here, so this is the one place.
+  return visibleProviders(rows.map(toProvider));
 }
 
 export async function getProvider(slug: string): Promise<Provider | undefined> {
-  if (!prisma) return seedProviders.find((p) => p.slug === slug);
+  // A hidden demo studio answers "not found" on its direct URL too (the page shows a 404).
+  if (!prisma) return visibleProviders(seedProviders).find((p) => p.slug === slug);
   const row = await prisma.provider.findUnique({ where: { slug } });
-  return row ? toProvider(row) : undefined;
+  if (!row) return undefined;
+  if (!row.engineProviderId && !showDemoStudios()) return undefined;
+  return toProvider(row);
 }
 
 /** Other providers ranked by shared modality first, then same city, then rating. */
@@ -112,7 +114,7 @@ export async function getRelatedProviders(provider: Provider, limit = 6): Promis
         (p.modalities.some((m) => provider.modalities.includes(m)) ? 2 : 0) +
         (p.city === provider.city ? 1 : 0),
     }))
-    .sort((a, b) => b.score - a.score || b.p.rating - a.p.rating)
+    .sort((a, b) => b.score - a.score || compareByRating(a.p, b.p))
     .slice(0, limit)
     .map(({ p }) => p);
 }

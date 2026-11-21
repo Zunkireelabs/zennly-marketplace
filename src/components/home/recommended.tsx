@@ -2,6 +2,8 @@ import Link from "next/link";
 import { providerHref } from "@/lib/providers";
 import Image from "next/image";
 import type { RailProvider } from "@/lib/home-rails";
+import { DemoPill } from "@/components/ui/demo-pill";
+import { hasRating } from "@/lib/rating";
 
 /**
  * "Recommended" — editorial picks, pulled from the same provider data as the "Every Studio,
@@ -12,6 +14,7 @@ import type { RailProvider } from "@/lib/home-rails";
  * docs/research/refs/onefinestay.md) — plain text, no italics per later revision.
  */
 export function Recommended({ providers }: { providers: RailProvider[] }) {
+  if (providers.length === 0) return null;
   return (
     <section className="mx-auto max-w-7xl px-6 pt-16">
       <h2 className="text-2xl font-normal leading-[1.4] text-foreground sm:text-[32px] sm:leading-[45px]">
@@ -43,13 +46,16 @@ export function Recommended({ providers }: { providers: RailProvider[] }) {
                   style={{ background: provider.tone }}
                 />
               )}
-              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-                ★ {provider.rating.toFixed(1)}
-              </span>
+              {hasRating(provider) && (
+                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
+                  ★ {provider.rating.toFixed(1)}
+                </span>
+              )}
             </span>
             <span className="text-left">
               <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                 {provider.name}
+                {provider.isDemo && <DemoPill className="ml-2 align-middle" />}
               </span>
               <span className="block text-sm text-muted-foreground">
                 {provider.modality} · {provider.location}

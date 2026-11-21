@@ -1,5 +1,8 @@
 import "server-only";
-import type { Service } from "@/lib/providers";
+import type { Provider, Service } from "@/lib/providers";
+import { branchBookability, weeklyHoursRows, type BranchHours, type WeeklyHoursRow } from "./engine-availability";
+import { cheapestPrice, readBookableService } from "./engine-price";
+import { servicesOfferedAtAnyBranch, type ServiceLink } from "./engine-service-scope";
 
 /**
  * Live services + prices for an engine-connected provider, fetched server-side at request time
@@ -14,9 +17,88 @@ import type { Service } from "@/lib/providers";
  */
 const TIMEOUT_MS = 2500;
 
+type BranchRow = {
+  id: string;
+  name: string;
+  open_time: string | null;
+  close_time: string | null;
+  excluded_service_categories: string[] | null;
+};
+
+/** One anon GET against PostgREST, failing soft to null. Same reads the drawer itself makes. */
+async function restGet<T>(base: string, key: string, path: string): Promise<T | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const res = await fetch(`${base}/rest/v1/${path}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      cache: "no-store",
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeout));
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * What the studio page needs to agree with the drawer: per-branch hours, which branches can take
+ * online bookings at all, and which services each branch offers. Reads exactly what the drawer
+ * reads (branches, branch_working_hours, rooms, branch_service_links). Any failed read returns
+ * null for that part, and the caller then hides it rather than guess.
+ */
+async function fetchBranchScope(base: string, key: string, orgSlug: string) {
+  const orgs = await restGet<{ id: string; industries: { enable_rooms: boolean | null } | { enable_rooms: boolean | null }[] | null }[]>(
+    base,
+    key,
+    `organizations?slug=eq.${encodeURIComponent(orgSlug)}&is_active=eq.true&select=id,industries(enable_rooms)&limit=1`
+  );
+  const org = orgs?.[0];
+  if (!org) return null;
+  const industry = Array.isArray(org.industries) ? org.industries[0] : org.industries;
+  const enableRooms = industry?.enable_rooms !== false;
+
+  const branches = await restGet<BranchRow[]>(
+    base,
+    key,
+    `branches?org_id=eq.${org.id}&is_active=eq.true&select=id,name,open_time,close_time,excluded_service_categories&order=name`
+  );
+  if (!branches || branches.length === 0) return null;
+
+  const ids = branches.map((b) => b.id).join(",");
+  const [hourRows, roomRows] = await Promise.all([
+    restGet<(WeeklyHoursRow & { branch_id: string })[]>(
+      base,
+      key,
+      `branch_working_hours?branch_id=in.(${ids})&select=branch_id,day_of_week,start_time,end_time,is_day_off`
+    ),
+    restGet<{ branch_id: string }[]>(base, key, `rooms?branch_id=in.(${ids})&is_active=eq.true&select=branch_id`),
+  ]);
+
+  const perBranch = branches.map((b) => {
+    const hours: BranchHours | null = hourRows
+      ? {
+          weekly: hourRows.filter((r) => r.branch_id === b.id),
+          openTime: b.open_time,
+          closeTime: b.close_time,
+        }
+      : null;
+    const roomCount = roomRows ? roomRows.filter((r) => r.branch_id === b.id).length : null;
+    return { branch: b, hours, bookable: branchBookability({ hours, roomCount, enableRooms }).bookable };
+  });
+  return perBranch;
+}
+
 export async function fetchLiveServices(
-  orgSlug: string
-): Promise<{ services: Service[]; serviceCategories: string[]; fromPrice: number } | null> {
+  orgSlug: string,
+  options: { scopeToBranches?: boolean } = {}
+): Promise<{
+  services: Service[];
+  serviceCategories: string[];
+  fromPrice: number;
+  branchHours: NonNullable<Provider["branchHours"]> | null;
+} | null> {
   const base = process.env.NEXT_PUBLIC_BOOK_SPA_ENGINE_URL;
   const key = process.env.NEXT_PUBLIC_BOOK_SPA_ENGINE_ANON_KEY;
   if (!base || !key) return null;
@@ -36,34 +118,47 @@ export async function fetchLiveServices(
     const data: unknown = await res.json();
     if (!Array.isArray(data) || data.length === 0) return null;
 
-    const services: Service[] = data.map((row) => {
-      const r = row as Record<string, unknown>;
-      // Tiered services cost different amounts depending on which therapist is booked. The
-      // engine sends the default rate plus the spread; book-spa shows the spread, so we must
-      // too, or the same treatment appears to cost two different things on the two sites.
-      const min = Number(r.min_price);
-      const max = Number(r.max_price);
-      const tiered =
-        r.price_type === "tiered" && Number.isFinite(min) && Number.isFinite(max) && max > min;
+    const allServices: Service[] = data.map((row) => {
+      const r = readBookableService(row as Record<string, unknown>);
       return {
-        id: String(r.id),
-        name: String(r.name ?? "Service"),
-        category: String(r.category_name ?? "Other"),
-        durations: [Number(r.duration_minutes) || 60],
-        price: Number(r.effective_price_npr ?? r.price_npr) || 0,
-        ...(tiered ? { priceRange: { min, max } } : {}),
-        description: typeof r.description === "string" ? r.description : "",
+        id: r.id,
+        name: r.name,
+        category: r.category,
+        durations: [r.durationMinutes],
+        price: r.price,
+        description: r.description ?? "",
       };
     });
 
-    const serviceCategories = Array.from(new Set(services.map((s) => s.category)));
-    // A tiered service's real entry price is its floor, not its default rate — "from Rs 8,200"
-    // would be wrong when the same treatment starts at 1,200.
-    const fromPrice = Math.min(
-      ...services.map((s) => s.priceRange?.min ?? s.price).filter((p) => p > 0)
-    );
+    // Narrow to what the drawer would actually offer: services bookable at AT LEAST ONE branch
+    // that can take online bookings (same narrowing rule as the drawer, shared module). The page
+    // has no chosen branch, so it shows the union; the drawer narrows further once one is picked.
+    // If anything about branches can't be read, keep the org-wide list (never a blank page) and
+    // hide the hours block instead of guessing.
+    // Only when the real-booking drawer is on; with the flag off the page behaves as it always did.
+    const scope = options.scopeToBranches ? await fetchBranchScope(base, key, orgSlug) : null;
+    let services = allServices;
+    let branchHours: NonNullable<Provider["branchHours"]> | null = null;
+    if (scope) {
+      const pool = scope.some((b) => b.bookable) ? scope.filter((b) => b.bookable) : scope;
+      const ids = allServices.map((s) => s.id).join(",");
+      const links = await restGet<ServiceLink[]>(base, key, `branch_service_links?service_id=in.(${ids})&select=service_id,branch_id`);
+      const narrowed = servicesOfferedAtAnyBranch(
+        allServices,
+        pool.map((b) => ({ id: b.branch.id, excludedCategories: b.branch.excluded_service_categories ?? [] })),
+        links
+      );
+      if (narrowed.length > 0) services = narrowed;
+      if (scope.every((b) => b.hours)) {
+        branchHours = scope.map((b) => ({ branch: b.branch.name, hours: weeklyHoursRows(b.hours as BranchHours) }));
+      }
+    }
 
-    return { services, serviceCategories, fromPrice: Number.isFinite(fromPrice) ? fromPrice : 0 };
+    const serviceCategories = Array.from(new Set(services.map((s) => s.category)));
+    // The same single charged price the drawer shows (engine-price.ts), never a tier range.
+    const fromPrice = cheapestPrice(services.map((s) => s.price));
+
+    return { services, serviceCategories, fromPrice, branchHours };
   } catch {
     return null;
   }

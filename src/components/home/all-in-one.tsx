@@ -19,6 +19,7 @@ import type { RailProvider } from "@/lib/home-rails";
  */
 export function AllInOne({ providers }: { providers: RailProvider[] }) {
   const [active, setActive] = useState(0);
+  if (providers.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-6 pt-16">

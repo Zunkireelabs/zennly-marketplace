@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { RailArrows } from "@/components/ui/rail-arrows";
 import { providerHref, type Provider } from "@/lib/providers";
+import { DemoPill } from "@/components/ui/demo-pill";
+import { hasRating } from "@/lib/rating";
 
 /** "More like this" rail. Client component so the prev/next arrows can scroll the rail. */
 export function RelatedProviders({ related }: { related: Provider[] }) {
@@ -33,13 +35,16 @@ export function RelatedProviders({ related }: { related: Provider[] }) {
                 <Image src={p.image} alt={`${p.name} studio`} fill sizes="224px" className="object-cover" />
                 <span className="pointer-events-none absolute inset-0 bg-accent/12 mix-blend-multiply" />
               </span>
-              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-                {p.isNew ? "New" : `★ ${p.rating.toFixed(1)}`}
-              </span>
+              {(p.isNew || hasRating(p)) && (
+                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
+                  {p.isNew ? "New" : `★ ${p.rating.toFixed(1)}`}
+                </span>
+              )}
             </span>
             <span className="text-left">
               <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                 {p.name}
+                {!p.engineProviderId && <DemoPill className="ml-2 align-middle" />}
               </span>
               <span className="block text-sm text-muted-foreground">
                 {p.modality} · {p.location}

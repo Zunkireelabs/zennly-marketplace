@@ -1,10 +1,12 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { track } from "@/lib/analytics/track";
 import { startBooking, type ForWhom } from "@/lib/booking/start-booking";
 import type { Provider, Service } from "@/lib/providers";
+import type { BookingAvailability } from "@/lib/booking/availability";
 import { BookingDrawer } from "./booking-drawer";
 import { GalleryLightbox } from "./gallery-lightbox";
 import { TourModal } from "./tour-modal";
@@ -13,6 +15,8 @@ export type BookingStep = "location" | "services" | "time" | "confirm" | "done";
 
 type UiContext = {
   provider: Provider;
+  /** Whether this studio takes online bookings right now (decided on the server per request). */
+  availability: BookingAvailability;
   /* booking */
   bookingOpen: boolean;
   step: BookingStep;
@@ -32,6 +36,12 @@ type UiContext = {
   setDateISO: (iso: string | null) => void;
   setTime: (time: string | null) => void;
   resetBooking: () => void;
+  /** Reopens the drawer with previously chosen service/day/time at a given step (resume after a
+   *  login redirect). Does not go through startBooking, so no "Book clicked" event is recorded. */
+  /** A one-line notice for the booking drawer ("That time is no longer available"). */
+  notice: string | null;
+  setNotice: (notice: string | null) => void;
+  restoreBooking: (opts: { serviceId: string; dateISO: string; time: string | null; step: BookingStep }) => void;
   /** book-spa's handleBranchSelect clears service/time on a branch (re)pick, since both are
    * branch-scoped (provider-profile-flow/index.jsx). Only meaningful for connected providers'
    * location step; unused otherwise. */
@@ -61,13 +71,15 @@ export function useProviderUi(): UiContext {
  * "View all photos" button, wherever it sits on the page, opens the same shared overlay.
  * Showcase-only: nothing here is persisted or sent anywhere (docs/PRODUCT_CONTEXT.md §4).
  */
-export function ProviderShell({ provider, children }: { provider: Provider; children: React.ReactNode }) {
+export function ProviderShell({ provider, availability, children }: { provider: Provider; availability: BookingAvailability; children: React.ReactNode }) {
+  const router = useRouter();
   const [bookingOpen, setBookingOpen] = useState(false);
   const [step, setStep] = useState<BookingStep>("services");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [dateISO, setDateISO] = useState<string | null>(null);
   const [time, setTime] = useState<string | null>(null);
   const [forWhom, setForWhom] = useState<ForWhom>({ kind: "me" });
+  const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
     track("provider_viewed", { slug: provider.slug });
@@ -91,6 +103,8 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
   // Every Book button ends up here, and this goes through startBooking() (never straight to a URL).
   const openBooking = useCallback<UiContext["openBooking"]>(
     (opts) => {
+      // Booking is off (not live, a demo, or we couldn't check): nothing opens.
+      if (availability.state !== "live") return;
       const serviceIds = opts?.serviceId ? [opts.serviceId] : selectedIds;
       const result = startBooking({ provider, selection: { serviceIds }, forWhom });
       if (result.kind === "blocked") {
@@ -98,6 +112,12 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
         return;
       }
       if (result.kind === "external") return;
+      // A connected studio: continue on its booking pages, same tab (ZNLY-338). The drawer below
+      // is now only the demo path for studios with no live booking system.
+      if (result.kind === "page") {
+        router.push(result.url);
+        return;
+      }
       if (opts?.serviceId) {
         setSelectedIds((ids) => (ids.includes(opts.serviceId!) ? ids : [opts.serviceId!]));
         setStep("time");
@@ -106,7 +126,7 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
       }
       setBookingOpen(true);
     },
-    [provider, selectedIds, forWhom]
+    [provider, availability, selectedIds, forWhom, router]
   );
 
   const closeBooking = useCallback(() => setBookingOpen(false), []);
@@ -138,6 +158,15 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
     setTime(null);
     setStep("services");
     setForWhom({ kind: "me" });
+    setNotice(null);
+  }, []);
+
+  const restoreBooking = useCallback<UiContext["restoreBooking"]>((opts) => {
+    setSelectedIds([opts.serviceId]);
+    setDateISO(opts.dateISO);
+    setTime(opts.time);
+    setStep(opts.step);
+    setBookingOpen(true);
   }, []);
 
   const openGallery = useCallback((index = 0) => {
@@ -150,6 +179,7 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
 
   const value: UiContext = {
     provider,
+    availability,
     bookingOpen,
     step,
     selectedIds,
@@ -168,6 +198,9 @@ export function ProviderShell({ provider, children }: { provider: Provider; chil
     setDateISO,
     setTime,
     resetBooking,
+    restoreBooking,
+    notice,
+    setNotice,
     clearServiceSelection,
     galleryOpen,
     galleryIndex,

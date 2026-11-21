@@ -3,6 +3,8 @@ import { z } from "zod";
 import { getSessionUser } from "@/lib/account/server";
 import { isSameOriginJson, noStore } from "@/lib/supabase/api";
 import { prisma } from "@/lib/prisma";
+import { engineId } from "@/lib/booking/engine-id";
+import { getStudioStatus } from "@/lib/booking/studio-status";
 
 /**
  * Creates a real solo booking at an engine-connected studio, server-side, by calling book-spa's
@@ -17,8 +19,8 @@ import { prisma } from "@/lib/prisma";
 
 const Body = z.object({
   providerSlug: z.string().min(1).max(200),
-  branchId: z.string().uuid(),
-  serviceId: z.string().uuid(),
+  branchId: engineId,
+  serviceId: engineId,
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   startTime: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/),
   customerName: z.string().min(1).max(200),
@@ -62,6 +64,16 @@ export async function POST(request: NextRequest) {
   if (!orgSlug) {
     return NextResponse.json(
       { ok: false, errorCode: "ORG_NOT_ENABLED", message: "This business isn't connected for online booking." },
+      { status: 200, headers: noStore }
+    );
+  }
+
+  // Only a live studio takes bookings. Checked here as well as on the pages, because a customer
+  // can have a booking page open when the studio is switched off. Nothing is sent to bookX.
+  const studio = await getStudioStatus(orgSlug);
+  if (studio.status !== "live") {
+    return NextResponse.json(
+      { ok: false, errorCode: studio.status === "error" ? "BOOKING_UNAVAILABLE" : "BOOKING_NOT_LIVE" },
       { status: 200, headers: noStore }
     );
   }

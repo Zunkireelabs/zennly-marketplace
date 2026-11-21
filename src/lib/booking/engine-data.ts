@@ -1,6 +1,9 @@
 "use client";
 
+import type { BranchHours, WeeklyHoursRow } from "./engine-availability";
 import { getEngineClient } from "./engine-client";
+import { readBookableService } from "./engine-price";
+import { narrowServicesToBranch, type ServiceLink } from "./engine-service-scope";
 
 /**
  * Read-only fetchers against book-spa's project, mirroring its own src/services/api.js
@@ -27,6 +30,8 @@ export type EngineBranch = {
   name: string;
   address: string | null;
   phone: string | null;
+  /** The branch's photo in book-spa (branches.photo_url), or null. */
+  photoUrl: string | null;
   isActive: boolean;
   openTime: string | null;
   closeTime: string | null;
@@ -38,8 +43,8 @@ export type EngineService = {
   id: string;
   name: string;
   durationMinutes: number;
+  /** What book-spa charges with no staff chosen (effective_price_npr). See engine-price.ts. */
   priceNpr: number;
-  priceRange?: { min: number; max: number };
   description: string | null;
   category: string;
   isCombo: boolean;
@@ -106,7 +111,7 @@ export async function fetchEngineBranches(orgId: string): Promise<EngineBranch[]
   const { data, error } = await client
     .from("branches")
     .select(
-      "id, name, address, phone, is_active, open_time, close_time, online_booking_capacity, advance_booking_days"
+      "id, name, address, phone, photo_url, is_active, open_time, close_time, online_booking_capacity, advance_booking_days"
     )
     .eq("org_id", orgId)
     .eq("is_active", true)
@@ -117,6 +122,7 @@ export async function fetchEngineBranches(orgId: string): Promise<EngineBranch[]
     name: b.name,
     address: b.address,
     phone: b.phone,
+    photoUrl: typeof b.photo_url === "string" && b.photo_url ? b.photo_url : null,
     isActive: b.is_active,
     openTime: b.open_time,
     closeTime: b.close_time,
@@ -125,22 +131,16 @@ export async function fetchEngineBranches(orgId: string): Promise<EngineBranch[]
   }));
 }
 
-function toEngineService(s: Record<string, unknown>): EngineService {
-  // Tiered services cost different amounts depending on which therapist is booked — same
-  // reasoning/fields as engine-live-services.ts, kept consistent so the drawer and the
-  // provider page never disagree about whether a service's price is a range.
-  const min = Number(s.min_price);
-  const max = Number(s.max_price);
-  const tiered = s.price_type === "tiered" && Number.isFinite(min) && Number.isFinite(max) && max > min;
+export function toEngineService(row: Record<string, unknown>): EngineService {
+  const r = readBookableService(row);
   return {
-    id: String(s.id),
-    name: String(s.name),
-    durationMinutes: Number(s.duration_minutes) || 60,
-    priceNpr: Number(s.effective_price_npr ?? s.price_npr) || 0,
-    ...(tiered ? { priceRange: { min, max } } : {}),
-    description: (s.description as string | null) ?? null,
-    category: String(s.category_name ?? "Other"),
-    isCombo: Boolean(s.is_combo),
+    id: r.id,
+    name: String(row.name),
+    durationMinutes: r.durationMinutes,
+    priceNpr: r.price,
+    description: r.description,
+    category: r.category,
+    isCombo: r.isCombo,
   };
 }
 
@@ -171,21 +171,18 @@ export async function fetchEngineBranchServices(orgSlug: string, branchId: strin
   if (all.length === 0) return [];
 
   const excluded: string[] = branchRes.data?.excluded_service_categories ?? [];
-  const filtered = excluded.length > 0 ? all.filter((s) => !excluded.includes(s.category)) : all;
-  if (filtered.length === 0) return [];
+  const afterCategories = narrowServicesToBranch(all, excluded, null, branchId);
+  if (afterCategories.length === 0) return [];
 
   const { data: links, error } = await client
     .from("branch_service_links")
     .select("service_id, branch_id")
     .in(
       "service_id",
-      filtered.map((s) => s.id)
+      afterCategories.map((s) => s.id)
     );
-  if (error || !links || links.length === 0) return filtered;
-
-  const restrictedServiceIds = new Set(links.map((l) => l.service_id));
-  const allowedHere = new Set(links.filter((l) => l.branch_id === branchId).map((l) => l.service_id));
-  return filtered.filter((s) => !restrictedServiceIds.has(s.id) || allowedHere.has(s.id));
+  if (error || !links || links.length === 0) return afterCategories;
+  return narrowServicesToBranch(afterCategories, [], links as ServiceLink[], branchId);
 }
 
 export async function fetchEngineTherapists(
@@ -222,27 +219,75 @@ export async function fetchEngineRooms(branchId: string): Promise<EngineRoom[]> 
   return data.map((r) => ({ id: r.id, capacity: r.capacity ?? 1 }));
 }
 
-const CLOSED_DATE_START_TIME = "00:00:00";
-const CLOSED_DATE_DURATION_MINUTES = 1440;
-
-export async function fetchEngineClosedRanges(branchId: string): Promise<ClosedRange[]> {
+/** Number of active rooms, or null if it couldn't be read ("unknown" must not look like "none"). */
+export async function fetchEngineRoomCount(branchId: string): Promise<number | null> {
   const client = getEngineClient();
-  if (!client) return [];
-  const { data, error } = await client
-    .from("manual_blocks")
-    .select("block_date, recurrence_end_date, recurrence_freq")
-    .eq("branch_id", branchId)
-    .eq("is_cancelled", false)
-    .is("therapist_id", null)
-    .is("room_id", null)
-    .eq("start_time", CLOSED_DATE_START_TIME)
-    .eq("duration_minutes", CLOSED_DATE_DURATION_MINUTES)
-    .order("block_date", { ascending: true });
-  if (error || !data) return [];
-  return data.map((row) => ({
-    startDate: row.block_date,
-    endDate: row.recurrence_freq ? row.recurrence_end_date || row.block_date : row.block_date,
-  }));
+  if (!client) return null;
+  const { data, error } = await client.from("rooms").select("id").eq("branch_id", branchId).eq("is_active", true);
+  if (error || !data) return null;
+  return data.length;
+}
+
+/** Adds one day to a YYYY-MM-DD string (UTC-safe, no timezone drift). */
+function nextDay(date: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10);
+}
+
+/** Collapses a sorted list of closed dates into inclusive ranges. */
+export function closedDatesToRanges(dates: string[]): ClosedRange[] {
+  const ranges: ClosedRange[] = [];
+  for (const date of [...dates].sort()) {
+    const last = ranges[ranges.length - 1];
+    if (last && nextDay(last.endDate) === date) last.endDate = date;
+    else if (!last || date > last.endDate) ranges.push({ startDate: date, endDate: date });
+  }
+  return ranges;
+}
+
+/**
+ * Dates the studio is closed to online booking, from book-spa's public_get_closed_dates RPC
+ * (migration-390, granted to anon). NOT a direct manual_blocks read: anon has no SELECT policy on
+ * that table, so a direct read returns [] and a closed day looks open. The RPC also expands
+ * recurrence and exceptions server-side, so we never re-implement them.
+ *
+ * Returns null when the call fails — "we don't know" must not be treated as "open".
+ */
+export async function fetchEngineClosedRanges(
+  branchId: string,
+  startDate: string,
+  endDate: string
+): Promise<ClosedRange[] | null> {
+  const client = getEngineClient();
+  if (!client) return null;
+  const { data, error } = await client.rpc("public_get_closed_dates", {
+    p_branch_id: branchId,
+    p_start: startDate,
+    p_end: endDate,
+  });
+  if (error || !data) return null;
+  return closedDatesToRanges((data as { closed_date: string }[]).map((r) => r.closed_date));
+}
+
+/**
+ * The branch's own opening hours: branch_working_hours rows exactly as stored plus
+ * branches.open_time/close_time as the fallback (both anon-readable by RLS). Mirrors book-spa's
+ * fetchBranchSlotHours. Returns null on failure so the drawer can refuse to offer slots rather
+ * than guess a default range.
+ */
+export async function fetchEngineBranchHours(branchId: string): Promise<BranchHours | null> {
+  const client = getEngineClient();
+  if (!client) return null;
+  const [weekly, branch] = await Promise.all([
+    client.from("branch_working_hours").select("day_of_week, start_time, end_time, is_day_off").eq("branch_id", branchId),
+    client.from("branches").select("open_time, close_time").eq("id", branchId).maybeSingle(),
+  ]);
+  if (weekly.error || branch.error) return null;
+  return {
+    weekly: (weekly.data ?? []) as WeeklyHoursRow[],
+    openTime: branch.data?.open_time ?? null,
+    closeTime: branch.data?.close_time ?? null,
+  };
 }
 
 /** rooms + bookings for the branch's effective window, in one round trip like book-spa's fetchBranchAvailabilityWindow. */

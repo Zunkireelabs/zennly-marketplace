@@ -9,9 +9,11 @@ import type { SearchQuery, SearchResult } from "@/lib/search";
 import { FilterBar, NO_FILTERS, type Filters } from "./filter-bar";
 import { MapSkeleton } from "./map-skeleton";
 import type { MapBounds } from "./studio-map";
-import { pillClass } from "@/components/ui/pill";
 import { Price } from "@/components/ui/price";
 import { useCurrency } from "@/lib/currency/use-currency";
+import { DemoPill } from "@/components/ui/demo-pill";
+import { SearchEmpty } from "./search-empty";
+import { compareByRating, hasRating } from "@/lib/rating";
 
 // MapLibre needs the browser, so the map loads client-side only, and only on this page.
 const StudioMap = dynamic(() => import("./studio-map").then((m) => m.StudioMap), {
@@ -74,7 +76,7 @@ export function SearchExperience({
         (!filters.onlyNew || r.isNew)
     );
     return [...list].sort((a, b) =>
-      sort === "price-asc" ? a.fromPrice - b.fromPrice : sort === "price-desc" ? b.fromPrice - a.fromPrice : b.rating - a.rating
+      sort === "price-asc" ? a.fromPrice - b.fromPrice : sort === "price-desc" ? b.fromPrice - a.fromPrice : compareByRating(a, b)
     );
   }, [results, filters, sort, toDisplay]);
 
@@ -208,14 +210,16 @@ export function SearchExperience({
         </div>
 
         {listed.length === 0 ? (
-          <div className={`${view === "map" ? "" : "mx-auto w-full max-w-7xl "}px-5 py-16 text-center sm:px-7`}>
-            <p className="text-foreground">No studios match this search.</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {area ? "Try zooming the map out or clearing the area." : "Try a different treatment or location."}
-            </p>
-            <Link href="/search" className={`${pillClass()} mt-5`}>
-              See all studios
-            </Link>
+          <div className={`${view === "map" ? "" : "mx-auto w-full max-w-7xl "}px-5 py-10 sm:px-7`}>
+            <SearchEmpty
+              query={query}
+              narrowed={Boolean(area) || filters.treatments.length > 0 || Boolean(filters.minPrice || filters.maxPrice) || filters.minRating > 0 || filters.onlyNew}
+              view={view}
+              onClearFilters={() => {
+                setFilters(NO_FILTERS);
+                setArea(null);
+              }}
+            />
           </div>
         ) : (
           <ul className={`${view === "map" ? "" : "mx-auto w-full max-w-7xl "}gap-4 px-5 pb-24 pt-2 sm:px-7 lg:pb-8 ${layout === "list" ? "flex flex-col" : view === "map" ? "grid sm:grid-cols-2" : "grid sm:grid-cols-2 xl:grid-cols-3"}`}>
@@ -363,16 +367,19 @@ function ResultCard({
         )}
       </span>
       <span className="flex min-w-0 flex-1 flex-col py-0.5">
-        <span className="truncate text-base font-medium text-foreground">{r.name}</span>
+        <span className="truncate text-base font-medium text-foreground">
+          {r.name}
+          {!r.engineProviderId && <DemoPill className="ml-2 align-middle" />}
+        </span>
         <span className="truncate text-sm text-muted-foreground">
           {r.city}, {r.region}
         </span>
         <span className="mt-1 hidden line-clamp-2 text-sm text-muted-foreground sm:block">{r.blurb}</span>
         <span className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-sm">
           <span className="text-foreground">
-            {r.isNew ? "New to Zennly" : (
+            {r.isNew ? "New to Zennly" : hasRating(r) ? (
               <>★ {r.rating.toFixed(1)} <span className="text-muted-foreground">({r.reviewCount})</span></>
-            )}
+            ) : null}
           </span>
           <span className="text-muted-foreground">{r.modalities.slice(0, 2).join(" · ")}</span>
           <span className="ml-auto font-medium text-foreground">from <Price amount={r.fromPrice} engineProviderId={r.engineProviderId} /></span>
@@ -381,3 +388,4 @@ function ResultCard({
     </Link>
   );
 }
+

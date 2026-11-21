@@ -41,18 +41,69 @@
  * here stays party-size-ready for that: nothing above assumes a single person.
  */
 
-export const START_HOUR = 10;
-export const END_HOUR = 18;
 const SLOT_MINUTES = 30;
 
-export function getNepalNow(): Date {
-  const now = new Date();
-  const nepalTime = now.toLocaleString("en-US", { timeZone: "Asia/Kathmandu" });
-  return new Date(nepalTime);
+/** One row of book-spa's branch_working_hours (anon-readable). day_of_week: Monday = 0 … Sunday = 6. */
+export type WeeklyHoursRow = {
+  day_of_week: number;
+  start_time: string | null;
+  end_time: string | null;
+  is_day_off: boolean;
+};
+
+/** A branch's own hours: weekly rows exactly as stored, plus branches.open_time/close_time as fallback. */
+export type BranchHours = {
+  weekly: WeeklyHoursRow[];
+  openTime: string | null;
+  closeTime: string | null;
+};
+
+/**
+ * Wall-clock date and minutes-since-midnight in Asia/Kathmandu for an instant. Built from Intl
+ * parts so it gives the same answer whatever the server's own timezone is (UTC included) —
+ * `new Date(toLocaleString(...))` re-parses in the local zone and is not safe for that.
+ */
+export function nepalClock(now: Date = new Date()): { date: string; minutes: number } {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kathmandu",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return { date: `${get("year")}-${get("month")}-${get("day")}`, minutes: Number(get("hour")) * 60 + Number(get("minute")) };
 }
 
-export function getNepalToday(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kathmandu" });
+export function getNepalToday(now: Date = new Date()): string {
+  return nepalClock(now).date;
+}
+
+/**
+ * Online slot range for one calendar date, from the branch's own hours — mirrors book-spa's
+ * slotRangeForDate, with one deliberate difference. "day-off" = a row says closed (no slots).
+ * A weekday with no row falls back to branches.open_time/close_time. With NO row and NO
+ * open/close time at all, book-spa falls back to a legacy 10:00–18:00; we return "unconfigured"
+ * instead and offer nothing, so we never show a time the server may refuse (confirm with bookX).
+ */
+export function slotRangeForDate(
+  dateStr: string,
+  hours: BranchHours
+): { startMin: number; endMin: number } | "day-off" | "unconfigured" {
+  // Calendar-date weekday, independent of any timezone: Date.UTC at midnight, read back in UTC.
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const dow = (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7;
+  const row = hours.weekly.find((r) => r.day_of_week === dow);
+  if (row) {
+    if (row.is_day_off || !row.start_time || !row.end_time) return "day-off";
+    return { startMin: timeToMinutes(row.start_time), endMin: timeToMinutes(row.end_time) };
+  }
+  if (hours.openTime && hours.closeTime) {
+    return { startMin: timeToMinutes(hours.openTime), endMin: timeToMinutes(hours.closeTime) };
+  }
+  return "unconfigured";
 }
 
 export function isDateInRanges(dateStr: string, ranges: { startDate: string; endDate: string }[]): boolean {
@@ -207,7 +258,14 @@ export function anyProfessionalFree(
 }
 
 export type SoloSlot = { time24: string; time12: string; maleAvailable: boolean; femaleAvailable: boolean; isPast: boolean; isAvailable: boolean };
-export type SoloDay = { date: string; slots: SoloSlot[]; isClosed: boolean };
+/**
+ * Why a day has no slots at all, so the UI can say "closed" instead of showing an empty grid:
+ * "closed-date" = a manual closure, "day-off" = the branch's weekly hours say it's shut,
+ * "hours-unknown" = hours or closures couldn't be loaded, so we refuse to guess (never fall
+ * back to a default range that might offer a time the studio can't honour).
+ */
+export type ClosedReason = "closed-date" | "day-off" | "hours-unknown";
+export type SoloDay = { date: string; slots: SoloSlot[]; isClosed: boolean; closedReason: ClosedReason | null };
 
 export type TherapistFilter = { therapistId: string | null; eligibleIds: string[] } | null;
 
@@ -227,8 +285,13 @@ export function computeSoloSlots(params: {
   genderPreference: "male" | "female" | "no-preference";
   enableRooms: boolean;
   therapistCounts: { male: number; female: number };
-  closedRanges: { startDate: string; endDate: string }[];
+  /** null = closed dates couldn't be loaded (fail closed). */
+  closedRanges: { startDate: string; endDate: string }[] | null;
+  /** null = the branch's hours couldn't be loaded (fail closed). */
+  hours: BranchHours | null;
   onlineCapacity: number | null;
+  /** The instant to treat as "now". Defaults to the real clock; injectable for tests. */
+  now?: Date;
 }): SoloDay[] {
   const {
     dates,
@@ -250,17 +313,24 @@ export function computeSoloSlots(params: {
   // so the branch cap only applies when no particular therapist is being reserved.
   const onlineCapacity = therapistFilter?.therapistId ? null : params.onlineCapacity;
 
-  const nepalToday = getNepalToday();
-  const nepalNow = getNepalNow();
-  const nowMinutes = nepalNow.getHours() * 60 + nepalNow.getMinutes();
+  const { date: nepalToday, minutes: nowMinutes } = nepalClock(params.now);
+  const hours = params.hours;
 
   return dates.map((date) => {
     const isToday = date === nepalToday;
-    const isClosed = isDateInRanges(date, closedRanges);
     const slots: SoloSlot[] = [];
 
-    for (let start = START_HOUR * 60; start + duration <= END_HOUR * 60; start += 30) {
-      const isPast = isToday && start <= nowMinutes;
+    if (!hours || !closedRanges) return { date, slots, isClosed: true, closedReason: "hours-unknown" };
+    if (isDateInRanges(date, closedRanges)) return { date, slots, isClosed: true, closedReason: "closed-date" };
+    const range = slotRangeForDate(date, hours);
+    if (range === "unconfigured") return { date, slots, isClosed: true, closedReason: "hours-unknown" };
+    if (range === "day-off") return { date, slots, isClosed: true, closedReason: "day-off" };
+    const isClosed = false;
+
+    // A slot is offered only if the whole service fits before closing (start + duration <= close).
+    for (let start = range.startMin; start + duration <= range.endMin; start += 30) {
+      // A whole date before Kathmandu's today is past too (e.g. a visitor abroad whose own "today" lags).
+      const isPast = date < nepalToday || (isToday && start <= nowMinutes);
 
       let roomAvailable = true;
       if (enableRooms) {
@@ -320,6 +390,62 @@ export function computeSoloSlots(params: {
       });
     }
 
-    return { date, slots, isClosed };
+    return { date, slots, isClosed, closedReason: null };
   });
+}
+
+const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]; // Monday = 0, like branch_working_hours
+const REFERENCE_MONDAY = "2026-11-23"; // any Monday: slotRangeForDate only reads the weekday
+
+function time12(totalMinutes: number): string {
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "am" : "pm"}`;
+}
+
+/**
+ * The studio page's opening-hours rows for one branch, derived with the SAME rule the drawer uses
+ * (slotRangeForDate), so the page can never show hours the drawer won't honour. A day off reads
+ * "Closed"; a day with no hours anywhere reads "Hours not set". Seven identical days collapse to
+ * a single "Every day" row.
+ */
+export function weeklyHoursRows(hours: BranchHours): { day: string; open: string }[] {
+  const rows = DAY_LABELS.map((day, i) => {
+    const [y, m, d] = REFERENCE_MONDAY.split("-").map(Number);
+    const sample = new Date(Date.UTC(y, m - 1, d + i)).toISOString().slice(0, 10);
+    const range = slotRangeForDate(sample, hours);
+    const open =
+      range === "day-off" ? "Closed" : range === "unconfigured" ? "Hours not set" : `${time12(range.startMin)} – ${time12(range.endMin)}`;
+    return { day, open };
+  });
+  return rows.every((r) => r.open === rows[0].open) ? [{ day: "Every day", open: rows[0].open }] : rows;
+}
+
+export type Bookability =
+  | { bookable: true }
+  | { bookable: false; reason: "all-days-off" | "hours-not-set" | "no-rooms" };
+
+/**
+ * Whether a branch can take online bookings at all, from data we already read cheaply. Unknown
+ * hours (null) are NOT treated as closed: the drawer will say it can't load times instead.
+ * Staff aren't checked here (that needs a per-service read); a branch can pass this and still
+ * show an empty day.
+ */
+export function branchBookability(input: {
+  hours: BranchHours | null;
+  roomCount: number | null;
+  enableRooms: boolean;
+}): Bookability {
+  const { hours, roomCount, enableRooms } = input;
+  if (hours) {
+    const [y, m, d] = REFERENCE_MONDAY.split("-").map(Number);
+    const kinds = DAY_LABELS.map((_, i) =>
+      slotRangeForDate(new Date(Date.UTC(y, m - 1, d + i)).toISOString().slice(0, 10), hours)
+    ).map((r) => (r === "day-off" ? "off" : r === "unconfigured" ? "unset" : "open"));
+    if (!kinds.includes("open")) {
+      return { bookable: false, reason: kinds.includes("unset") ? "hours-not-set" : "all-days-off" };
+    }
+  }
+  if (enableRooms && roomCount === 0) return { bookable: false, reason: "no-rooms" };
+  return { bookable: true };
 }

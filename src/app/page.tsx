@@ -1,6 +1,7 @@
 import { Nav } from "@/components/layout/nav";
 import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/home/hero";
+import { NoStudios } from "@/components/home/no-studios";
 import { DiscoveryRow } from "@/components/home/discovery-row";
 import { Recommended } from "@/components/home/recommended";
 import { BestRated } from "@/components/home/best-rated";
@@ -26,6 +27,7 @@ export default async function Home() {
       <Nav />
       <main className="flex-1 pb-24">
         <Hero destinations={rails.destinations} searchIndex={rails.searchIndex} />
+        {!rails.hasStudios && <NoStudios />}
         <DiscoveryRow intents={rails.discoveryIntents} />
         <Recommended providers={rails.recommended} />
         <BestRated {...rails.bestRated} />

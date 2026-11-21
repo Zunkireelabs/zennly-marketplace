@@ -23,7 +23,7 @@ const VISIT_PREVIEW_COUNT = 3;
 
 export function StudioHistory({ provider }: { provider: Provider }) {
   const { user, ready } = useAuth();
-  const connected = Boolean(provider.bookingUrl);
+  const connected = Boolean(provider.engineProviderId);
   const [result, setResult] = useState<LookupResult | null>(null);
 
   useEffect(() => {

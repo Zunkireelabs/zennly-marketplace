@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import type { SearchIndex } from "@/lib/home-rails";
 import { pillClass } from "@/components/ui/pill";
 import { useCurrency } from "@/lib/currency/use-currency";
+import { compareByRating, hasRating } from "@/lib/rating";
 
 export type SearchItem = {
   kind: "category" | "treatment" | "studio";
@@ -88,12 +89,12 @@ export function useSearchResults(
           norm(`${s.city} ${s.region} ${s.areas.join(" ")} ${s.address}`).includes(q) ||
           s.modalities.some((m) => norm(m).includes(q)),
       )
-      .sort((a, b) => b.rating - a.rating)
+      .sort(compareByRating)
       .map((s) => ({
         kind: "studio" as const,
         key: `s-${s.slug}`,
         label: s.name,
-        sub: `${s.city}, ${s.region}${s.isNew ? " · New to Zennly" : ` · ★ ${s.rating.toFixed(1)}`}`,
+        sub: `${s.city}, ${s.region}${s.isNew ? " · New to Zennly" : hasRating(s) ? ` · ★ ${s.rating.toFixed(1)}` : ""}`,
         image: s.image,
         href: `/providers/${s.slug}`,
       }));

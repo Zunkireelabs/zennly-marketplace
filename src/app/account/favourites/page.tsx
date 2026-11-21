@@ -30,6 +30,7 @@ export default async function AccountFavouritesPage() {
     blurb: p.intro.join(" "),
     amenities: p.amenities.slice(0, 5),
     greatFor: p.greatFor,
+    isDemo: !p.engineProviderId,
   }));
 
   return <SavedList items={items} heading="Favourites" />;

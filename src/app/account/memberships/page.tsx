@@ -1,5 +1,6 @@
 "use client";
 
+import { StatusPill } from "@/components/account/status-pill";
 import { useStudioHistory } from "@/components/account/account-data-provider";
 import {
   membershipDetail,
@@ -157,9 +158,7 @@ function CardHead({ title, status }: { title: string; status?: string }) {
     <div className="flex items-baseline justify-between gap-3">
       <p className="font-medium text-foreground">{title}</p>
       {status && (
-        <span className="shrink-0 rounded-[var(--radius-full)] bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
-          {status}
-        </span>
+        <StatusPill>{status}</StatusPill>
       )}
     </div>
   );

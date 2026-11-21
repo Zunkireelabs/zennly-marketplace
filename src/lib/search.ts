@@ -1,6 +1,7 @@
 import "server-only";
 import { getProviders } from "./providers-data";
 import type { Provider } from "./providers";
+import { compareByRating } from "./rating";
 
 export type SearchQuery = {
   /** City or "City, ST". Empty means everywhere. */
@@ -74,6 +75,6 @@ export async function searchStudios(q: Pick<SearchQuery, "where" | "what">): Pro
         q.what
       )
     )
-    .sort((a, b) => b.rating - a.rating)
+    .sort(compareByRating)
     .map(toResult);
 }

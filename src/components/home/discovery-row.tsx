@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DemoPill } from "@/components/ui/demo-pill";
 import { providerHref } from "@/lib/providers";
 import { useState } from "react";
 import Image from "next/image";
@@ -16,11 +17,12 @@ const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 export function DiscoveryRow({ intents }: { intents: HomeRails["discoveryIntents"] }) {
   const reduceMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(0);
-  const active = intents[activeIndex];
+  const active = intents[activeIndex] ?? intents[0];
   const LEFT_TABS = intents.slice(0, 2);
   const RIGHT_TABS = intents.slice(2);
 
-  const renderTab = (intent: (typeof intents)[number]) => {
+  const renderTab = (intent: (typeof intents)[number] | undefined) => {
+    if (!intent) return null;
     const index = intents.indexOf(intent);
     const isActive = index === activeIndex;
     return (
@@ -50,6 +52,9 @@ export function DiscoveryRow({ intents }: { intents: HomeRails["discoveryIntents
       </button>
     );
   };
+
+  // No mood has a studio: the whole section is hidden (ZNLY-348).
+  if (!active) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-6 pt-16">
@@ -129,6 +134,7 @@ export function DiscoveryRow({ intents }: { intents: HomeRails["discoveryIntents
               <span className="text-left">
                 <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                   {provider.name}
+                  {provider.isDemo && <DemoPill className="ml-2 align-middle" />}
                 </span>
                 <span className="block text-sm text-muted-foreground">
                   {provider.location}

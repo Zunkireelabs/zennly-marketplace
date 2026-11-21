@@ -7,6 +7,8 @@ import { useSaved } from "@/lib/saved/use-saved";
 import { CloseIcon, HeartIcon } from "@/components/provider/icons";
 import type { SearchResult } from "@/lib/search";
 import { Price } from "@/components/ui/price";
+import { DemoPill } from "@/components/ui/demo-pill";
+import { hasRating } from "@/lib/rating";
 
 const ROUND =
   "flex size-8 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
@@ -31,12 +33,15 @@ export function PopupCard({
             <Image src={studio.image} alt="" fill sizes="256px" className="object-cover" />
           </span>
           <span className="block p-3">
-            <span className="block truncate text-sm font-medium text-foreground">{studio.name}</span>
+            <span className="block truncate text-sm font-medium text-foreground">
+              {studio.name}
+              {!studio.engineProviderId && <DemoPill className="ml-2 align-middle" />}
+            </span>
             <span className="block truncate text-xs text-muted-foreground">
               {studio.modality} · {studio.city}, {studio.region}
             </span>
             <span className="mt-1.5 block text-xs text-foreground">
-              {studio.isNew ? "New to Zennly" : `★ ${studio.rating.toFixed(1)} (${studio.reviewCount})`} · from{" "}
+              {studio.isNew ? "New to Zennly · " : hasRating(studio) ? `★ ${studio.rating.toFixed(1)} (${studio.reviewCount}) · ` : ""}from{" "}
               <Price amount={studio.fromPrice} engineProviderId={studio.engineProviderId} />
             </span>
           </span>

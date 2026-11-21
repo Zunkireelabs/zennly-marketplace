@@ -16,7 +16,7 @@ const EMPTY = { name: "", email: "", question: "" };
  * Showcase-only: the form sends nothing anywhere (docs/PRODUCT_CONTEXT.md §4).
  */
 export function TourModal() {
-  const { provider, tourOpen, closeTour, openBooking } = useProviderUi();
+  const { provider, availability, tourOpen, closeTour, openBooking } = useProviderUi();
   const reduceMotion = useReducedMotion();
   const closeRef = useRef<HTMLButtonElement>(null);
   const [form, setForm] = useState(EMPTY);
@@ -133,6 +133,7 @@ export function TourModal() {
                 </button>
               </div>
 
+              {availability.state === "live" && (
               <button
                 type="button"
                 onClick={bookInstead}
@@ -140,6 +141,7 @@ export function TourModal() {
               >
                 Book a trial class
               </button>
+              )}
 
               <div className="border-t border-border pt-5">
                 <h3 className="text-base font-semibold">Ask the studio</h3>

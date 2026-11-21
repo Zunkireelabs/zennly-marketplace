@@ -7,10 +7,19 @@ import { RailArrows } from "@/components/ui/rail-arrows";
 import Image from "next/image";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import type { RailProvider } from "@/lib/home-rails";
+import { DemoPill } from "@/components/ui/demo-pill";
+import { EmptyCard } from "@/components/ui/empty-card";
+import { hasRating } from "@/lib/rating";
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 
-type ViewMode = "modality" | "location";
+export type ViewMode = "modality" | "location";
+
+/** The studios a filter tab shows. "All" is everything, so the empty card's reset always lands on studios. */
+export function filterRail(all: RailProvider[], mode: ViewMode, filter: string): RailProvider[] {
+  if (filter === "All") return all;
+  return all.filter((p) => (mode === "modality" ? p.modality === filter : p.location.startsWith(filter)));
+}
 
 export function BestRated({
   providers: allProviders,
@@ -28,20 +37,15 @@ export function BestRated({
 
   const tabs = mode === "modality" ? modalities : locations;
 
-  const providers = useMemo(() => {
-    if (filter === "All") return allProviders;
-    return allProviders.filter((p) =>
-      mode === "modality"
-        ? p.modality === filter
-        : p.location.startsWith(filter),
-    );
-  }, [allProviders, mode, filter]);
+  const providers = useMemo(() => filterRail(allProviders, mode, filter), [allProviders, mode, filter]);
 
   const switchMode = (next: ViewMode) => {
     if (next === mode) return;
     setMode(next);
     setFilter("All");
   };
+
+  if (allProviders.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-6 pt-16">
@@ -133,9 +137,9 @@ export function BestRated({
           className="mt-5 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {providers.length === 0 ? (
-            <p className="py-8 text-sm text-muted-foreground">
-              No providers match this filter yet.
-            </p>
+            <EmptyCard title={`No studios for ${filter} yet`} action={{ label: "Show all studios", onClick: () => setFilter("All") }} className="w-full">
+              We&rsquo;re adding studios all the time. Try another {mode === "modality" ? "treatment" : "location"}, or see everything on Zennly.
+            </EmptyCard>
           ) : (
             providers.map((provider) => (
               <Link
@@ -163,13 +167,16 @@ export function BestRated({
                       style={{ background: provider.tone }}
                     />
                   )}
-                  <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-                    ★ {provider.rating.toFixed(1)}
-                  </span>
+                  {hasRating(provider) && (
+                    <span className="absolute left-3 top-3 flex items-center gap-1 rounded-[var(--radius-full)] bg-background/90 px-2.5 py-1 text-xs font-semibold text-foreground">
+                      ★ {provider.rating.toFixed(1)}
+                    </span>
+                  )}
                 </span>
                 <span className="text-left">
                   <span className="block text-sm font-semibold uppercase tracking-[0.04em] text-foreground group-hover:underline">
                     {provider.name}
+                    {provider.isDemo && <DemoPill className="ml-2 align-middle" />}
                   </span>
                   <span className="block text-sm text-muted-foreground">
                     {provider.location}

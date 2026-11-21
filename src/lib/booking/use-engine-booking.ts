@@ -2,12 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Provider } from "@/lib/providers";
-import { engineBookingEnabled } from "./engine-flag";
+import { branchBookability, getNepalToday, type Bookability, type BranchHours } from "./engine-availability";
+import { initialBranch, needsLocationStep as shouldAskForLocation } from "./engine-branches";
+import { isEngineActive } from "./engine-flag";
 import {
   fetchEngineOrg,
   fetchEngineBranches,
   fetchEngineBranchServices,
   fetchEngineAvailabilityWindow,
+  fetchEngineBranchHours,
+  fetchEngineRoomCount,
   fetchEngineClosedRanges,
   fetchEngineGenderHeadcount,
   type EngineBranch,
@@ -33,7 +37,7 @@ import {
  * change, not a correctness issue.
  */
 export function useEngineBooking(provider: Provider, open: boolean) {
-  const active = engineBookingEnabled() && Boolean(provider.engineProviderId);
+  const active = isEngineActive(provider.engineProviderId);
   const orgSlug = provider.engineProviderId;
 
   const [enableRooms, setEnableRooms] = useState(true);
@@ -46,10 +50,19 @@ export function useEngineBooking(provider: Provider, open: boolean) {
 
   const [rooms, setRooms] = useState<EngineRoom[]>([]);
   const [bookings, setBookings] = useState<EngineBooking[]>([]);
-  const [closedRanges, setClosedRanges] = useState<ClosedRange[]>([]);
+  // null = couldn't be loaded; the drawer then offers no slots rather than guessing.
+  const [closedRanges, setClosedRanges] = useState<ClosedRange[] | null>(null);
+  const [hours, setHours] = useState<BranchHours | null>(null);
   const [availabilityLoaded, setAvailabilityLoaded] = useState(false);
 
   const [genderCounts, setGenderCounts] = useState({ male: 0, female: 0 });
+  // "branchId:serviceId" the headcount above was loaded for, so a caller can wait for the RIGHT one.
+  const [genderCountsKey, setGenderCountsKey] = useState<string | null>(null);
+
+  // Which branches can take online bookings at all, so the location step can disable the ones that
+  // can't (all days off, no hours set, no rooms) instead of leading to empty days. Only read when
+  // there is a location step to show. A branch we couldn't read stays choosable.
+  const [branchStatus, setBranchStatus] = useState<Record<string, Bookability>>({});
 
   // Org settings (enableRooms) and branches, once per provider while the drawer is open.
   useEffect(() => {
@@ -70,13 +83,30 @@ export function useEngineBooking(provider: Provider, open: boolean) {
         // Auto-select only when unambiguous — same reasoning as book-spa's own
         // provider-profile-flow/index.jsx:104-120: silently picking the first of several
         // branches risks a customer booking the wrong location with no way to tell.
-        if (rows.length === 1) setSelectedBranch(rows[0]);
+        const only = initialBranch(rows);
+        if (only) setSelectedBranch(only);
       });
     });
     return () => {
       cancelled = true;
     };
   }, [active, open, orgSlug]);
+
+  useEffect(() => {
+    if (!active || !open || branches.length < 2) return;
+    let cancelled = false;
+    Promise.all(
+      branches.map(async (b) => {
+        const [branchHours, roomCount] = await Promise.all([fetchEngineBranchHours(b.id), fetchEngineRoomCount(b.id)]);
+        return [b.id, branchBookability({ hours: branchHours, roomCount, enableRooms })] as const;
+      })
+    ).then((entries) => {
+      if (!cancelled) setBranchStatus(Object.fromEntries(entries));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [active, open, branches, enableRooms]);
 
   // Branch-scoped services, whenever the branch changes.
   useEffect(() => {
@@ -98,17 +128,20 @@ export function useEngineBooking(provider: Provider, open: boolean) {
   useEffect(() => {
     if (!active || !selectedBranch) return;
     let cancelled = false;
-    const today = new Date();
-    const start = today.toISOString().slice(0, 10);
-    const end = new Date(today.getTime() + (advanceBookingDays - 1) * 86400000).toISOString().slice(0, 10);
+    // Kathmandu's date, not the UTC date: the studio's days run on Kathmandu time.
+    const start = getNepalToday();
+    const [y, m, d] = start.split("-").map(Number);
+    const end = new Date(Date.UTC(y, m - 1, d + advanceBookingDays)).toISOString().slice(0, 10);
     Promise.all([
       fetchEngineAvailabilityWindow(selectedBranch.id, start, end),
-      fetchEngineClosedRanges(selectedBranch.id),
-    ]).then(([window, ranges]) => {
+      fetchEngineClosedRanges(selectedBranch.id, start, end),
+      fetchEngineBranchHours(selectedBranch.id),
+    ]).then(([window, ranges, branchHours]) => {
       if (cancelled) return;
       setRooms(window.rooms);
       setBookings(window.bookings);
       setClosedRanges(ranges);
+      setHours(branchHours);
       setAvailabilityLoaded(true);
     });
     return () => {
@@ -124,11 +157,12 @@ export function useEngineBooking(provider: Provider, open: boolean) {
       if (!orgSlug || !selectedBranch) return;
       const counts = await fetchEngineGenderHeadcount(orgSlug, selectedBranch.id, serviceId);
       setGenderCounts(counts);
+      setGenderCountsKey(`${selectedBranch.id}:${serviceId}`);
     },
     [orgSlug, selectedBranch]
   );
 
-  const needsLocationStep = active && branchesLoaded && branches.length > 1 && !selectedBranch;
+  const needsLocationStep = active && shouldAskForLocation(branchesLoaded, branches.length, Boolean(selectedBranch));
 
   return useMemo(
     () => ({
@@ -144,10 +178,13 @@ export function useEngineBooking(provider: Provider, open: boolean) {
       rooms,
       bookings,
       closedRanges,
+      hours,
       availabilityLoaded,
       advanceBookingDays,
       genderCounts,
+      genderCountsKey,
       loadGenderCounts,
+      branchStatus,
     }),
     [
       active,
@@ -162,10 +199,13 @@ export function useEngineBooking(provider: Provider, open: boolean) {
       rooms,
       bookings,
       closedRanges,
+      hours,
       availabilityLoaded,
       advanceBookingDays,
       genderCounts,
+      genderCountsKey,
       loadGenderCounts,
+      branchStatus,
     ]
   );
 }
