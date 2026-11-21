@@ -34,10 +34,24 @@ export type StartBookingResult =
  * database value can't send people elsewhere. book-spa's customer booking flow lives at
  * app.zennly.io/:orgSlug (docs/booking-integration-plan.md, Stage 1).
  */
-const BOOKING_HOST_ALLOWLIST: readonly string[] = ["app.zennly.io", "dev-app.zennly.io"];
-// "dev-app.zennly.io" is the temporary target above (providers-data.ts#bookingEngineOrigin).
-// Drop it from this list at the same time that target reverts — an allow-list entry that
-// outlives its reason is how a staging host quietly stays reachable from production.
+const PROD_BOOKING_HOST = "app.zennly.io";
+const STAGING_BOOKING_HOST = "dev-app.zennly.io";
+
+/**
+ * Production allows only app.zennly.io. The staging host is allowed ONLY when the configured
+ * engine origin (NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN) is itself the staging host, so a production
+ * build, which sets it to app.zennly.io, can never hand anyone to staging.
+ */
+export function allowedBookingHosts(): readonly string[] {
+  const origin = process.env.NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN;
+  let configuredHost = "";
+  try {
+    if (origin) configuredHost = new URL(origin).hostname;
+  } catch {
+    /* unparsable origin: treat as not staging */
+  }
+  return configuredHost === STAGING_BOOKING_HOST ? [PROD_BOOKING_HOST, STAGING_BOOKING_HOST] : [PROD_BOOKING_HOST];
+}
 
 /**
  * Local book-spa dev servers, so the whole journey stays on localhost instead of jumping to
@@ -86,7 +100,7 @@ export function buildHandoffUrl(base: string, handoffId: string, forWhom: ForWho
   const loopback = isLoopback(url.hostname);
   if (!loopback && url.protocol !== "https:") return null;
   if (loopback && url.protocol !== "http:" && url.protocol !== "https:") return null;
-  if (!loopback && !BOOKING_HOST_ALLOWLIST.includes(url.hostname)) return null;
+  if (!loopback && !allowedBookingHosts().includes(url.hostname)) return null;
   url.searchParams.set("source", "zennly");
   url.searchParams.set("handoff_id", handoffId);
   // Only the flag travels in the URL. The attendee's name stays in the app: URLs end up in
