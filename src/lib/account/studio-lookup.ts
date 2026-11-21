@@ -131,19 +131,26 @@ export function membershipStatusLabel(status: string | undefined): string | unde
 
 /**
  * The money row for a booking. The studio's price (final_amount) is NOT proof of payment, so it is
- * labelled "Price" unless the lookup itself says the booking was paid. Today migration-410's
- * booking rows carry no payment field at all, so this always answers "Price"; the paid and partly
- * paid branches only wake up if book-spa starts sending `payment_status` (and `paid_amount` for
- * a part payment). Never inferred from the price or the booking status.
+ * labelled "Price" unless the lookup itself says the booking was paid. bookX sends `payment_status`
+ * and `paid_amount` (paid minus refunds); "Paid" shows only when bookX says so, with the amount
+ * bookX gives. Never inferred from the price or the booking status.
  */
 export function bookingPriceRow(b: LookupRow): DetailRow | undefined {
   const price = asMoney(field(b, ["final_amount"]));
   if (!price) return undefined;
   const pay = asText(field(b, ["payment_status"]))?.trim().toLowerCase().replace(/[\s_-]+/g, "");
-  if (pay === "paid") return { label: "Paid", value: price };
+  // paid_amount is what the customer paid minus refunds, so it is what we show as "Paid". A
+  // paid booking that has been fully refunded (0) is just a price again.
   const paidSoFar = field(b, ["paid_amount"]);
-  if ((pay === "partial" || pay === "partiallypaid") && typeof paidSoFar === "number") {
-    return { label: "Paid", value: `${asMoney(paidSoFar)} of ${price}` };
+  const paidNet = typeof paidSoFar === "number" ? paidSoFar : undefined;
+  if (pay === "refunded") return { label: "Refunded", value: price };
+  if (pay === "paid") {
+    if (paidNet === undefined) return { label: "Paid", value: price };
+    // Paid, but refunded in full since (nothing left after refunds).
+    return paidNet > 0 ? { label: "Paid", value: asMoney(paidNet) as string } : { label: "Refunded", value: price };
+  }
+  if ((pay === "partial" || pay === "partiallypaid") && paidNet !== undefined && paidNet > 0) {
+    return { label: "Paid", value: `${asMoney(paidNet)} of ${price}` };
   }
   return { label: "Price", value: price };
 }
@@ -256,6 +263,11 @@ export function voucherView(v: LookupRow): { code: string; remaining?: string; r
   };
 }
 
+/** The studio's own word for the person who does the service (bookX's staff_label), never ours. */
+function staffWord(b: LookupRow): string {
+  return asText(field(b, ["staff_label"])) ?? "Staff";
+}
+
 /**
  * The full booking row, as opposed to `bookingLine`'s title/detail summary. Of the 15 fields
  * book-spa sends per booking, 3 were rendered.
@@ -277,7 +289,7 @@ export function bookingDetail(b: LookupRow): {
     rows: [...rows(
       ["Category", asText(field(b, ["service_category_snapshot"]))],
       ["Duration", formatLookupDuration(field(b, ["service_duration_snapshot"]))],
-      ["Therapist", asText(field(b, ["therapist_name_snapshot"]))],
+      [staffWord(b), asText(field(b, ["therapist_name_snapshot"]))],
       ["Room", asText(field(b, ["room_name_snapshot"]))]
     ), ...(bookingPriceRow(b) ? [bookingPriceRow(b) as DetailRow] : []), ...rows(
       // Only ever shown when non-zero: "Discount: Rs 0" on every full-price booking is noise, and

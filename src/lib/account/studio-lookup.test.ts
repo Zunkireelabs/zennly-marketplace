@@ -280,7 +280,7 @@ describe("bookingDetail", () => {
     const d = bookingDetail(REAL_BOOKING_ROW);
     expect(d.service).toBe("Deep Tissue Massage");
     expect(d.when).toBe("Tue 10 Nov 2026 · 2:30 – 3:30 PM");
-    expect(valueOf(d, "Therapist")).toBe("Sita Gurung");
+    expect(valueOf(d, "Staff")).toBe("Sita Gurung"); // no staff_label sent → neutral word, never "Therapist"
     expect(valueOf(d, "Room")).toBe("Room 2");
     expect(valueOf(d, "Price")).toBe("NPR 3,150");
     expect(labels(d)).not.toContain("Paid");
@@ -317,8 +317,28 @@ describe("what a booking's money row says (never 'Paid' unless the studio says s
     expect(bookingPriceRow({ ...base, payment_status: "partial", paid_amount: 500 })).toEqual({ label: "Paid", value: "NPR 500 of NPR 1,500" });
     expect(bookingPriceRow({ ...base, payment_status: "partial" })?.label).toBe("Price");
   });
+  it("paid shows bookX's paid_amount (net of refunds); paid but 0 left → Refunded", () => {
+    expect(bookingPriceRow({ ...base, payment_status: "paid", paid_amount: 1200 })).toEqual({ label: "Paid", value: "NPR 1,200" });
+    expect(bookingPriceRow({ ...base, payment_status: "paid", paid_amount: 0 })).toEqual({ label: "Refunded", value: "NPR 1,500" });
+  });
+  it("payment_status refunded → Refunded", () => {
+    expect(bookingPriceRow({ ...base, payment_status: "refunded" })).toEqual({ label: "Refunded", value: "NPR 1,500" });
+    expect(bookingPriceRow({ ...base, payment_status: "refunded", paid_amount: 0 })?.label).toBe("Refunded");
+  });
+  it("paid_amount alone, without payment_status paid, never says Paid", () => {
+    expect(bookingPriceRow({ ...base, paid_amount: 1500 })?.label).toBe("Price");
+    expect(bookingPriceRow({ ...base, payment_status: "partial", paid_amount: 0 })?.label).toBe("Price");
+  });
   it("no price → no row", () => {
     expect(bookingPriceRow({ payment_status: "paid" })).toBeUndefined();
+  });
+});
+
+describe("the studio's own word for staff", () => {
+  it("uses staff_label as the row label", () => {
+    const d = bookingDetail({ ...REAL_BOOKING_ROW, staff_label: "Stylist" });
+    expect(valueOf(d, "Stylist")).toBe("Sita Gurung");
+    expect(valueOf(d, "Therapist")).toBeUndefined();
   });
 });
 

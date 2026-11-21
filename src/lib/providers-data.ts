@@ -3,6 +3,7 @@ import type { Provider as ProviderRow } from "@/generated/prisma/client";
 import type { Provider } from "./providers";
 import { prisma } from "./prisma";
 import { seedProviders } from "./providers-seed";
+import { showDemoStudios, visibleProviders } from "./booking/demo-studios";
 
 /**
  * Where book-spa's customer booking flow lives. Production is app.zennly.io (absolute,
@@ -88,16 +89,21 @@ function toProvider(r: ProviderRow): Provider {
 export async function getProviders(): Promise<Provider[]> {
   if (!prisma) {
     console.warn("[providers] DATABASE_URL not set, using placeholder data.");
-    return seedProviders;
+    return visibleProviders(seedProviders);
   }
   const rows = await prisma.provider.findMany({ orderBy: { name: "asc" } });
-  return rows.map(toProvider);
+  // Demo listings (no bookX link) are hidden unless NEXT_PUBLIC_SHOW_DEMO_STUDIOS=on. Every
+  // listing, search, rail, collection and sitemap reads through here, so this is the one place.
+  return visibleProviders(rows.map(toProvider));
 }
 
 export async function getProvider(slug: string): Promise<Provider | undefined> {
-  if (!prisma) return seedProviders.find((p) => p.slug === slug);
+  // A hidden demo studio answers "not found" on its direct URL too (the page shows a 404).
+  if (!prisma) return visibleProviders(seedProviders).find((p) => p.slug === slug);
   const row = await prisma.provider.findUnique({ where: { slug } });
-  return row ? toProvider(row) : undefined;
+  if (!row) return undefined;
+  if (!row.engineProviderId && !showDemoStudios()) return undefined;
+  return toProvider(row);
 }
 
 /** Other providers ranked by shared modality first, then same city, then rating. */

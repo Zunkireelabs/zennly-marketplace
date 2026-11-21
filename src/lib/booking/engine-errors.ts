@@ -9,11 +9,15 @@
  */
 
 const SLOT_TAKEN = "Sorry, that time was just taken. Please pick another time.";
+const NOT_LIVE = "Online booking isn't available yet. Please contact the studio.";
 const NO_STAFF = "No one is available at that time. Please pick another time.";
 
 const MESSAGES: Record<string, string> = {
   // The studio isn't open for online booking, or the request doesn't fit its rules.
-  ORG_NOT_ENABLED: "This business isn't accepting online bookings right now. Please contact the studio.",
+  ORG_NOT_ENABLED: NOT_LIVE,
+  // Ours, from the live check (ZNLY-346): the studio isn't switched on, or we couldn't check.
+  BOOKING_NOT_LIVE: NOT_LIVE,
+  BOOKING_UNAVAILABLE: "Online booking isn't available right now. Please try again in a little while, or contact the studio.",
   LOCATION_INACTIVE: "That location isn't taking bookings right now. Please choose another location or contact the studio.",
   INVALID_BRANCH: "That location isn't available anymore. Please choose another.",
   INVALID_SERVICE: "That service isn't available to book online anymore. Please choose another.",

@@ -15,6 +15,9 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
+const studioStatus = vi.fn();
+vi.mock("@/lib/booking/studio-status", () => ({ getStudioStatus: (...a: unknown[]) => studioStatus(...a) }));
+
 import { POST } from "./route";
 
 const REQUEST_ID = "7d9f1f0e-2b57-4a39-9c1a-0d0f6f0f8f11";
@@ -43,6 +46,7 @@ const fetchMock = vi.fn();
 beforeEach(() => {
   sameOrigin = true;
   getSessionUser.mockReset().mockResolvedValue({ id: "user-1", email: "session@example.com" });
+  studioStatus.mockReset().mockResolvedValue({ status: "live", phone: null });
   providerFind.mockReset().mockResolvedValue({ engineProviderId: "nuad-thai-spa" });
   profileFind.mockReset().mockResolvedValue({ gender: "female" });
   fetchMock.mockReset().mockResolvedValue(
@@ -162,6 +166,23 @@ describe("what is sent to bookX", () => {
     const json = await (await POST(req(goodBody))).json();
     expect(json).toMatchObject({ ok: false, errorCode: "ORG_NOT_ENABLED" });
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["not_live", "BOOKING_NOT_LIVE"],
+    ["not_found", "BOOKING_NOT_LIVE"],
+    ["error", "BOOKING_UNAVAILABLE"],
+  ])("a studio that is %s is refused with %s and nothing is sent to bookX", async (status, code) => {
+    studioStatus.mockResolvedValue({ status, phone: null });
+    const json = await (await POST(req(goodBody))).json();
+    expect(json).toMatchObject({ ok: false, errorCode: code });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("a live studio is asked about by its org slug and the booking goes through", async () => {
+    const json = await (await POST(req(goodBody))).json();
+    expect(studioStatus).toHaveBeenCalledWith("nuad-thai-spa");
+    expect(json.ok).toBe(true);
   });
 
   it("missing server config → 503 SERVER_MISCONFIGURED and nothing is sent", async () => {

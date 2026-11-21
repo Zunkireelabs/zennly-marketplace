@@ -7,6 +7,7 @@ import { BookFlow } from "@/components/booking/flow";
 import { isEngineActive } from "@/lib/booking/engine-flag";
 import { applyLiveServices } from "@/lib/booking/load-provider";
 import { getProvider } from "@/lib/providers-data";
+import { getProviderBookingStatus, isBookable } from "@/lib/booking/studio-status";
 
 export async function generateMetadata({ params }: LayoutProps<"/providers/[slug]/book">): Promise<Metadata> {
   const { slug } = await params;
@@ -23,6 +24,9 @@ export default async function BookLayout({ children, params }: LayoutProps<"/pro
   const provider = await getProvider(slug);
   if (!provider) notFound();
   if (!isEngineActive(provider.engineProviderId)) redirect(`/providers/${slug}`);
+  // Only a studio bookX says is live has booking pages. Not live, a demo, or a failed check all
+  // go back to the studio page, which says why (ZNLY-346).
+  if (!isBookable(await getProviderBookingStatus(provider.engineProviderId))) redirect(`/providers/${slug}`);
 
   await applyLiveServices(provider);
 

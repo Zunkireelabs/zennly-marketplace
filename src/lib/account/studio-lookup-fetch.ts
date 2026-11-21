@@ -1,4 +1,4 @@
-import type { LookupResult } from "./studio-lookup";
+import type { LookupResult, LookupRow } from "./studio-lookup";
 
 // reachable: false is the default here on purpose — this constant is returned by every path that
 // DIDN'T get a real answer from book-spa (config missing, non-2xx, unparseable body, network
@@ -49,7 +49,16 @@ export async function lookupOne(orgSlug: string, email: string, functionsUrl: st
     return {
       found: Boolean(data.found),
       reachable: true,
-      bookings: Array.isArray(data.bookings) ? data.bookings : [],
+      // staff_label is the studio's word for its staff ("Therapist", "Stylist"...). It is sent once
+      // for the whole reply; stamping it on each booking carries it through the merge and into
+      // the page without a new field on every type.
+      bookings: Array.isArray(data.bookings)
+        ? (data.bookings as LookupRow[]).map((b) =>
+            b && typeof b === "object" && typeof data.staff_label === "string" && data.staff_label.trim()
+              ? { ...b, staff_label: data.staff_label.trim() }
+              : b
+          )
+        : [],
       membership: data.membership && typeof data.membership === "object" ? (data.membership as Record<string, unknown>) : null,
       packages: Array.isArray(data.packages) ? data.packages : [],
       // Added in migration-336 alongside bookings/membership/packages — previously parsed off this

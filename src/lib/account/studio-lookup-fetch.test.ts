@@ -17,6 +17,16 @@ describe("lookupOne", () => {
     expect(r.bookings).toHaveLength(1);
   });
 
+  it("staff_label is stamped on each booking so the page can use the studio's own word", async () => {
+    vi.stubGlobal("fetch", reply(200, { found: true, staff_label: "Stylist", staff_label_plural: "Stylists", bookings: [{ booking_number: "B1" }] }));
+    expect((await call()).bookings[0]).toMatchObject({ booking_number: "B1", staff_label: "Stylist" });
+  });
+
+  it("no staff_label → bookings are left as sent", async () => {
+    vi.stubGlobal("fetch", reply(200, { found: true, bookings: [{ booking_number: "B1" }] }));
+    expect((await call()).bookings[0]).toEqual({ booking_number: "B1" });
+  });
+
   it("404 ORG_NOT_ENABLED → reachable, nothing to show (no 'couldn't reach')", async () => {
     vi.stubGlobal("fetch", reply(404, { error_code: "ORG_NOT_ENABLED" }));
     const r = await call();
