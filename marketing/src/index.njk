@@ -2288,6 +2288,46 @@ extraHead: |
     <input type="email" name="email" placeholder="Work email" aria-label="Work email" required>
     <button type="submit">Book a free demo <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></button>
   </form>
+  <script>
+    // Previously: a bare <form> with no action, no method, no submit handler anywhere —
+    // submitting reloaded the page and discarded whatever was typed. This hands off to the
+    // trial modal that already does the real work, rather than building a second demo path.
+    (function () {
+      var heroForm = document.getElementById('v2-hero-form');
+      var opener = document.querySelector('[data-trial-open]');
+      if (!heroForm || !opener) return;
+
+      // Same free-domain list as _trial-modal.njk's own nudge — see that file's comment:
+      // Eleventy global data (src/_data/work-email.js) is the shared source, this tiny check
+      // is duplicated since there's no bundler here to share the actual function.
+      var FREE_EMAIL_DOMAINS = {{ workEmail.freeDomains | dump | safe }};
+      function isFreeEmailDomain(email) {
+        var at = email.lastIndexOf('@');
+        if (at === -1) return false;
+        return FREE_EMAIL_DOMAINS.indexOf(email.slice(at + 1).toLowerCase()) !== -1;
+      }
+
+      heroForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var input = heroForm.querySelector('input[name="email"]');
+        var email = input.value.trim();
+        if (!input.checkValidity()) { input.reportValidity(); return; }
+
+        opener.click(); // opens the trial modal exactly as any other [data-trial-open] does
+
+        var modalEmail = document.getElementById('tf-email');
+        var modalName = document.getElementById('tf-name');
+        if (modalEmail) {
+          modalEmail.value = email;
+          var nudge = document.getElementById('tf-email-nudge');
+          if (nudge) nudge.hidden = !isFreeEmailDomain(email);
+        }
+        // The modal's own open() focuses the first input on a short delay (see
+        // _trial-modal.njk) — focus the name field just after, so it wins.
+        if (modalName) setTimeout(function () { modalName.focus(); }, 60);
+      });
+    })();
+  </script>
   <div class="v2-hero-stage v2-reveal">
     <div class="v2-hero-video">
       <video id="v2HeroVideo" autoplay muted loop playsinline preload="metadata" poster="/assets/images/hero-video-poster.jpg" aria-label="A front-desk team member at work in a service business">
