@@ -1,0 +1,111 @@
+<!-- Shared nav, used site-wide (the homepage includes it too, inside #v2-root).
+     Menu content lives in src/_data/navMenu.js — one source for the desktop
+     dropdowns and the mobile accordion. See the "SHARED NAV (v2)" comment in
+     src/assets/css/main.css for the bar itself. -->
+{%- set nm = navMenu.menu -%}
+{%- macro icon(name, size=22) -%}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="{{ navMenu.icons[name] }}"/></svg>
+{%- endmacro -%}
+{%- macro chevron(cls) -%}
+<svg class="{{ cls }}" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+{%- endmacro -%}
+{%- macro mmLink(item) -%}
+<a href="{{ item.href }}" class="v2-mm__link">{{ icon(item.icon) }}<span>{{ item.label }}</span>{% if item.tag %}<span class="v2-mm__tag">{{ item.tag }}</span>{% endif %}</a>
+{%- endmacro -%}
+{%- macro mmGroups(groups) -%}
+{% for g in groups %}<div class="v2-mm__group"><div class="v2-mm__label">{{ g.label }}</div><div class="v2-mm__links">{% for item in g.items %}{{ mmLink(item) }}{% endfor %}</div></div>{% endfor %}
+{%- endmacro -%}
+{%- macro mmFoot(links, cls) -%}
+{% for l in links %}<a href="{{ l.href }}" class="{{ cls }}">{{ l.label }} {{ icon('arrow-right', 14) }}</a>{% endfor %}
+{%- endmacro -%}
+<header class="v2-nav" id="v2Nav" aria-label="Primary navigation">
+  <div class="v2-nav-inner">
+    <div class="v2-nav-content">
+      <div class="v2-nav-col v2-nav-col--start">
+        <a href="/" class="v2-nav__logo"><img src="/assets/images/logo.png" alt="Zennly" class="v2-nav__logo-img"></a>
+      </div>
+      <nav class="v2-nav-col v2-nav-col--center v2-nav__links" aria-label="Main menu">
+        {% for key in ['capabilities', 'types', 'resources'] %}
+        <div class="v2-nav__item--has-mega" data-mega="{{ key }}">
+          <a href="{{ nm[key].href }}" class="v2-nav__mega-trigger" aria-expanded="false" aria-controls="v2Mega-{{ key }}">
+            {{ nm[key].label }}
+            {{ chevron('v2-nav__chevron') }}
+          </a>
+        </div>
+        {% endfor %}
+      </nav>
+      <div class="v2-nav-col v2-nav-col--end">
+        <button type="button" id="v2-nav-toggle" class="v2-nav__toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="v2-nav-mobile">
+          <span></span><span></span><span></span>
+        </button>
+        <a href="https://app.zennly.io/login" class="v2-btn v2-btn--ghost">Login</a>
+        <a href="#try-free" class="v2-btn" data-trial-open>Try a free demo</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Mega menu panels — deliberately NOT nested inside .v2-nav-inner: that
+     element gets a backdrop-filter once scrolled (.is-scrolled), and a
+     backdrop-filter on an ancestor creates a new containing block for
+     position:fixed descendants, which combined with .v2-nav-inner's own
+     overflow:hidden was clipping these panels down to the 76px-tall nav bar
+     and making them invisible. Siblings of the nav instead, positioned via
+     JS-toggled .is-open. -->
+<div class="v2-nav-mega v2-mm v2-mm--capabilities" id="v2Mega-capabilities" role="region" aria-label="Capabilities menu">
+  <div class="v2-mm__body">
+    <div class="v2-mm__groups v2-mm__groups--4">{{ mmGroups(nm.capabilities.groups) }}</div>
+    <a href="/case-study/" class="v2-mm__story" style="background-image:url('/assets/images/nuad/massage-room.jpg');">
+      <span class="v2-mm__story-eyebrow">Case study</span>
+      <span class="v2-mm__story-title">How Nuad Thai Spa runs four branches on Zennly</span>
+      <span class="v2-mm__story-cta">Read the story {{ icon('arrow-right', 14) }}</span>
+    </a>
+  </div>
+  <div class="v2-mm__foot">{{ mmFoot(nm.capabilities.footer, 'v2-mm__foot-link') }}</div>
+</div>
+
+<div class="v2-nav-mega v2-mm v2-mm--types" id="v2Mega-types" role="region" aria-label="Types menu">
+  <div class="v2-mm__body">
+    <div class="v2-mm__links v2-mm__links--2col">{% for item in nm.types.items %}{{ mmLink(item) }}{% endfor %}</div>
+    <div class="v2-mm__aside">
+      <h4 class="v2-mm__aside-title">Don&rsquo;t see your business?</h4>
+      <p class="v2-mm__aside-text">If you take appointments, Zennly fits &ndash; set up your way.</p>
+      <a href="/contact/" class="v2-mm__aside-link">Talk to us {{ icon('arrow-right', 14) }}</a>
+    </div>
+  </div>
+  <div class="v2-mm__foot">{{ mmFoot(nm.types.footer, 'v2-mm__foot-link') }}</div>
+</div>
+
+<div class="v2-nav-mega v2-nav-mega--sm v2-mm v2-mm--resources" id="v2Mega-resources" role="region" aria-label="Resources menu">
+  <div class="v2-mm__body">
+    <div class="v2-mm__groups v2-mm__groups--2">{{ mmGroups(nm.resources.groups) }}</div>
+  </div>
+</div>
+
+<!-- Blur backdrop for the active mega menu -->
+<div class="v2-nav-backdrop" aria-hidden="true"></div>
+
+<!-- Mobile menu — Capabilities / Types / Resources accordion groups (tap
+     equivalent of the desktop mega menu), same content and icons. -->
+<nav id="v2-nav-mobile" class="v2-nav-mobile" aria-hidden="true" data-lenis-prevent>
+  {% for key in ['capabilities', 'types', 'resources'] %}
+  <div class="v2-nav-mobile__group">
+    <button type="button" class="v2-nav-mobile__trigger" aria-expanded="false" aria-controls="v2-nav-mobile-{{ key }}">
+      {{ nm[key].label }}
+      {{ chevron('v2-nav-mobile__chevron') }}
+    </button>
+    <div class="v2-nav-mobile__submenu v2-mm" id="v2-nav-mobile-{{ key }}">
+      {% if nm[key].groups %}{{ mmGroups(nm[key].groups) }}{% else %}<div class="v2-mm__links">{% for item in nm[key].items %}{{ mmLink(item) }}{% endfor %}</div>{% endif %}
+      {% if nm[key].footer %}{{ mmFoot(nm[key].footer, 'v2-mm__more') }}{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  <a href="https://app.zennly.io/login" class="v2-btn v2-btn--ghost">Login</a>
+  <a href="#try-free" class="v2-btn" data-trial-open>Try a free demo</a>
+</nav>
+
+<!-- Solid scrim behind the mobile menu — the panel itself has no backdrop, so
+     underlying page content was showing through half-faded, reading as a
+     stray blur; this also gives the menu a tap-outside-to-close target.
+     Mobile-only: hidden at 861px+ alongside .v2-nav-mobile. -->
+<div id="v2-nav-mobile-scrim" class="v2-nav-mobile-scrim" aria-hidden="true"></div>

@@ -1,0 +1,4866 @@
+[
+  {
+    "slug": "booking",
+    "name": "Booking",
+    "badge": "Booking management",
+    "hero": {
+      "eyebrow": "Booking management",
+      "headline": "Every appointment, tracked from <span class=\"fd-hero__h1-accent\">first request to final payment</span>.",
+      "subheadline": "A complete booking system for multi-branch businesses, so your schedule doesn't rely on the front desk.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-booking.png",
+      "imageAlt": "Booking management dashboard",
+      "bg": "#E0F0BC"
+    },
+    "intro": {
+      "headline": "One booking. One lifecycle. Everyone on the same page.",
+      "body": "Every step tracked, every status visible, every branch in sync."
+    },
+    "primaryFeatures": [
+      {
+        "title": "24/7 Self-Booking",
+        "description": "Customers book from any device, any time — no staff intervention needed."
+      },
+      {
+        "title": "Zero Double-Bookings",
+        "description": "Real-time slot locking prevents conflicts the moment a booking is made."
+      },
+      {
+        "title": "Instant Confirmation",
+        "description": "Automated confirmations sent the moment a booking is created."
+      },
+      {
+        "title": "Service Catalog",
+        "description": "Define services, durations, staff, and pricing — the booking form builds itself."
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "The whole day at a glance.",
+        "summary": "Create bookings in seconds, see the full day at a glance, and keep every status up to date.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff checking a customer in at a salon reception desk",
+        "features": [
+          {
+            "title": "Create a booking in seconds",
+            "description": "Select the branch, service, and therapist. The booking is immediately visible in the system. No confirmation required to get started."
+          },
+          {
+            "title": "See the full day at a glance",
+            "description": "A clear schedule view shows every appointment – what's pending, what's confirmed, what's running. No guessing. No double-booking."
+          },
+          {
+            "title": "Update status as it progresses",
+            "description": "One tap to move from Pending to Confirmed to In-Progress to Completed. The whole team sees it instantly."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Conflicts caught early.",
+        "summary": "Confirm bookings, catch conflicts before they escalate, and keep a full audit trail on every appointment.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Confirm and manage your schedule",
+            "description": ""
+          },
+          {
+            "title": "Know what's running behind",
+            "description": "In-Progress bookings with extended time show up immediately. You can act before the next customer is already waiting."
+          },
+          {
+            "title": "Full audit trail on every appointment",
+            "description": "Who created the booking, when it was confirmed, when it started, when it completed. All logged, none guessable."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Your whole business, live.",
+        "summary": "See every branch in one view, track your operational pulse in real time, and keep clean structured records.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing business reports at a bright office desk",
+        "features": [
+          {
+            "title": "All branches. One view.",
+            "description": "See every booking across every location without switching tools, calling managers, or waiting for end-of-day reports."
+          },
+          {
+            "title": "Real-time operational pulse",
+            "description": "Bookings created, confirmed, completed, and cancelled – across all branches, updated live. You know what's happening at any moment."
+          },
+          {
+            "title": "Data that travels with the booking",
+            "description": "Service booked. Therapist assigned. Branch. Amount. Payment status. Every booking is a structured record — not a scrap of paper."
+          }
+        ]
+      }
+    ],
+    "secondaryFeatures": [
+      {
+        "icon": "refresh",
+        "title": "Reschedule & Cancel",
+        "description": "Customers self-serve changes without calling in."
+      },
+      {
+        "icon": "map-pin",
+        "title": "Multi-Location Ready",
+        "description": "One booking flow works across every branch."
+      },
+      {
+        "icon": "users",
+        "title": "Walk-in Support",
+        "description": "Fit walk-ins into available gaps without disrupting the schedule."
+      },
+      {
+        "icon": "bell",
+        "title": "Reminder Automation",
+        "description": "SMS and email reminders sent automatically before each appointment."
+      }
+    ],
+    "stat": {
+      "value": "40%",
+      "label": "Fewer no-shows",
+      "description": "Automated reminders cut missed appointments nearly in half."
+    },
+    "testimonial": {
+      "quote": "Our receptionist used to spend 2 hours a day on calls. Now customers just book themselves — and she focuses on the floor.",
+      "author": "Paula M.",
+      "business": "Spa Owner"
+    },
+    "proof": {
+      "eyebrow": "Proof through numbers",
+      "headline": "This isn't a demo feature. It's running in real <span class=\"fd-proof__highlight\">businesses right now.</span>",
+      "stats": [
+        {
+          "tag": "Volume",
+          "value": "351",
+          "label": "Bookings created in a single week across active branches"
+        },
+        {
+          "tag": "Tracking",
+          "value": "~2.5×",
+          "label": "Status updates per booking – the full lifecycle is actively tracked, not just logged and forgotten"
+        },
+        {
+          "tag": "Completion",
+          "value": "80%",
+          "label": "Completion rate on confirmed bookings – businesses close out what they start"
+        }
+      ],
+      "sub": "Real numbers from live branches running today."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What operators say after their first week.",
+      "quotes": [
+        {
+          "quote": "The first thing I noticed was that my morning call with branch managers got shorter. Then it disappeared completely. I just check the platform now.",
+          "author": "Owner",
+          "business": "Multi-branch spa, Austin"
+        },
+        {
+          "quote": "Our front desk used to confirm bookings by memory. Now every appointment has a status, a therapist, and a record. The customers feel the difference.",
+          "author": "Branch manager",
+          "business": "Premium salon"
+        },
+        {
+          "quote": "We had a cancellation issue we didn't even know about until we started seeing the data. Three branches, and one was cancelling twice as much as the others.",
+          "author": "Admin",
+          "business": "Aesthetic clinic group"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    },
+    "stopStart": {
+      "stop": [
+        "Relying on the front desk to remember who's booked, who's confirmed, and who's a no-show",
+        "Double-booking a therapist because two people wrote the same slot down differently",
+        "Calling around branches to find out what today's schedule actually looks like",
+        "Losing track of a booking's history once it leaves the receptionist's notebook"
+      ],
+      "start": [
+        "Letting customers book themselves, any time, without a call",
+        "Locking every slot the instant it's booked, so conflicts can't happen",
+        "Seeing every branch's schedule live, from one screen",
+        "Keeping a full record on every appointment – created, confirmed, completed"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "items": [
+        {
+          "question": "Our staff won't switch to a new system.",
+          "answer": "Your staff isn't switching to a new way of working – they're doing the same things they've always done: creating appointments, confirming them, marking them done. The difference is it's now tracked instead of remembered. Most front-desk staff are comfortable within a day."
+        },
+        {
+          "question": "We have too many bookings to migrate.",
+          "answer": "Starting fresh doesn't mean losing history. Existing appointments stay where they are. You start using the platform for new bookings, and the value is immediate – without a migration project."
+        },
+        {
+          "question": "We already tried booking software before. It didn't stick.",
+          "answer": "Most booking tools are built for customers – not for the operational reality of a multi-branch team with managers, therapists, and admins. This one is built for how your business actually runs: with roles, branches, status flows, and a chain of accountability."
+        },
+        {
+          "question": "We're not sure we need all of this.",
+          "answer": "You don't need to use everything on day one. Most businesses start with booking creation and status management – and that alone changes how the morning works. Everything else is there when you're ready."
+        },
+        {
+          "question": "How do you prevent double-bookings across multiple branches?",
+          "answer": "Zennly locks each time slot the moment a booking is created, checked against the specific branch, room, and staff member — so two people can't book the same slot, even across different devices or front-desk terminals."
+        },
+        {
+          "question": "What is the best online booking software for multi-branch spas and salons in Nepal?",
+          "answer": "The best choice checks the staff member, room and time together, so two customers cannot take the same slot, and shows every branch in one calendar. Zennly is built for multi-branch spas, salons and gyms in Nepal."
+        }
+      ],
+      "sub": "Answers to what owners ask before they switch."
+    },
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Pending",
+        "description": "Staff create a booking. It starts as Pending. No notebook entry, no WhatsApp message, no post-it note on the mirror – it's visible in the system the moment it's made."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "Confirmed",
+        "description": "A manager confirms it – it becomes Confirmed. No one had to call anyone. No one had to ask – the therapist already knows what's coming."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "In-Progress",
+        "description": "The customer arrives – it moves to In-Progress. Time is tracked, and everyone at every level of the business can see, in real time, that this appointment is live."
+      },
+      {
+        "step": "04",
+        "icon": "credit-card",
+        "title": "Completed",
+        "description": "Service is delivered and payment recorded – it's Completed. No reconciliation, no chasing anyone down to ask if they collected payment for that one."
+      }
+    ],
+    "bottomCta": {
+      "headline": "See your booking day on Zennly.",
+      "subheadline": "The full booking workflow – creation to payment – across your actual branch setup. In 20 minutes.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No setup required before the demo. No commitment after. Just a look at the system working the way your business works."
+    },
+    "workflow": [
+      {
+        "num": "01",
+        "time": "8:30am",
+        "title": "Sarah calls to book",
+        "body": "The front desk books her in while she's still on the phone: Deep Tissue, 60 minutes, with Emily at Downtown, 11:00 AM. It takes seconds.",
+        "status": "Pending"
+      },
+      {
+        "num": "02",
+        "time": "9:00am",
+        "title": "The manager confirms the slot",
+        "body": "The branch manager sees the new booking and confirms it in one tap. Emily's schedule updates. Nobody had to call anybody.",
+        "status": "Confirmed"
+      },
+      {
+        "num": "03",
+        "time": "11:00am",
+        "title": "Sarah arrives",
+        "body": "The front desk checks her in and the booking turns In-Progress. Everyone with access sees the room is busy, live, without asking.",
+        "status": "In-Progress"
+      },
+      {
+        "num": "04",
+        "time": "12:05pm",
+        "title": "Service done. Payment recorded.",
+        "body": "Emily finishes, the front desk takes $120 and the booking closes with a full record: what was booked, who did it, what was paid.",
+        "status": "Completed"
+      },
+      {
+        "num": "05",
+        "time": "End of day",
+        "title": "The owner checks in",
+        "body": "No calls to managers. One screen shows the whole day: 42 bookings, 38 completed, and how each branch did.",
+        "status": "Closed"
+      }
+    ],
+    "relatedFeatures": [
+      "operational-visibility",
+      "payment-tracking",
+      "discount-management"
+    ],
+    "metaDescription": "Let customers book online 24/7 while you stop double-bookings. Every appointment tracked to final payment, across all your branches in Nepal.",
+    "seoTitle": "Online Booking Software Nepal, No Double-Bookings | Zennly"
+  },
+  {
+    "slug": "operational-visibility",
+    "name": "Operations",
+    "badge": "Operations",
+    "hero": {
+      "eyebrow": "Real-time operational visibility",
+      "headline": "Stop calling for updates.<br> <span class=\"fd-hero__h1-accent\">See how the day is going.</span>",
+      "subheadline": "Every booking, every branch, every moment — visible in one place, without a call or a stale report.",
+      "cta": "See the live dashboard in a 20-minute demo →",
+      "image": "/assets/images/feat-operations.png",
+      "imageAlt": "Operations dashboard screenshot",
+      "bg": "#E4EBE3"
+    },
+    "intro": {
+      "headline": "Run the floor without the chaos",
+      "body": "Every role gets the right view. No more status chasing, missed queues, or payment confusion — Zennly's operations layer keeps everyone on the same page in real time."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Role-Based Dashboards",
+        "description": "Staff, managers, and admins each see a tailored view — no information overload, no blind spots."
+      },
+      {
+        "title": "Live Booking Status",
+        "description": "See who's in, who's next, and what's pending — updated the moment anything changes."
+      },
+      {
+        "title": "Discount Governance",
+        "description": "Staff apply only the discounts they're authorized for. Managers review any exceptions."
+      },
+      {
+        "title": "Staff & Room Assignment",
+        "description": "Assign services to specific staff or rooms, and track availability in real time."
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Floor staff",
+        "headline": "Your queue, live, all day.",
+        "summary": "See the live queue, move a booking through its stages, and apply only the discounts you're cleared for.",
+        "icon": "user-check",
+        "features": [
+          {
+            "title": "See your queue in real time",
+            "description": "Walk-ins and scheduled bookings sit in one live queue. You always know who's next without checking with the front desk."
+          },
+          {
+            "title": "Update status without asking a manager",
+            "description": "Move a booking from Pending to In-Progress to Completed yourself. No sign-off needed for the normal flow of the day."
+          },
+          {
+            "title": "Apply only the discounts you're authorized for",
+            "description": "The system enforces your discount limit at the point of sale. Anything above it routes to a manager instead of being your call."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "The whole floor on one screen.",
+        "summary": "Watch the whole floor from one screen, shift staff and rooms as the day changes, and clear discount exceptions before they pile up.",
+        "icon": "layout-dashboard",
+        "features": [
+          {
+            "title": "Watch the whole floor from one screen",
+            "description": "Every chair, room, and staff member's status is visible at once – no more walking the floor to find out what's actually happening."
+          },
+          {
+            "title": "Reassign staff and rooms as the day shifts",
+            "description": "A no-show or a late booking doesn't stall the schedule. Reassign a room or therapist in a couple of taps and the queue updates for everyone."
+          },
+          {
+            "title": "Clear discount exceptions on the spot",
+            "description": "When a staff member requests a discount above their limit, it lands in your queue with the booking attached – approve or decline without leaving the dashboard."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Every branch. One view.",
+        "summary": "See every branch from one dashboard, close each day in minutes, and catch patterns before they become problems.",
+        "icon": "building-2",
+        "features": [
+          {
+            "title": "See every branch from one dashboard",
+            "description": "Revenue, bookings, and staff activity across all locations – no separate call with each manager to piece it together."
+          },
+          {
+            "title": "Close the day in minutes",
+            "description": "Payments, discounts, and completed bookings reconcile automatically at day's end. What used to take an hour of cross-checking takes minutes."
+          },
+          {
+            "title": "Catch patterns before they become problems",
+            "description": "A branch with rising discount exceptions or slowing queue times shows up in the dashboard – not three months later in a spreadsheet."
+          }
+        ]
+      }
+    ],
+    "secondaryFeatures": [
+      {
+        "icon": "credit-card",
+        "title": "Payment Recording",
+        "description": "Mark payments at point of service — cash, card, or wallet."
+      },
+      {
+        "icon": "layout",
+        "title": "Multi-Branch Visibility",
+        "description": "Managers see all branches from one consolidated dashboard."
+      },
+      {
+        "icon": "list",
+        "title": "Queue Management",
+        "description": "Walk-ins and scheduled appointments share one live queue."
+      },
+      {
+        "icon": "activity",
+        "title": "Status Tracking",
+        "description": "Track every appointment through pending, in-progress, and completed states."
+      }
+    ],
+    "stat": {
+      "value": "3×",
+      "label": "Faster day-close",
+      "description": "Teams close out the day three times faster with live operations tracking."
+    },
+    "testimonial": {
+      "quote": "I used to walk the floor every 20 minutes to check on things. Now I open one screen and I know everything.",
+      "author": "Rahul D.",
+      "business": "Salon Manager"
+    },
+    "proof": {
+      "eyebrow": "Proof through numbers",
+      "headline": "This is what real-time visibility looks like in production.",
+      "stats": [
+        {
+          "tag": "Volume",
+          "value": "800+",
+          "label": "Status changes processed in a single week – every one of them a live signal about what's happening at a branch, visible in real time"
+        },
+        {
+          "tag": "Lifecycle",
+          "value": "4 statuses",
+          "label": "Pending → Confirmed → In-Progress → Completed. Every booking is somewhere on this path. You can always see where."
+        },
+        {
+          "tag": "Coverage",
+          "value": "All 3 roles",
+          "label": "Staff, managers, and admins all make status changes – meaning the live view reflects ground-level reality, not just managerial summaries"
+        }
+      ],
+      "sub": "Real numbers from branches running on the platform today."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What managers say once they stop walking the floor every 20 minutes.",
+      "quotes": [
+        {
+          "quote": "I used to physically check each room to know what was going on. Now I glance at one screen between meetings and I have the full picture.",
+          "author": "Manager",
+          "business": "Multi-branch salon, Portland"
+        },
+        {
+          "quote": "When a treatment runs over, I see it before the next client is kept waiting. I move them to whoever is free, and nobody has to call me.",
+          "author": "Branch manager",
+          "business": "Day spa, Austin"
+        },
+        {
+          "quote": "Closing the day used to mean an hour on the phone with each branch. Now I open the dashboard at 7pm and it's already done.",
+          "author": "Owner",
+          "business": "Multi-branch clinic, Denver"
+        }
+      ],
+      "sub": "Feedback from the people running the floor day to day."
+    },
+    "stopStart": {
+      "stop": [
+        "You know what happened when someone tells you",
+        "End-of-day reports are your primary data source",
+        "Problems surface when they're already bad",
+        "You review the week in retrospect",
+        "Managers summarise; accuracy varies"
+      ],
+      "start": [
+        "You see it as it happens",
+        "Live status is your primary data source",
+        "You catch them when they're still small",
+        "You manage the day in real time",
+        "Data is logged at the point of action"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "items": [
+        {
+          "question": "Our managers are good at keeping us updated.",
+          "answer": "Good managers are valuable. But even the best manager is a bottleneck in an information chain. Real-time visibility doesn't replace your managers – it frees them from the burden of being your information conduit and lets them focus on managing their team."
+        },
+        {
+          "question": "We don't have time to watch a dashboard all day.",
+          "answer": "You don't have to. The value isn't constant monitoring. It's that when something feels off – when you have a hunch, when a manager's summary doesn't add up – you have a source of truth you can go to. That's worth more than any report."
+        },
+        {
+          "question": "How can an owner see all branches' bookings in one place?",
+          "answer": "Zennly gives owners a single real-time dashboard showing every branch's bookings, staff status, and payments as they happen — no phone calls or manager check-ins required to know how the day is going."
+        },
+        {
+          "question": "What is multi-branch business dashboard software for a spa or salon in Nepal?",
+          "answer": "It is one screen that shows every branch's bookings, staff and payments in real time. Zennly gives spa, salon and gym owners in Nepal that single dashboard, so they stop phoning each manager for updates."
+        }
+      ],
+      "sub": "Answers to what owners ask before they switch."
+    },
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "users",
+        "title": "Staff see their queue",
+        "description": "Each team member logs in and sees exactly what's next for them — no confusion, no chasing."
+      },
+      {
+        "step": "02",
+        "icon": "activity",
+        "title": "Mark progress live",
+        "description": "Update booking status as clients arrive, are served, and check out — in real time."
+      },
+      {
+        "step": "03",
+        "icon": "layout",
+        "title": "Managers see it all",
+        "description": "The floor view updates instantly. Every booking, payment, and staff member — visible at a glance."
+      }
+    ],
+    "workflowHeading": "What it feels like to have real <span class=\"fd-workflow__heading-accent\">operational visibility.</span>",
+    "workflowSub": "A real timeline of one day, across every branch.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "9:00am",
+        "title": "The morning check-in",
+        "body": "27 bookings confirmed across Downtown, Midtown and Uptown before you've left home. Nobody had to call to tell you the day started well.",
+        "status": "Confirmed"
+      },
+      {
+        "num": "02",
+        "time": "11:30am",
+        "title": "A booking runs long",
+        "body": "Rachel's 10:20 Hot Stone at Midtown is 10 minutes over and her 11:30 client is waiting. The manager moves the client to Mike in two taps.",
+        "status": "In-Progress"
+      },
+      {
+        "num": "03",
+        "time": "2:00pm",
+        "title": "A pattern shows up",
+        "body": "Uptown has 3 cancellations today; a usual day has less than one. You ask why this afternoon, not at the end of the week.",
+        "status": "Pending"
+      },
+      {
+        "num": "04",
+        "time": "6:00pm",
+        "title": "The day closes itself",
+        "body": "61 completed, 4 cancelled, $3,420 paid and 6 discounts approved, across all three branches. No summary calls.",
+        "status": "Closed"
+      }
+    ],
+    "bottomCta": {
+      "headline": "Stop managing by message. Start managing by data.",
+      "subheadline": "Every branch, every status, every moment — visible live, without a call or a report that's already out of date.",
+      "ctaLabel": "Book your live demo →"
+    },
+    "relatedFeatures": [
+      "booking",
+      "payment-tracking",
+      "discount-management"
+    ],
+    "metaDescription": "See every booking and every branch in one live view, so you stop calling for updates. Real-time dashboard for spas, salons and gyms in Nepal.",
+    "seoTitle": "Multi-Branch Dashboard for Spa & Salon Owners | Zennly"
+  },
+  {
+    "slug": "payment-tracking",
+    "name": "Finance",
+    "badge": "Finance & Reconciliation",
+    "hero": {
+      "eyebrow": "Payment Tracking",
+      "headline": "Know exactly what came in. <span class=\"fd-hero__h1-accent\">At every branch. Every day.</span>",
+      "subheadline": "Every payment recorded the moment it's collected — no reconciliation headaches, no end-of-month surprises.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-finance.png",
+      "imageAlt": "Payment tracking dashboard",
+      "bg": "#EAF2EA"
+    },
+    "intro": {
+      "headline": "Payment recording in the flow of a real workday.",
+      "body": "Every booking closes with a connected financial record — amount collected, payment status, therapist, service, customer, and branch, all in one place."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Instant Payment Recording",
+        "description": "Front desk enters the amount the moment a booking is completed — no separate ledger, no second entry."
+      },
+      {
+        "title": "Partial Payments Supported",
+        "description": "See exactly what's settled and what's still owed, without chasing anyone down."
+      },
+      {
+        "title": "Live Branch Totals",
+        "description": "Payments update branch revenue instantly — by booking, therapist, and service."
+      },
+      {
+        "title": "One Dashboard, Every Branch",
+        "description": "Owners see today's, this week's, and this month's revenue across every location."
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "Take payment as the booking closes.",
+        "summary": "Record the payment as the booking closes – linked automatically to the customer, therapist, service, and branch.",
+        "icon": "wallet",
+        "features": [
+          {
+            "title": "Record a payment in one step",
+            "description": "Enter the amount collected and mark whether the booking has been fully settled. It's linked to the booking automatically."
+          },
+          {
+            "title": "Mark partial or full settlement",
+            "description": "Partial payments are part of the normal workflow – no separate process, no extra screens."
+          },
+          {
+            "title": "No duplicate entry, no extra paperwork",
+            "description": "Payment recording happens naturally as the booking is completed, not as a second task afterward."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Revenue that updates itself.",
+        "summary": "Watch collected revenue update the moment it's recorded – by booking, by therapist, by service.",
+        "icon": "bar-chart-3",
+        "features": [
+          {
+            "title": "See today's collected revenue instantly",
+            "description": "As soon as payment is recorded, branch totals update automatically – no waiting for a shift-end report."
+          },
+          {
+            "title": "Break payments down by booking, therapist, and service",
+            "description": "Know exactly where revenue is coming from without piecing it together by hand."
+          },
+          {
+            "title": "No phone calls, no waiting for end-of-day reports",
+            "description": "The numbers are already on the dashboard the moment a payment is collected."
+          }
+        ]
+      },
+      {
+        "persona": "Owners and admins",
+        "headline": "Every dollar, every branch.",
+        "summary": "See revenue across every branch – today, this week, this month – in one dashboard.",
+        "icon": "landmark",
+        "features": [
+          {
+            "title": "All branches, one dashboard",
+            "description": "Revenue is available across every location without switching tools or waiting for a summary."
+          },
+          {
+            "title": "View payments today, this week, this month",
+            "description": "Slice revenue by time period, across every branch, whenever you need it."
+          },
+          {
+            "title": "No spreadsheets, no WhatsApp summaries",
+            "description": "Just accurate numbers, available the moment they're collected."
+          }
+        ]
+      }
+    ],
+    "secondaryFeatures": [
+      {
+        "icon": "credit-card",
+        "title": "Booking-Linked Payments",
+        "description": "Every payment is tied to the booking, customer, therapist, service, and branch that generated it."
+      },
+      {
+        "icon": "clock",
+        "title": "Outstanding Balance Tracking",
+        "description": "See which bookings are fully settled and which still have a balance due."
+      },
+      {
+        "icon": "activity",
+        "title": "Real-Time Revenue",
+        "description": "Numbers stay live throughout the day — not after someone compiles a report."
+      },
+      {
+        "icon": "trending-up",
+        "title": "Complete Financial Records",
+        "description": "Every fully paid booking is stored as a complete record, ready for reporting and reconciliation."
+      }
+    ],
+    "stat": {
+      "value": "100%",
+      "label": "Complete financial records",
+      "description": "Every fully paid booking is stored as a complete record, making reporting and reconciliation straightforward."
+    },
+    "testimonial": {
+      "quote": "The first thing I noticed was that my morning call with branch managers got shorter. Then it disappeared completely. I just check the platform now.",
+      "author": "Owner",
+      "business": "Multi-branch spa, Austin"
+    },
+    "proof": {
+      "eyebrow": "Proof through numbers",
+      "headline": "Real payments. Real numbers. Tracked in real time.",
+      "stats": [
+        {
+          "tag": "Volume",
+          "value": "173",
+          "label": "Payments recorded during a single peak week across multiple branches — all logged by front-desk staff as appointments were completed"
+        },
+        {
+          "tag": "Range (USD)",
+          "value": "5–190",
+          "label": "The real range of payment values processed on the platform — from quick services to premium multi-treatment bookings"
+        },
+        {
+          "tag": "Accuracy",
+          "value": "100%",
+          "label": "Of fully paid bookings stored as a complete financial record, making reporting and reconciliation straightforward"
+        }
+      ],
+      "sub": "Real numbers from live branches running today."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What operators say once payments stop living in a notebook.",
+      "quotes": [
+        {
+          "quote": "Closing the till used to take forty minutes and a calculator. Now the day's total is already there when we lock up.",
+          "author": "Front-desk lead",
+          "business": "Day spa, Denver"
+        },
+        {
+          "quote": "We used to find out about missing payments a week later. Now if something's unpaid, I see it the same day.",
+          "author": "Branch manager",
+          "business": "Premium salon"
+        },
+        {
+          "quote": "We had a payment issue we didn't even know about until we started seeing the data broken down by branch.",
+          "author": "Admin",
+          "business": "Aesthetic clinic group"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    },
+    "stopStart": {
+      "stop": [
+        "Spending evenings reconciling payments across multiple branches",
+        "Depending on WhatsApp messages as your financial reporting system",
+        "Wondering whether a booking was actually paid for",
+        "Searching notebooks to verify transactions",
+        "Losing track of outstanding balances",
+        "Correcting spreadsheet mistakes at the end of every month"
+      ],
+      "start": [
+        "Seeing live revenue as payments happen",
+        "Connecting every payment directly to the booking it belongs to",
+        "Giving managers a process instead of relying on memory",
+        "Monitoring branch performance with accurate financial data",
+        "Identifying unpaid bookings immediately",
+        "Making business decisions using numbers you can trust"
+      ]
+    },
+    "objections": {
+      "headline": "Common questions.",
+      "items": [
+        {
+          "question": "We already track payments in another system.",
+          "answer": "If your current process doesn't connect payments to individual bookings, therapists, services, and branches in real time, you're only storing transactions. Zennly connects every payment to the work that generated it, giving you operational insight – not just accounting records."
+        },
+        {
+          "question": "What happens if a customer only pays part of the amount?",
+          "answer": "Partial payments are supported as part of the normal workflow. You can immediately see which bookings are fully settled and which still have an outstanding balance, making follow-ups simple and eliminating forgotten payments."
+        },
+        {
+          "question": "Will my staff have to do extra work?",
+          "answer": "No. Payment recording happens naturally as the booking is completed. Staff simply record the payment while closing the appointment, and everything else is updated automatically."
+        },
+        {
+          "question": "How do service businesses reconcile cash, card, and online payments daily?",
+          "answer": "Every booking in Zennly closes with a connected payment record — amount, method, therapist, service, and branch — so the day's cash, card, and online totals are already reconciled by the time you open the dashboard."
+        }
+      ],
+      "sub": "Answers to what owners ask before they switch."
+    },
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "check",
+        "title": "The service is completed",
+        "description": "The appointment moves from In Progress to Completed. The customer finishes their visit and is ready to pay."
+      },
+      {
+        "step": "02",
+        "icon": "credit-card",
+        "title": "Staff records the payment",
+        "description": "Front desk staff enter the payment amount and mark whether the booking has been fully settled. The payment is instantly linked to the booking, customer, therapist, service, and branch — no duplicate entry, no additional paperwork."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "Managers see updates instantly",
+        "description": "As soon as payment is recorded, branch totals update automatically — today's collected revenue, payments by booking, by therapist, and by service. No phone calls, no waiting for end-of-day reports."
+      },
+      {
+        "step": "04",
+        "icon": "bar-chart",
+        "title": "Owners get a complete business view",
+        "description": "Across every branch, revenue is available in one dashboard — today, this week, this month, across every location. No spreadsheets, no WhatsApp summaries."
+      }
+    ],
+    "workflowHeading": "How payment recording runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One Thursday at Downtown, from the first payment to the day's close.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "12:05pm",
+        "title": "Sarah pays for her massage",
+        "body": "Her 60-minute Deep Tissue with Emily C. ends at noon. Front desk records $120 by Apple Pay, already linked to the booking, therapist and branch.",
+        "status": "Confirmed"
+      },
+      {
+        "num": "02",
+        "time": "1:35pm",
+        "title": "Part now, the rest later",
+        "body": "Katie R. pays $80 cash for her 90-minute Hot Stone and will send the rest tonight. The $80 balance stays on the booking.",
+        "status": "Pending"
+      },
+      {
+        "num": "03",
+        "time": "3:00pm",
+        "title": "The manager checks the day so far",
+        "body": "Collected so far, by therapist and service, plus the one balance still open. No call to the front desk.",
+        "status": "In-Progress"
+      },
+      {
+        "num": "04",
+        "time": "6:10pm",
+        "title": "Katie settles by Venmo",
+        "body": "The last $80 arrives. Front desk records it against the same booking, and nothing is owed at Downtown.",
+        "status": "Completed"
+      },
+      {
+        "num": "05",
+        "time": "8:00pm",
+        "title": "The owner closes the day",
+        "body": "All three branches' takings in one place, with nothing left unpaid. No calls to managers, no WhatsApp totals.",
+        "status": "Closed"
+      }
+    ],
+    "bottomCta": {
+      "headline": "Your revenue shouldn't live in a notebook.",
+      "subheadline": "Every payment should be connected to the booking that earned it, visible to every manager who needs it, and available the moment it's collected.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No setup required before the demo. No commitment after. Just a look at the system working the way your business works."
+    },
+    "relatedFeatures": [
+      "operational-visibility",
+      "reports",
+      "discount-management"
+    ],
+    "metaDescription": "Record every cash, card and online payment against its booking and close each day fast. Reconciliation software for spas and salons in Nepal.",
+    "seoTitle": "Payment Tracking & Daily Close Software Nepal | Zennly"
+  },
+  {
+    "slug": "reports",
+    "name": "Reports",
+    "badge": "Reporting",
+    "hero": {
+      "eyebrow": "Reports",
+      "headline": "Every number, <span class=\"fd-hero__h1-accent\">always explained.</span>",
+      "subheadline": "Eight built-in reports covering revenue, staff, discounts and attendance — always up to date.",
+      "image": "/assets/images/feat-reports.png",
+      "imageAlt": "Reports dashboard screenshot",
+      "bg": "#EDE8F2"
+    },
+    "intro": {
+      "headline": "Eight reports. Zero setup. Always live.",
+      "body": "Zennly's built-in reports run automatically — no configuration, no exports, no waiting. Open the dashboard and your numbers are already there."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Revenue Reports",
+        "description": "Daily, weekly, and monthly revenue broken down by service, staff, and branch."
+      },
+      {
+        "title": "Staff Performance",
+        "description": "See bookings completed, revenue generated, and discounts applied per staff member."
+      },
+      {
+        "title": "Discount Analytics",
+        "description": "Track total discounts, types, and authorization patterns across the business."
+      },
+      {
+        "title": "Referral Tracking",
+        "description": "Understand which referral sources are driving the most bookings and revenue."
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Branch managers",
+        "headline": "Know how the branch is doing.",
+        "summary": "Check staff performance daily, spot discount patterns before they become a problem, and know exactly how the branch is doing without asking anyone.",
+        "icon": "bar-chart-3",
+        "features": [
+          {
+            "title": "See staff performance without asking",
+            "description": "Bookings completed, revenue generated, and discounts applied per staff member — updated automatically, no monthly request to head office."
+          },
+          {
+            "title": "Catch discount patterns early",
+            "description": "See who's applying discounts, how often, and how much — before it becomes a habit that eats into margin."
+          },
+          {
+            "title": "Know the branch number every morning",
+            "description": "Yesterday's revenue, today's bookings, and this week's trend are already on the dashboard when you log in."
+          }
+        ]
+      },
+      {
+        "persona": "Owners",
+        "headline": "Real numbers, side by side.",
+        "summary": "Compare branches side by side, track revenue trends over time, and walk into an accountant or bank conversation with real numbers already in hand.",
+        "icon": "trending-up",
+        "features": [
+          {
+            "title": "Compare branches side by side",
+            "description": "Revenue, staff performance, and discount rates broken down by branch — see which locations are pulling weight and which need attention."
+          },
+          {
+            "title": "Track trends, not just totals",
+            "description": "Daily and monthly revenue laid out over time, so a slow Tuesday doesn't read as a crisis and a good month doesn't hide a slow quarter."
+          },
+          {
+            "title": "Export for the accountant",
+            "description": "Any report downloads as CSV in seconds — no re-entering numbers, no waiting on someone to compile a spreadsheet."
+          }
+        ]
+      },
+      {
+        "persona": "Marketing & growth",
+        "headline": "Know which sources pay off.",
+        "summary": "See which referral sources actually bring in paying clients, which ones are just noise, and whether a campaign moved any real numbers.",
+        "icon": "share-2",
+        "features": [
+          {
+            "title": "See what's actually driving bookings",
+            "description": "Referral tracking shows which sources — walk-ins, word of mouth, social, partner clinics — convert into real bookings, not just clicks."
+          },
+          {
+            "title": "Spot attendance patterns",
+            "description": "Repeat visit frequency and no-show rates surface automatically, so campaigns can target the clients who are drifting away."
+          },
+          {
+            "title": "Prove campaign impact with numbers",
+            "description": "When a promotion runs, its effect on bookings and revenue shows up in the same reports — no separate tracking spreadsheet required."
+          }
+        ]
+      }
+    ],
+    "secondaryFeatures": [
+      {
+        "icon": "calendar",
+        "title": "Attendance Reports",
+        "description": "Track client visit frequency and spot patterns in no-shows or repeat visits."
+      },
+      {
+        "icon": "download",
+        "title": "Exportable Data",
+        "description": "Download any report as CSV for further analysis or compliance."
+      },
+      {
+        "icon": "zap",
+        "title": "Always Live",
+        "description": "Reports update in real time — no manual refresh, no stale data."
+      },
+      {
+        "icon": "bar-chart",
+        "title": "8 Built-in Reports",
+        "description": "Revenue, staff, discounts, referrals, attendance, and more — ready on day one."
+      }
+    ],
+    "stat": {
+      "value": "8",
+      "label": "Built-in reports",
+      "description": "Every key business metric covered out of the box — no setup required."
+    },
+    "testimonial": {
+      "quote": "I used to export data every week and build my own charts. Now I just open Zennly and the numbers are right there.",
+      "author": "Sana K.",
+      "business": "Multi-Branch Owner"
+    },
+    "proof": {
+      "eyebrow": "Proof through numbers",
+      "headline": "This isn't a dashboard nobody opens. It's checked every day, in real branches.",
+      "stats": [
+        {
+          "tag": "Adoption",
+          "value": "94%",
+          "label": "Of branch managers who open reports without being asked"
+        },
+        {
+          "tag": "Volume",
+          "value": "2,300",
+          "label": "Report views logged across branches in the past 30 days"
+        },
+        {
+          "tag": "Time saved",
+          "value": "5 hrs",
+          "label": "Average time saved per manager, per week, on manual data compilation"
+        }
+      ],
+      "sub": "Real numbers from live branches running today."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners and managers say once they stop building their own spreadsheets.",
+      "quotes": [
+        {
+          "quote": "The first week, I stopped asking for the monthly Excel sheet. It's just there now, and it's more accurate than what we used to build by hand.",
+          "author": "Owner",
+          "business": "Multi-branch spa, Portland"
+        },
+        {
+          "quote": "I used to wait for the front desk to close out the day to know how we did. Now I open the app before I even get to the branch.",
+          "author": "Branch manager",
+          "business": "Salon, Austin"
+        },
+        {
+          "quote": "We found out that two of our 'top' referral sources barely converted at all. We reallocated the marketing budget the same week.",
+          "author": "Marketing Lead",
+          "business": "Clinic chain, Denver"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "items": [
+        {
+          "question": "We don't have anyone who knows how to read data.",
+          "answer": "You don't need a data analyst. The eight reports are built to be read in under a minute — a number, a trend line, a comparison. If you can read a bank statement, you can read these."
+        },
+        {
+          "question": "Eight reports sounds like a lot to check every day.",
+          "answer": "Nobody checks all eight every day. Owners tend to open revenue and staff performance daily, and glance at the rest weekly. The reports are there when you need them, not a checklist you have to clear."
+        },
+        {
+          "question": "How do we know these numbers are actually accurate?",
+          "answer": "Every report pulls directly from the same booking and payment records your staff enter during the day — nothing is recalculated or estimated separately, so there's no second system that can drift out of sync with the first."
+        },
+        {
+          "question": "We need a custom report specific to our business.",
+          "answer": "The eight built-in reports cover revenue, staff, discounts, referrals, and attendance across every branch we've onboarded so far. If a business genuinely needs something beyond that, we talk about it — but most owners find the built-in set already answers the question they were actually asking."
+        },
+        {
+          "question": "What reports should a multi-branch service business check daily?",
+          "answer": "Zennly automatically generates revenue, staff performance, discount, attendance, and referral reports for every branch — no configuration or exports needed, so owners can check the numbers that matter each morning without building anything."
+        }
+      ],
+      "sub": "Answers to what owners ask before they switch."
+    },
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "zap",
+        "title": "Go live on Zennly",
+        "description": "No report configuration needed. Everything is tracked from the moment you go live."
+      },
+      {
+        "step": "02",
+        "icon": "trending-up",
+        "title": "Data populates automatically",
+        "description": "Revenue, staff performance, discounts, and attendance — all updated in real time."
+      },
+      {
+        "step": "03",
+        "icon": "download",
+        "title": "Filter and export",
+        "description": "Slice by date, branch, or staff member. Download as CSV whenever you need it."
+      }
+    ],
+    "workflowHeading": "How reporting runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One week of reports in June, from the first look at yesterday to the month-end export.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "8:00am",
+        "title": "The owner checks yesterday",
+        "body": "Before any calls, the owner opens the dashboard. Yesterday's revenue is already split by branch, including Uptown's slow day.",
+        "status": "Completed"
+      },
+      {
+        "num": "02",
+        "time": "11:00am",
+        "title": "The manager checks staff numbers",
+        "body": "Bookings, revenue and discounts per therapist at Downtown, checked before the lunch rush makes it harder to catch anything.",
+        "status": "Confirmed"
+      },
+      {
+        "num": "03",
+        "time": "2:00pm",
+        "title": "One discount rate stands out",
+        "body": "Amanda G. has discounted 5 of her 16 bookings this week, three times the branch average. The manager raises it today, not at month-end.",
+        "status": "In-Progress"
+      },
+      {
+        "num": "04",
+        "time": "Sunday, 7:00pm",
+        "title": "The week is compared with last week",
+        "body": "All three branches against last week, day by day. No export, and no one building the comparison by hand.",
+        "status": "Completed"
+      },
+      {
+        "num": "05",
+        "time": "Month-end",
+        "title": "June goes to the accountant",
+        "body": "Revenue, discount and staff reports download as CSV: the same numbers the team checked all month, not a spreadsheet built separately.",
+        "status": "Closed"
+      }
+    ],
+    "bottomCta": {
+      "headline": "Stop asking for the numbers. Just open the dashboard.",
+      "subheadline": "Revenue, staff performance, and discounts — updated live, filterable by branch, exportable in a click.",
+      "ctaLabel": "Book your live demo →"
+    },
+    "relatedFeatures": [
+      "payment-tracking",
+      "operational-visibility",
+      "discount-management"
+    ],
+    "metaDescription": "See revenue, staff performance, discounts, attendance and referrals across every branch. Business reports for spas, salons and gyms in Nepal.",
+    "seoTitle": "Business Reports for Spas, Salons & Gyms Nepal | Zennly"
+  },
+  {
+    "slug": "staff-management",
+    "name": "Staff Management",
+    "badge": "Staff & Therapist Management",
+    "hero": {
+      "eyebrow": "Staff & therapist management",
+      "headline": "Staff moves between branches.<br> <span class=\"fd-hero__h1-accent\">Everyone already knows.</span>",
+      "subheadline": "Schedule staff transfers and assign therapists to bookings — manage your team without coordination calls.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-multibranch.png",
+      "imageAlt": "Staff transfer and roster management screenshot",
+      "bg": "#E8ECF5"
+    },
+    "intro": {
+      "headline": "Schedule a staff transfer once. Everyone knows automatically.",
+      "body": "When a therapist needs to move branches, you schedule the transfer: who, where, and when the effective date is. The system updates. The destination branch sees the incoming staff member. The origin branch adjusts. No call. No message. No confusion on Thursday morning. And because every therapist is assigned to bookings by name, moving them between branches doesn't break existing appointments – it just re-anchors them at the right location."
+    },
+    "_problem_hidden": {
+      "headline": "Multi-branch staff coordination is a full-time job you didn't sign up for.",
+      "body": "You have a great therapist at your Eastside branch. But this week, the Downtown location is slammed and short-staffed. You want to move them over for three days. So you call the therapist. You call the Eastside manager to cover the gap. You call the Downtown manager to prepare. You update the schedule – on paper, or in a message thread, or in a mental note you'll forget by Wednesday. By Thursday morning, the therapist shows up at the wrong branch because someone's message got buried. A customer at Downtown waits. A customer at Eastside gets an apology. This is not a staffing problem. This is a coordination problem. And coordination problems have a system solution.",
+      "panels": [
+        {
+          "emoji": "ðŸ“²",
+          "title": "Coordination via messages",
+          "body": "Staff assignments communicated in group chats, over calls, on sticky notes. Easy to miss. Impossible to reference. Gone the next time someone has a question."
+        },
+        {
+          "emoji": "ðŸ—“ï¸",
+          "title": "No forward planning",
+          "body": "You can react when someone is sick or a branch is overwhelmed. But you can't proactively plan therapist rotations, plan capacity, or build a schedule that holds across locations."
+        },
+        {
+          "emoji": "â“",
+          "title": "Who works where today?",
+          "body": "The question no multi-branch owner should have to ask – but most do, every single morning."
+        }
+      ]
+    },
+    "primaryFeatures": [
+      {
+        "title": "Effective-Date Transfers",
+        "description": "Schedule a staff move between branches with a set date – planned in advance or same-day."
+      },
+      {
+        "title": "Bookings Follow the Therapist",
+        "description": "Appointments stay assigned by name, even when staff change branches."
+      },
+      {
+        "title": "Live Roster Visibility",
+        "description": "See who's working where, across every branch, in real time."
+      },
+      {
+        "title": "Zero-Call Coordination",
+        "description": "No phone calls, no message threads – the schedule updates itself."
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Staff",
+        "headline": "Your roster, without the calls.",
+        "summary": "Know exactly where you're working and when – without a single phone call to confirm it.",
+        "icon": "user-check",
+        "features": [
+          {
+            "title": "Know where you're working and when – without asking",
+            "description": "Your schedule reflects any branch transfer automatically, so you're never guessing where to show up."
+          },
+          {
+            "title": "See your bookings clearly, regardless of which branch you're at",
+            "description": "Appointments stay assigned to you by name, even after a transfer, so nothing gets lost in the move."
+          },
+          {
+            "title": "No scheduling surprises, no double-assignment conflicts",
+            "description": "A transfer updates your schedule everywhere at once – no conflicting bookings across locations."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Know your capacity for the week.",
+        "summary": "See incoming staff before they arrive, and know your branch's capacity for the week ahead.",
+        "icon": "store",
+        "features": [
+          {
+            "title": "See incoming transferred staff before they arrive",
+            "description": "The destination branch sees the transfer the moment it's scheduled – no surprise on the effective date."
+          },
+          {
+            "title": "Know your branch capacity for the week ahead",
+            "description": "Rosters update automatically, so you can plan the week around who's actually available."
+          },
+          {
+            "title": "Assign incoming therapists to bookings immediately upon transfer",
+            "description": "New arrivals can be booked the moment their transfer takes effect – no waiting period, no manual setup."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Move staff to where they're needed.",
+        "summary": "View rosters across every branch and move staff to where they're needed most – without a single coordination call.",
+        "icon": "building-2",
+        "features": [
+          {
+            "title": "View rosters across all branches simultaneously",
+            "description": "See who's working where, at every location, from one screen."
+          },
+          {
+            "title": "Schedule therapist transfers with a future effective date",
+            "description": "Plan a move days or weeks ahead, or make it effective same-day when something's urgent."
+          },
+          {
+            "title": "Ensure no branch is over- or under-staffed without manual counting",
+            "description": "Capacity gaps show up in the roster view itself, not in a phone call from a manager."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Proof through numbers",
+      "headline": "Real staff operations, running across real branches.",
+      "stats": [
+        {
+          "tag": "Volume",
+          "value": "30",
+          "label": "Staff transfers scheduled in 90 days across the platform – roughly one every three days"
+        },
+        {
+          "tag": "Scale",
+          "value": "4",
+          "label": "Branches actively receiving transferred staff – true multi-location coordination, not a single-location workaround"
+        },
+        {
+          "tag": "Planning",
+          "value": "0",
+          "label": "Last-minute scrambles – every transfer has an effective date attached before it happens"
+        }
+      ],
+      "sub": "Real numbers from multi-branch accounts running today."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once staff transfers stop being a coordination project.",
+      "quotes": [
+        {
+          "quote": "I used to make three phone calls every time a therapist moved branches. Now I set the date once and every branch just knows.",
+          "author": "Owner",
+          "business": "3-branch spa group, Austin"
+        },
+        {
+          "quote": "A transfer used to mean a scramble the morning it happened. Now the destination branch sees it days before, so nobody's caught off guard.",
+          "author": "Branch manager",
+          "business": "Salon, Denver"
+        },
+        {
+          "quote": "I can see every branch's roster from my phone. I don't call to ask who's working where anymore – I just look.",
+          "author": "Area manager",
+          "business": "Multi-branch clinic chain"
+        }
+      ],
+      "sub": "Feedback from owners, managers, and staff using the platform."
+    },
+    "stopStart": {
+      "stop": [
+        "Calling the therapist, the origin branch, and the destination branch separately every time someone moves",
+        "Finding out on Thursday morning that a message got buried and the wrong branch is expecting someone",
+        "Reacting to staffing gaps instead of planning around them",
+        "Asking every branch manager who's working where before you can answer a simple question"
+      ],
+      "start": [
+        "Scheduling a transfer once, with an effective date, and letting the system notify both branches",
+        "Knowing bookings stay assigned to the right therapist even after a branch change",
+        "Planning staff rotations and capacity across locations in advance",
+        "Checking one roster view to see who's working where, at any branch, right now"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "items": [
+        {
+          "question": "Our staff schedules change too often to plan ahead.",
+          "answer": "Transfers don't require advance planning – you can schedule a same-day transfer if needed. The point isn't that everything is planned weeks ahead. It's that when you do make a decision, it immediately propagates to everyone who needs to know."
+        },
+        {
+          "question": "We're only at two branches right now.",
+          "answer": "Two branches is exactly when this starts to matter. The coordination overhead grows faster than the number of branches. Getting the system in place at two locations means you're ready – and not scrambling – when you open a third."
+        },
+        {
+          "question": "How do you schedule a staff transfer between branches?",
+          "answer": "In Zennly, you schedule a transfer with the staff member, destination branch, and effective date — the origin and destination branches both see the change immediately, and existing bookings re-anchor to the new location automatically."
+        },
+        {
+          "question": "What staff scheduling app can a salon or spa in Nepal use?",
+          "answer": "Zennly is web-based staff scheduling software for salons and spas in Nepal. It schedules staff by branch and shift, handles transfers between branches and links attendance to payroll."
+        }
+      ],
+      "sub": "Answers to what owners ask before their next staff transfer."
+    },
+    "workflowHeading": "What staff management looks like when it's built into your system.",
+    "workflowSub": "One therapist's move from Downtown to Midtown, from the gap to the new roster.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Mon, 9:30am",
+        "title": "Midtown is short from Thursday",
+        "body": "Midtown's manager flags a therapist on leave from Thursday. The owner checks every branch's roster and sees Downtown has a therapist to spare.",
+        "status": "Pending"
+      },
+      {
+        "num": "02",
+        "time": "Mon, 11:00am",
+        "title": "Paige's move is scheduled",
+        "body": "The owner moves Paige N. from Downtown to Midtown, effective Thursday. Both branches see it the moment it's saved, three days ahead.",
+        "status": "Confirmed"
+      },
+      {
+        "num": "03",
+        "time": "Thu, 9:00am",
+        "title": "Paige starts at Midtown",
+        "body": "Her schedule is already at Midtown, and two of her bookings were assigned there on Monday. No reminder calls, no confirming.",
+        "status": "In-Progress"
+      },
+      {
+        "num": "04",
+        "time": "Next Monday",
+        "title": "Every roster stays current",
+        "body": "Any manager can see who's working where this week and next, without calling the owner or scrolling a group chat.",
+        "status": "Completed"
+      }
+    ],
+    "bottomCta": {
+      "headline": "Your team should know where to be without you telling them.",
+      "subheadline": "Rosters, transfers, and schedules — visible to every branch, current every day, with no group message required.",
+      "ctaLabel": "Book your live demo →"
+    },
+    "relatedFeatures": [
+      "booking",
+      "operational-visibility"
+    ],
+    "metaDescription": "Schedule therapists, move staff between branches and manage teams across locations without WhatsApp chaos. Staff scheduling for salons and spas in Nepal.",
+    "seoTitle": "Staff Scheduling App Nepal: Branch Transfers | Zennly"
+  },
+  {
+    "slug": "discount-management",
+    "name": "Discount Management",
+    "badge": "Discount Governance",
+    "hero": {
+      "eyebrow": "Discount management",
+      "headline": "Every discount gets a name.<br> <span class=\"fd-hero__h1-accent\">And an approval.</span>",
+      "subheadline": "Every discount request is reviewed before it's applied, with a full record of who asked and why.",
+      "cta": "See how it works — book a 20-minute demo →",
+      "image": "/assets/images/feat-discount.png",
+      "imageAlt": "Discount request and approval dashboard",
+      "bg": "#F5E6C8"
+    },
+    "intro": {
+      "headline": "Every discount starts with a request. Every request gets a decision.",
+      "body": "When a staff member wants to apply a discount, they submit a request — the percentage, the booking, the context. A manager reviews it. If it's approved, it goes through. If not, it doesn't. Simple. Structured. Logged. And because every applied discount is tied to a booking, a staff member, a service, and a dollar value — you have a full audit trail. Not just for compliance. For understanding where your margins actually go."
+    },
+    "_problem_hidden": {
+      "headline": "The most expensive word in a service business is \"fine, just give them a discount.\"",
+      "body": "It happens at the front desk, during checkout, in the middle of a complaint. A customer is unhappy. The appointment ran long. The staff member wants to smooth things over. So they offer 20% off. And they do it again tomorrow. And the day after. No one tracks it. No manager approves it. No report flags it. By the time you notice, you've given away thousands of dollars in margin that you'll never recover — to customers who may not even have deserved it. Discounting isn't the problem. Uncontrolled discounting is.",
+      "panels": [
+        {
+          "emoji": "ðŸŽ",
+          "title": "Discounts as a habit, not a tool",
+          "body": "When staff can apply any discount at any time, it stops being a customer retention tool and starts being a reflex. \"10% off\" becomes the default response to every complaint, every delay, every awkward checkout moment."
+        },
+        {
+          "emoji": "ðŸ“‰",
+          "title": "Margin erosion you can't see",
+          "body": "You won't find a line item called \"discounts given without approval\" in your weekly numbers. It hides inside revenue. You see lower totals. You assume it's a slow week."
+        },
+        {
+          "emoji": "ðŸš«",
+          "title": "No accountability, no pattern",
+          "body": "Without a request record, you can't see which staff members discount most, which services get discounted most, or which branches are most exposed. You're managing blind."
+        }
+      ]
+    },
+    "roles": [
+      {
+        "persona": "Front-desk & floor staff",
+        "headline": "Request it. Get an answer in seconds.",
+        "summary": "Submit a discount request in seconds and get a decision back before the customer leaves the counter.",
+        "icon": "user-check",
+        "features": [
+          {
+            "title": "Submit a request in seconds",
+            "description": "Select the booking, the percentage, and the reason — no unilateral discount, no relying on a till override."
+          },
+          {
+            "title": "Get a real-time answer",
+            "description": "Approvals and declines come back immediately, so the customer isn't left standing at checkout."
+          },
+          {
+            "title": "Know it's on the record",
+            "description": "Every request is logged whether it's approved or declined — nothing is left to memory later."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Every request, with the reason attached.",
+        "summary": "Review every discount request as it comes in, with the booking and reason already attached, and decide in seconds.",
+        "icon": "layout-dashboard",
+        "features": [
+          {
+            "title": "Review requests in real time",
+            "description": "Each request arrives with the booking, the staff member, the percentage, and the reason — already attached."
+          },
+          {
+            "title": "Approve or decline in one tap",
+            "description": "No separate conversation needed. The context is all there before you make the call."
+          },
+          {
+            "title": "See your branch's discount pattern",
+            "description": "Track which services and which staff carry the most requests, before it becomes a habit that eats into margin."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Every discount, traced to the dollar.",
+        "summary": "See every discount across every branch — who requested it, who approved it, and what it cost — rolled into one view.",
+        "icon": "building-2",
+        "features": [
+          {
+            "title": "A full audit trail, always",
+            "description": "Every applied discount ties back to a booking, a staff member, an approver, and a dollar value."
+          },
+          {
+            "title": "Spot exposure before it compounds",
+            "description": "A branch or service with a rising discount rate shows up in the data — not three months later in a margin review."
+          },
+          {
+            "title": "Set the policy, trust the system to hold it",
+            "description": "Discount governance becomes a system behavior, not a hope that everyone remembers the rules."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Proof through numbers",
+      "headline": "This isn't a policy on paper. It's <span class=\"fd-proof__highlight\">enforced live, on branches running today.</span>",
+      "stats": [
+        {
+          "tag": "Frequency",
+          "value": "~30%",
+          "label": "Of all bookings on the platform carry a discount — one of the highest-frequency operations in the business"
+        },
+        {
+          "tag": "Range",
+          "value": "15–30%",
+          "label": "The range of discount percentages requested, from modest gestures to significant concessions"
+        },
+        {
+          "tag": "Value",
+          "value": "$5–40",
+          "label": "The real-money range of individual discounts recorded on the platform"
+        }
+      ],
+      "sub": "Real numbers from live branches running today."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once every discount needs a reason.",
+      "quotes": [
+        {
+          "quote": "We thought discounts were a few gestures a week. The first month's report showed a lot more than that, mostly at one branch.",
+          "author": "Owner",
+          "business": "Multi-branch spa, Austin"
+        },
+        {
+          "quote": "Staff don't feel awkward asking anymore. They send the request, I see the reason, and the client has an answer before checkout is done.",
+          "author": "Branch manager",
+          "business": "Day spa, Denver"
+        },
+        {
+          "quote": "Every discount now has a name next to it. That alone changed how often people offered them.",
+          "author": "Admin",
+          "business": "Salon group, Portland"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    },
+    "stopStart": {
+      "stop": [
+        "Discovering at month-end that revenue is lower than expected with no clear reason",
+        "Having difficult conversations with staff about discount habits you can't prove",
+        "Wondering which branch or which service is most exposed to margin loss",
+        "Applying discount policies that no one can enforce because no one can see them"
+      ],
+      "start": [
+        "Setting a discount policy that the system enforces automatically",
+        "Reviewing and approving requests in seconds from anywhere",
+        "Using discount data to understand customer patterns, not just plug revenue gaps",
+        "Building a team culture where discounts are deliberate, not reflexive"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "items": [
+        {
+          "question": "What is a discount approval solution for a salon or spa?",
+          "answer": "It is a workflow where staff request a discount, a manager approves or declines it before it is applied, and the request, the reason and the approver are recorded. Zennly does this for spas, salons and gyms, so discounts become decisions you can review instead of habits you cannot prove."
+        },
+        {
+          "question": "Our staff will feel micromanaged.",
+          "answer": "They won't, because the workflow is instant. Submitting a request takes seconds. Approval comes back in real time. It's not bureaucratic — it's structured. The difference is that now both sides have clarity: the staff member knows what they can offer, and the manager knows what's going out the door."
+        },
+        {
+          "question": "We trust our staff with discounts.",
+          "answer": "Trust and visibility aren't opposites. You can trust your team completely and still want a record of what was approved and why. The audit trail protects them as much as it protects you."
+        },
+        {
+          "question": "How do you stop staff from giving unauthorized discounts?",
+          "answer": "Zennly requires every discount request to go through manager approval before it applies — each request is tied to a booking, staff member, and value, giving owners a full audit trail of where discounts are given and why."
+        },
+        {
+          "question": "What is discount approval software for a spa or salon in Nepal?",
+          "answer": "It is software where a discount is requested with the exact percentage and amount and only applies after a manager approves it. Zennly records every request and approval, so spa and salon owners in Nepal keep a full audit trail."
+        }
+      ],
+      "sub": "Answers to what owners ask before they switch."
+    },
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "percent",
+        "title": "The customer asks for a discount",
+        "description": "A client mentions the wait was long. The staff member wants to make it right. Instead of applying 20% and hoping no one notices, they submit a request — service, booking, reason, and the percentage they think is fair."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "The manager reviews in real time",
+        "description": "The branch manager sees the request. They decide: is this justified? Is this within policy? They approve or decline. The staff member gets the answer. The customer gets a clear outcome."
+      },
+      {
+        "step": "03",
+        "icon": "credit-card",
+        "title": "The discount is applied — with a record",
+        "description": "If approved, the discount is applied to the booking. The discount amount is calculated and logged. The booking's final amount reflects it. The payment records it. The audit trail is complete."
+      },
+      {
+        "step": "04",
+        "icon": "bar-chart",
+        "title": "At the end of the month",
+        "description": "You can see every discount given across every branch. Who requested. Who approved. What percentage. What value. Which services. Which customers. Pattern recognition, not guesswork."
+      }
+    ],
+    "workflowHeading": "What discount control looks like in a real service business.",
+    "workflowSub": "One discount request at Downtown, from checkout to the month-end review.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "2:10pm",
+        "title": "Ashley asks about the wait",
+        "body": "Her 1:00 PM Deep Tissue started 15 minutes late. Instead of quietly taking 20% off, the front desk sends a request with the reason.",
+        "status": "Pending"
+      },
+      {
+        "num": "02",
+        "time": "2:11pm",
+        "title": "The manager approves it",
+        "body": "The branch manager sees the booking, the reason and the 20% on her phone, and approves it in 42 seconds.",
+        "status": "Confirmed"
+      },
+      {
+        "num": "03",
+        "time": "2:12pm",
+        "title": "The discount is applied",
+        "body": "$24 comes off the $120 booking. Ashley pays $96, and the discount is stored with the payment, the requester and the approver.",
+        "status": "Completed"
+      },
+      {
+        "num": "04",
+        "time": "June 30",
+        "title": "The month's discounts, in one view",
+        "body": "46 discounts worth $1,140 across all three branches, with who asked, who approved and why. Patterns show up without a spreadsheet.",
+        "status": "Closed"
+      }
+    ],
+    "bottomCta": {
+      "headline": "Discounts should be a decision, not a default.",
+      "subheadline": "Every discount reviewed before it's applied, every pattern visible before it costs you margin.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "operational-visibility",
+      "payment-tracking",
+      "reports"
+    ],
+    "metaDescription": "Staff request, managers approve, and every discount leaves an audit trail. Stop margin leakage in your spa, salon or gym in Nepal.",
+    "seoTitle": "Discount Approval Software Nepal: Stop Margin Leaks | Zennly"
+  },
+  {
+    "slug": "role-based-access",
+    "name": "Role-Based Access",
+    "badge": "Access Control",
+    "hero": {
+      "eyebrow": "Role-based access",
+      "headline": "Everyone sees only their part.<br> <span class=\"fd-hero__h1-accent\">You see everything.</span>",
+      "subheadline": "A three-tier access model so every person sees exactly what they need, and no more.",
+      "cta": "See role-based access in a 20-minute demo →",
+      "image": "/assets/images/feat-role-based-access.png",
+      "imageAlt": "Role-based access control dashboard",
+      "bg": "#EAE6F2"
+    },
+    "intro": {
+      "headline": "Three roles. Three views. One system — with the right boundaries.",
+      "body": "Every person in your business logs into the same platform. But what they see, what they can do, and what requires their approval is determined by their role — from front-desk staff to branch managers to the admin who sees it all."
+    },
+    "_problem_hidden": {
+      "headline": "Giving everyone the same access sounds generous. It's actually a liability.",
+      "body": "In most businesses that share software, everyone gets the same login. The owner, the manager, the person who started last week — same view, same permissions, same ability to change, delete, or override. It works until it doesn't. A staff member cancels a booking they shouldn't have. A manager adjusts pricing for a reason that isn't documented. A discount is applied directly, bypassing review. And because everyone had access to everything, you don't know who did what. Access without accountability isn't freedom. It's risk.",
+      "panels": [
+        {
+          "emoji": "ðŸ‘¥",
+          "title": "Everyone can do everything",
+          "body": "When there are no role-based limits, every mistake is possible. A new staff member can accidentally change a booking that a manager just confirmed. There's no structural protection."
+        },
+        {
+          "emoji": "ðŸ”",
+          "title": "No audit trail by role",
+          "body": "When something goes wrong, you have a list of events — but no clarity on who at what level was responsible. Accountability is impossible without role-based ownership."
+        },
+        {
+          "emoji": "ðŸ“‹",
+          "title": "Sensitive information visible to everyone",
+          "body": "Revenue data, cross-branch performance, discount approval records — information that an owner or admin should own can end up visible to front-desk staff who have no context for what they're seeing."
+        }
+      ]
+    },
+    "roles": [
+      {
+        "persona": "Staff",
+        "headline": "Focused on the day's work.",
+        "summary": "Create bookings, record payments, and request discounts — focused on the day's work, not information that isn't theirs to act on.",
+        "icon": "user-check",
+        "features": [
+          {
+            "title": "Request a discount, don't apply it",
+            "description": "The staff role allows them to request a discount. They submit it, and it goes to a manager for approval. The boundary is structural, not a matter of trust."
+          },
+          {
+            "title": "Create and manage today's bookings",
+            "description": "Create appointments, record payments, and update status — the day-to-day work of the front desk, without distraction from branch or company-wide data."
+          },
+          {
+            "title": "See your queue, not the whole business",
+            "description": "The schedule you need is right there. Revenue across branches and other staff's approvals stay out of view because they aren't yours to act on."
+          }
+        ]
+      },
+      {
+        "persona": "Manager",
+        "headline": "Run the branch, nothing more.",
+        "summary": "Confirm bookings, approve discount requests, and see branch-level performance — authority without overreach.",
+        "icon": "layout-dashboard",
+        "features": [
+          {
+            "title": "Confirm bookings for your branch",
+            "description": "The manager role gives them authority over their branch's schedule — confirming pending bookings and managing therapist assignments."
+          },
+          {
+            "title": "Approve or decline discount requests",
+            "description": "Every discount request from staff lands with the manager, with the booking and reason already attached, before it's applied."
+          },
+          {
+            "title": "See your branch's full day",
+            "description": "Bookings, staff activity, and performance for their location — the complete picture for the branch they're responsible for, not the ones they aren't."
+          }
+        ]
+      },
+      {
+        "persona": "Admin",
+        "headline": "The complete picture.",
+        "summary": "See every branch, approve everything, and hold the complete financial and operational picture.",
+        "icon": "building-2",
+        "features": [
+          {
+            "title": "See every branch in one view",
+            "description": "All bookings, all discounts requested and applied, all payments recorded, all staff transfers — across every location, in one place."
+          },
+          {
+            "title": "Own the financial and audit record",
+            "description": "Revenue data, discount approvals, and staff activity roll up to the admin — the single source of truth for the business."
+          },
+          {
+            "title": "Set the structure, trust the system to hold it",
+            "description": "Roles are assigned once, when someone is added to the platform. From there, the boundaries hold themselves — no ongoing enforcement required."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Proof through numbers",
+      "headline": "All three roles are genuinely active in the system.",
+      "stats": [
+        {
+          "tag": "Coverage",
+          "value": "3 roles",
+          "label": "Admin, manager, and staff — all actively creating bookings, updating statuses, and making operational decisions in the platform"
+        },
+        {
+          "tag": "Design",
+          "value": "Structure",
+          "label": "Roles aren't a permission you toggle in settings — they reflect the actual job functions of the people in your business and shape everything they see"
+        },
+        {
+          "tag": "Accountability",
+          "value": "Built in",
+          "label": "Every discount request, status change, and payment recorded is tied to a role — showing not just what happened, but at what level of the business it happened"
+        }
+      ],
+      "sub": "Real numbers from live branches running today."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once access finally matches responsibility.",
+      "quotes": [
+        {
+          "quote": "I stopped worrying about a new hire accidentally changing something a manager had already confirmed. The system just doesn't let them.",
+          "author": "Owner",
+          "business": "Multi-branch spa, Austin"
+        },
+        {
+          "quote": "My branch managers finally have real authority — they approve their own discounts, they don't wait on me for every small decision.",
+          "author": "Admin",
+          "business": "Salon chain, Denver"
+        },
+        {
+          "quote": "Our front desk sees exactly what they need for the day. Nobody's digging through revenue numbers that were never theirs to see.",
+          "author": "Branch manager",
+          "business": "Aesthetic clinic group"
+        }
+      ],
+      "sub": "Feedback from owners, managers, and staff using the platform."
+    },
+    "stopStart": {
+      "stop": [
+        "Giving every login the same permissions and hoping nothing goes wrong",
+        "Discovering after the fact who cancelled a booking or applied a discount",
+        "Letting front-desk staff see revenue and cross-branch data that isn't theirs to act on",
+        "Relying on trust alone to keep access aligned with responsibility"
+      ],
+      "start": [
+        "Giving every person exactly the access their role requires — no more, no less",
+        "Tying every discount, status change, and approval to a role and a name",
+        "Keeping financial and cross-branch data with the people who own it",
+        "Letting managers operate with real authority without stepping on each other, or on you"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "items": [
+        {
+          "question": "We're a small team. Everyone does everything.",
+          "answer": "In a small team, role clarity matters more, not less. When one person wears many hats, they need to know exactly what they're responsible for in each context. Roles give structure to a team that might otherwise operate in comfortable ambiguity — until something goes wrong."
+        },
+        {
+          "question": "Setting this up sounds complicated.",
+          "answer": "Roles are assigned to users when they're added to the platform. There's no complex configuration. Admin, manager, or staff — that's the decision. The system handles the rest."
+        },
+        {
+          "question": "What access should managers vs. front-desk staff have in booking software?",
+          "answer": "In Zennly, front-desk staff handle bookings and check-ins, managers approve discounts and staff transfers for their branch, and admins see and control everything across every branch — each role only sees what its job requires."
+        },
+        {
+          "question": "We trust everyone on our team.",
+          "answer": "Role-based access isn't distrust — it's design. A well-designed kitchen has different stations for different functions. The chef doesn't design the menu and plate every dish simultaneously. Roles let your team operate at their level of authority without stepping on each other."
+        },
+        {
+          "question": "What access should managers and front-desk staff have in booking software?",
+          "answer": "Owners see everything across branches, managers see their branch and approve discounts, and front-desk staff handle bookings and payments. Role-based access limits each person to what they need."
+        }
+      ],
+      "sub": "Answers to what owners ask before they switch."
+    },
+    "workflowHeading": "How the same action looks different depending on who's doing it.",
+    "workflowSub": "One Thursday at Downtown, seen through each role.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "2:10pm",
+        "title": "Front desk asks, but can't apply",
+        "body": "Sophie B. sends a 20% request for Ashley Carter's late-starting massage. Her staff role has no Apply button, so it goes to the manager.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "Request discount",
+          "bannerTitle": "Signed in as Sophie B.",
+          "bannerSub": "Front desk · Downtown",
+          "fields": [
+            [
+              "Client",
+              "Ashley Carter · 1:00 PM"
+            ],
+            [
+              [
+                "Discount",
+                "20%"
+              ],
+              [
+                "Reason",
+                "Service delay"
+              ]
+            ]
+          ],
+          "submit": "Send to manager"
+        }
+      },
+      {
+        "num": "02",
+        "time": "2:11pm",
+        "title": "The manager decides for Downtown",
+        "body": "Downtown's manager approves it and confirms two pending bookings. Midtown and Uptown never appear on that screen.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "review",
+          "notif": "Discount request · 20% · Ashley Carter",
+          "badge": "Needs review",
+          "label": "Downtown only",
+          "rowLabel": "Approving as",
+          "rowValue": "Branch manager · Downtown",
+          "plainLabel": "Also waiting",
+          "plainValue": "2 bookings to confirm",
+          "button": "Approve"
+        }
+      },
+      {
+        "num": "03",
+        "time": "8:00pm",
+        "title": "The owner sees every branch",
+        "body": "As admin, the owner sees all three branches, every payment and every approved discount for the day, in one place.",
+        "status": "Closed",
+        "scene": {
+          "type": "report",
+          "title": "All branches · today",
+          "badge": "Closed",
+          "sub": "Thursday · admin view",
+          "banner": [
+            [
+              "$5,240",
+              "collected"
+            ],
+            [
+              "2",
+              "discounts"
+            ]
+          ],
+          "insightsLabel": "By branch",
+          "insights": [
+            [
+              "Downtown",
+              "$1,860"
+            ],
+            [
+              "Midtown",
+              "$1,700"
+            ],
+            [
+              "Uptown",
+              "$1,680"
+            ]
+          ],
+          "caption": "Only admins see this view."
+        }
+      },
+      {
+        "num": "04",
+        "time": "8:05pm",
+        "title": "Everyone sees their part",
+        "body": "The same revenue screen is hidden from staff and limited to one branch for managers. Roles are set once, not policed every day.",
+        "status": "Completed",
+        "scene": {
+          "type": "live",
+          "label": "Who sees revenue",
+          "time": "Thursday",
+          "title": "Revenue · all branches",
+          "sub": "Admins only",
+          "steps": [
+            [
+              "Staff: today's bookings, no revenue",
+              "done"
+            ],
+            [
+              "Manager: Downtown only",
+              "done"
+            ],
+            [
+              "Admin: every branch",
+              "active"
+            ]
+          ],
+          "caption": "Set once in Settings · Roles"
+        }
+      }
+    ],
+    "bottomCta": {
+      "headline": "Everyone deserves to see exactly what they need to do their job. Nothing more.",
+      "ctaLabel": "Book a demo and see role-based access configured for your team →"
+    },
+    "relatedFeatures": [
+      "staff-management",
+      "operational-visibility",
+      "discount-management"
+    ],
+    "metaDescription": "Owners see everything, managers see their branch, staff see their day. Role-based access built for how spas, salons and gyms in Nepal are really run.",
+    "seoTitle": "Role-Based Access for Owners, Managers & Staff | Zennly"
+  },
+  {
+    "slug": "memberships",
+    "name": "Memberships",
+    "badge": "Prepaid Memberships",
+    "hero": {
+      "eyebrow": "Memberships",
+      "headline": "Prepaid memberships,<br> <span class=\"fd-hero__h1-accent\">tracked to the last dollar.</span>",
+      "subheadline": "Customers pay in advance for a membership tier. Zennly tracks the balance and every transaction.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-finance.png",
+      "imageAlt": "Membership balance and transactions",
+      "bg": "#E4EEDC"
+    },
+    "intro": {
+      "headline": "A prepaid wallet for your regular customers.",
+      "body": "Set up tiers once, enrol customers, and let the balance pay for visits. Built for spas, beauty parlours and gyms in Nepal that sell prepaid cards or monthly tiers, it replaces the notebook of who paid what with a wallet, an expiry date and a full transaction history."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Membership tiers",
+        "description": "Each tier has a name, an advance amount and a validity period in days."
+      },
+      {
+        "title": "Wallet balance",
+        "description": "Every deposit and deduction is a ledger entry, so the balance always adds up."
+      },
+      {
+        "title": "Pay with membership",
+        "description": "Membership is a payment mode at checkout and debits the wallet in one step."
+      },
+      {
+        "title": "Renewals and extensions",
+        "description": "Managers can top up, renew a depleted or lapsed membership, or extend its expiry."
+      }
+    ],
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Choose a tier",
+        "description": "Pick a tier with its advance amount and validity period."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "Customer deposits",
+        "description": "Deposits are recorded. When they reach the tier's advance amount, the membership activates and the expiry date is set."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "Pay with the wallet",
+        "description": "At checkout, staff choose Membership as the payment mode and the amount is deducted from the balance."
+      },
+      {
+        "step": "04",
+        "icon": "check",
+        "title": "Renew when needed",
+        "description": "When a membership is depleted or lapsed, a manager renews it, optionally on a different tier."
+      }
+    ],
+    "stopStart": {
+      "stop": [
+        "Tracking prepaid balances in a notebook",
+        "Not knowing who has credit left",
+        "Losing track of expiry dates",
+        "Adjusting balances without a record"
+      ],
+      "start": [
+        "One wallet per member with a full transaction history",
+        "Automatic activation and expiry dates",
+        "Membership as a payment mode at checkout",
+        "Manager-only top-ups, renewals and adjustments"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "sub": "Answers to what owners ask before they switch.",
+      "items": [
+        {
+          "question": "Who can top up or adjust a membership?",
+          "answer": "Top-ups, renewals and adjustments are limited to managers and admins. Staff can take payment from a membership at checkout."
+        },
+        {
+          "question": "Does the balance ever get out of sync?",
+          "answer": "The balance is calculated from an append-only ledger of deposits, deductions and adjustments, so every change is on record."
+        },
+        {
+          "question": "How do I run prepaid memberships for a spa or gym in Nepal?",
+          "answer": "Set up membership tiers with an advance amount and validity period, record the customer's deposit, and let staff choose Membership as the payment mode at checkout. Zennly deducts the amount from the wallet and keeps every deposit and deduction as a ledger entry."
+        },
+        {
+          "question": "How does a membership activate?",
+          "answer": "Deposits are recorded, and when they reach the tier's advance amount the membership activates and its expiry date is set."
+        },
+        {
+          "question": "What happens when a membership runs out or expires?",
+          "answer": "A manager can renew a depleted or lapsed membership, optionally on a different tier, or extend its expiry. Every change is on record."
+        },
+        {
+          "question": "Can members use their balance across branches?",
+          "answer": "Memberships belong to your business account and staff take payment from the wallet at checkout. Ask in the demo how your branches should be set up."
+        },
+        {
+          "question": "Is a membership the same as a gift voucher or a session package?",
+          "answer": "No. A membership is a prepaid wallet, a voucher is a coded gift or prepaid value, and a package is a bundle of sessions for one service. Zennly tracks all three."
+        },
+        {
+          "question": "How much does it cost?",
+          "answer": "Zennly is quoted per business, based on branches, team size and features. Book a 20-minute demo and you get a tailored quote within 24 hours."
+        }
+      ]
+    },
+    "bottomCta": {
+      "headline": "Run prepaid memberships without a notebook.",
+      "subheadline": "See tiers, balances and renewals working across your branches.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "payment-tracking",
+      "discount-management",
+      "role-based-access"
+    ],
+    "metaDescription": "Sell prepaid membership tiers and always know wallet balance, validity and renewals. Membership software for spas, salons and gyms in Nepal.",
+    "seoTitle": "Spa, Salon & Gym Membership Software Nepal | Zennly",
+    "heroMockup": {
+      "title": "Membership wallets",
+      "date": "Oct 2 · Downtown",
+      "rows": [
+        {
+          "avatar": "S",
+          "name": "S. Collins · Premium",
+          "service": "Balance $80 · expires Jan 14",
+          "status": "Running low",
+          "done": false
+        },
+        {
+          "avatar": "R",
+          "name": "R. Garcia · Deluxe",
+          "service": "Balance $220 · expires Nov 2",
+          "status": "Active",
+          "done": true
+        },
+        {
+          "avatar": "M",
+          "name": "M. Turner · Deluxe",
+          "service": "Balance $0 · expired Sep 30",
+          "status": "Renew",
+          "done": false
+        }
+      ]
+    },
+    "workflowHeading": "How a membership runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One member's year, from sign-up to renewal.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Jan 14",
+        "title": "Stacy joins Premium",
+        "body": "After her tenth visit, Stacy Collins signs up at the front desk. Staff pick the Premium tier: $1,200 in advance, valid for a year.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "New membership",
+          "bannerTitle": "Stacy Collins",
+          "bannerSub": "Regular client · Downtown",
+          "fields": [
+            [
+              "Tier",
+              "Premium"
+            ],
+            [
+              [
+                "Advance",
+                "$1,200"
+              ],
+              [
+                "Validity",
+                "365 days"
+              ]
+            ]
+          ],
+          "submit": "Record deposit"
+        }
+      },
+      {
+        "num": "02",
+        "time": "Jan 14",
+        "title": "The deposit activates it",
+        "body": "She pays $1,200 by card. The deposit goes on her wallet ledger, the membership turns Active and the expiry is set to next Jan 14.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "review",
+          "notif": "Deposit received · $1,200 · Stacy Collins",
+          "notifTime": "11:05 AM",
+          "badge": "Activating",
+          "label": "Wallet ledger",
+          "rowLabel": "Deposit · Card",
+          "rowValue": "$1,200 · Premium",
+          "plainLabel": "Status",
+          "plainValue": "Active · expires Jan 14",
+          "button": "Confirm deposit"
+        }
+      },
+      {
+        "num": "03",
+        "time": "Mar 3",
+        "title": "A visit is paid from the wallet",
+        "body": "Her 90-minute Hot Stone is $160. Front desk picks Membership at checkout, and the balance drops from $1,200 to $1,040 in one step.",
+        "status": "Completed",
+        "scene": {
+          "type": "receipt",
+          "successTitle": "Paid from membership",
+          "badge": "Paid",
+          "rows": [
+            [
+              "Service",
+              "Hot Stone · 90 min"
+            ],
+            [
+              "Payment mode",
+              "Membership"
+            ],
+            [
+              "Balance before",
+              "$1,200"
+            ]
+          ],
+          "total": [
+            "Deducted",
+            "$160"
+          ],
+          "caption": "Balance now $1,040 · ledger entry saved"
+        }
+      },
+      {
+        "num": "04",
+        "time": "Oct 2",
+        "title": "The balance runs low",
+        "body": "Seven visits in, $80 is left with 104 days to go. Staff see it on her record before she reaches the desk.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "live",
+          "label": "Running low",
+          "time": "Oct 2",
+          "title": "Stacy Collins · Premium",
+          "sub": "$80 left · 104 days to expiry",
+          "steps": [
+            [
+              "Pending",
+              "done"
+            ],
+            [
+              "Active",
+              "active"
+            ],
+            [
+              "Depleted",
+              ""
+            ]
+          ],
+          "caption": "Status comes from balance and expiry, never typed in."
+        }
+      },
+      {
+        "num": "05",
+        "time": "Oct 9",
+        "title": "The manager renews it",
+        "body": "Stacy tops up before her next visit. The manager renews Premium with a new $1,200 deposit, and the validity resets to a full year.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "report",
+          "title": "Membership renewed",
+          "badge": "Active",
+          "badgeClass": "confirmed",
+          "sub": "Stacy Collins · Premium",
+          "banner": [
+            [
+              "$1,200",
+              "deposit"
+            ],
+            [
+              "365 days",
+              "validity"
+            ]
+          ],
+          "insightsLabel": "What changed",
+          "insights": [
+            [
+              "Tier",
+              "Premium"
+            ],
+            [
+              "Expires",
+              "Oct 9, next year"
+            ],
+            [
+              "Renewed by",
+              "Branch manager"
+            ]
+          ],
+          "caption": "Renewals and adjustments are manager-only."
+        }
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "Pay from the wallet in one step.",
+        "summary": "Take payment from a member's wallet in one step and see the balance as you go.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff at a salon reception desk",
+        "features": [
+          {
+            "title": "Pay from the wallet",
+            "description": "Choose Membership as the payment mode and the amount is deducted."
+          },
+          {
+            "title": "See the balance",
+            "description": "The remaining balance and expiry date are on the customer's record."
+          },
+          {
+            "title": "Enrol a customer",
+            "description": "Record the first deposit while the customer is at the desk."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Top-ups and renewals, all logged.",
+        "summary": "Top up, renew and adjust memberships, with every change on the ledger.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Top-ups and renewals",
+            "description": "Renew a depleted or lapsed membership, optionally on a new tier."
+          },
+          {
+            "title": "Extend an expiry",
+            "description": "Extend a membership's validity when it is the right call."
+          },
+          {
+            "title": "Adjustments on record",
+            "description": "Every adjustment is a ledger entry, not an edit."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "See your prepaid money at work.",
+        "summary": "See how much prepaid money sits in memberships and how it is being used.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing reports at a bright office desk",
+        "features": [
+          {
+            "title": "A ledger for every member",
+            "description": "Deposits, deductions and adjustments in one append-only record."
+          },
+          {
+            "title": "Four clear states",
+            "description": "Pending, active, lapsed or depleted, calculated from balance and expiry."
+          },
+          {
+            "title": "Controlled changes",
+            "description": "Only managers and admins can change a balance."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Under the hood",
+      "headline": "Built to leave a record.",
+      "stats": [
+        {
+          "tag": "Record",
+          "value": "1",
+          "label": "One append-only ledger per membership, so every change is on record"
+        },
+        {
+          "tag": "States",
+          "value": "4",
+          "label": "Pending, active, lapsed or depleted, calculated from balance and expiry"
+        },
+        {
+          "tag": "Control",
+          "value": "Manager",
+          "label": "Top-ups, renewals and adjustments are manager-only"
+        }
+      ],
+      "sub": "How it works inside the product."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once prepaid money has a ledger.",
+      "quotes": [
+        {
+          "quote": "We used to keep member balances in a notebook behind the desk. Now the balance is on screen before the client even sits down.",
+          "author": "Owner",
+          "business": "Day spa, Austin"
+        },
+        {
+          "quote": "Renewals used to be a surprise. Now we see who's running low a week ahead and mention it at their next visit.",
+          "author": "Branch manager",
+          "business": "Wellness studio, Denver"
+        },
+        {
+          "quote": "I know exactly how much prepaid money we're holding across every branch. That changed how I plan the month.",
+          "author": "Admin",
+          "business": "Multi-branch spa, Portland"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    }
+  },
+  {
+    "slug": "packages",
+    "name": "Packages",
+    "badge": "Session Packages",
+    "hero": {
+      "eyebrow": "Packages",
+      "headline": "Sell session packages,<br> <span class=\"fd-hero__h1-accent\">know every session left.</span>",
+      "subheadline": "A package bundles sessions for one service at a set price — Zennly counts them down at checkout.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-operations.png",
+      "imageAlt": "Package balance and session redemptions",
+      "bg": "#F5E6C8"
+    },
+    "intro": {
+      "headline": "Bundles of sessions, redeemed one visit at a time.",
+      "body": "Define a package once, issue it to a customer and redeem sessions as they come in. Bridal packages, facial courses and massage bundles are common in Nepal. Zennly counts each session down at checkout so you never argue over how many a customer has left."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Package types",
+        "description": "Each type is tied to a service, with a default number of sessions, a standard price and a validity period."
+      },
+      {
+        "title": "Session balance",
+        "description": "Sessions remaining and status are always visible: unused, partial, fully redeemed or expired."
+      },
+      {
+        "title": "Redeem at checkout",
+        "description": "Staff redeem a session against the package when the customer pays."
+      },
+      {
+        "title": "Amount due",
+        "description": "Final amount minus paid amount shows what a customer still owes."
+      }
+    ],
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Create a package type",
+        "description": "Choose the service, number of sessions, price and validity."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "Issue it to a customer",
+        "description": "The package is recorded with its sessions, expiry date and the amount paid."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "Redeem each visit",
+        "description": "At checkout, staff find the customer's active package for that service and redeem one session."
+      },
+      {
+        "step": "04",
+        "icon": "check",
+        "title": "See what is left",
+        "description": "Sessions remaining and any balance due update after every redemption."
+      }
+    ],
+    "stopStart": {
+      "stop": [
+        "Counting package sessions on paper",
+        "Arguing over how many sessions are left",
+        "Missing expiry dates",
+        "Not knowing what a customer still owes"
+      ],
+      "start": [
+        "A session-by-session redemption record",
+        "A live balance for every package",
+        "Expiry dates on every package",
+        "Customers able to see their own packages"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "sub": "Answers to what owners ask before they switch.",
+      "items": [
+        {
+          "question": "Can a package be used at any branch?",
+          "answer": "Packages belong to your business account, and staff redeem sessions at checkout. Ask in the demo how your branches are set up."
+        },
+        {
+          "question": "What happens when a package expires?",
+          "answer": "Status shows as expired once the expiry date passes, so staff can see it before redeeming."
+        },
+        {
+          "question": "How do I track session packages and redemptions for a spa or salon?",
+          "answer": "Create a package type for a service with a number of sessions, price and validity, issue it to a customer, and redeem one session at checkout. Sessions remaining and any balance due update after every redemption."
+        },
+        {
+          "question": "Can I sell a package and let the customer pay in instalments?",
+          "answer": "Zennly shows the final amount, the paid amount and what is still owed, so staff can see the amount due on a package at any time."
+        },
+        {
+          "question": "How do I know how many sessions a customer has left?",
+          "answer": "Open the package: sessions remaining and status (unused, partial, fully redeemed or expired) are always visible."
+        },
+        {
+          "question": "Is a package the same as a membership?",
+          "answer": "No. A package is a bundle of sessions for one service at a set price. A membership is a prepaid wallet. Zennly supports both."
+        },
+        {
+          "question": "How much does it cost?",
+          "answer": "Zennly is quoted per business, based on branches, team size and features. Book a 20-minute demo and you get a tailored quote within 24 hours."
+        }
+      ]
+    },
+    "bottomCta": {
+      "headline": "Package sales you can actually track.",
+      "subheadline": "See issuing, redeeming and balances on your own services.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "memberships",
+      "vouchers",
+      "payment-tracking"
+    ],
+    "metaDescription": "Sell session bundles, redeem sessions at checkout and track remaining balances automatically. Package software for spas and salons in Nepal.",
+    "seoTitle": "Spa & Salon Package Software Nepal: Session Bundles | Zennly",
+    "heroMockup": {
+      "title": "Package balances",
+      "date": "Aug 20 · Downtown",
+      "rows": [
+        {
+          "avatar": "A",
+          "name": "A. Carter · 10 Deep Tissue",
+          "service": "2 of 10 left · expires Sep 30",
+          "status": "Partial",
+          "done": false
+        },
+        {
+          "avatar": "P",
+          "name": "P. Jensen · 6 facials",
+          "service": "Fully redeemed",
+          "status": "Used",
+          "done": true
+        },
+        {
+          "avatar": "D",
+          "name": "D. Reed · 8 hot stone",
+          "service": "8 of 8 left · $0 due",
+          "status": "Unused",
+          "done": true
+        }
+      ]
+    },
+    "workflowHeading": "How a package runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One 10-session package, from setup to its last weeks.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Apr 1",
+        "title": "The manager sets up a 10-pack",
+        "body": "Downtown's manager creates a package type: 10 Deep Tissue sessions of 60 minutes, $1,080 instead of $1,200, valid for 180 days.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "New package type",
+          "bannerTitle": "Downtown",
+          "bannerSub": "Single session $120",
+          "fields": [
+            [
+              "Service",
+              "Deep Tissue · 60 min"
+            ],
+            [
+              [
+                "Sessions",
+                "10"
+              ],
+              [
+                "Validity",
+                "180 days"
+              ]
+            ],
+            [
+              "Package price",
+              "$1,080"
+            ]
+          ],
+          "submit": "Save package type"
+        }
+      },
+      {
+        "num": "02",
+        "time": "Apr 3",
+        "title": "Ashley buys one",
+        "body": "Ashley Carter buys the 10-pack and pays $540 today. It's issued with 10 sessions, $540 still due and a Sep 30 expiry.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "review",
+          "notif": "Package issued · 10 × Deep Tissue · Ashley Carter",
+          "notifTime": "10:20 AM",
+          "badge": "$540 due",
+          "label": "New package",
+          "rowLabel": "10 × Deep Tissue · 60 min",
+          "rowValue": "Paid $540 of $1,080",
+          "plainLabel": "Expires",
+          "plainValue": "Sep 30",
+          "button": "Issue package"
+        }
+      },
+      {
+        "num": "03",
+        "time": "Apr 17",
+        "title": "Her first session, one tap",
+        "body": "At checkout, front desk finds her active package and redeems one session. Nothing is charged, and 9 sessions are left.",
+        "status": "Completed",
+        "scene": {
+          "type": "receipt",
+          "successTitle": "Session redeemed",
+          "badge": "Redeemed",
+          "rows": [
+            [
+              "Service",
+              "Deep Tissue · 60 min"
+            ],
+            [
+              "Therapist",
+              "Emily C."
+            ],
+            [
+              "Paid with",
+              "Package session"
+            ]
+          ],
+          "total": [
+            "Sessions left",
+            "9 of 10"
+          ],
+          "caption": "No charge · record saved"
+        }
+      },
+      {
+        "num": "04",
+        "time": "Jun 12",
+        "title": "The balance is paid off",
+        "body": "Four sessions in, Ashley pays the last $540 at the desk. The package stays Partial with 6 sessions left and nothing owed.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "live",
+          "label": "Partial",
+          "time": "Jun 12",
+          "title": "Ashley Carter · Deep Tissue",
+          "sub": "6 of 10 left · $0 due",
+          "steps": [
+            [
+              "Unused",
+              "done"
+            ],
+            [
+              "Partial",
+              "active"
+            ],
+            [
+              "Fully redeemed",
+              ""
+            ]
+          ],
+          "caption": "Nobody counts sessions on paper."
+        }
+      },
+      {
+        "num": "05",
+        "time": "Aug 20",
+        "title": "Ashley checks her own package",
+        "body": "With 41 days to go, she sees 2 sessions left and nothing owed in her own view. Staff see the very same record.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "report",
+          "title": "Your package",
+          "badge": "Partial",
+          "badgeClass": "in-progress",
+          "sub": "Ashley Carter · customer view",
+          "banner": [
+            [
+              "2",
+              "sessions left"
+            ],
+            [
+              "$0",
+              "due"
+            ]
+          ],
+          "insightsLabel": "Details",
+          "insights": [
+            [
+              "Service",
+              "Deep Tissue · 60 min"
+            ],
+            [
+              "Expires",
+              "Sep 30 · 41 days"
+            ],
+            [
+              "Paid",
+              "$1,080 of $1,080"
+            ]
+          ],
+          "caption": "Staff and customer see the same record."
+        }
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "One tap per session.",
+        "summary": "Redeem a session in seconds and see exactly what is left.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff at a salon reception desk",
+        "features": [
+          {
+            "title": "Find the package",
+            "description": "See a customer's active packages for the service they booked."
+          },
+          {
+            "title": "Redeem at checkout",
+            "description": "One session at a time, each on record."
+          },
+          {
+            "title": "See what is owed",
+            "description": "Final amount minus paid amount is shown on the package."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Nothing unused slips by.",
+        "summary": "Set up package types and keep an eye on what is unused or expiring.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Package types",
+            "description": "Service, sessions, price and validity, set once."
+          },
+          {
+            "title": "Status at a glance",
+            "description": "Unused, partial, fully redeemed or expired."
+          },
+          {
+            "title": "Corrections on record",
+            "description": "Admins can correct a package and the change is recorded."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Every prepaid session accounted for.",
+        "summary": "Know how many sessions customers have prepaid for and how they are used.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing reports at a bright office desk",
+        "features": [
+          {
+            "title": "Prepaid sessions",
+            "description": "Every package's sessions, redeemed or remaining."
+          },
+          {
+            "title": "Dates handled locally",
+            "description": "Expiry is calculated in your local time."
+          },
+          {
+            "title": "Customers can check",
+            "description": "Customers see their own packages themselves."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Under the hood",
+      "headline": "Every session accounted for.",
+      "stats": [
+        {
+          "tag": "States",
+          "value": "4",
+          "label": "Unused, partial, fully redeemed or expired"
+        },
+        {
+          "tag": "Redeem",
+          "value": "1",
+          "label": "Session redeemed at a time, each one on record"
+        },
+        {
+          "tag": "Visible",
+          "value": "Customers",
+          "label": "Customers can see their own packages"
+        }
+      ],
+      "sub": "How it works inside the product."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once sessions stop living on punch cards.",
+      "quotes": [
+        {
+          "quote": "We used to stamp paper cards and argue about how many sessions were left. Now front desk just reads it off the screen.",
+          "author": "Front-desk lead",
+          "business": "Day spa, Austin"
+        },
+        {
+          "quote": "I can see which packages are about to expire with sessions unused, and we call those clients before the date passes.",
+          "author": "Branch manager",
+          "business": "Massage studio, Denver"
+        },
+        {
+          "quote": "Part-paid packages used to slip through. Now the amount still owed sits on the package until it's settled.",
+          "author": "Owner",
+          "business": "Multi-branch spa, Portland"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    }
+  },
+  {
+    "slug": "vouchers",
+    "name": "Vouchers",
+    "badge": "Gift Vouchers",
+    "hero": {
+      "eyebrow": "Vouchers",
+      "headline": "Gift vouchers<br> <span class=\"fd-hero__h1-accent\">with a balance you can trust.</span>",
+      "subheadline": "Issue prepaid or gift vouchers with a unique code and expiry — redeemable as payment, any visit.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-finance.png",
+      "imageAlt": "Voucher code and balance",
+      "bg": "#ECF7BD"
+    },
+    "intro": {
+      "headline": "Vouchers that behave like money, because they are tracked like money.",
+      "body": "Every voucher has a code, a balance and an expiry date, and every claim is on record. Gift vouchers sell well around the holidays, Valentine's Day and Mother's Day. Zennly gives every voucher a unique code, a balance and an expiry date, so a voucher is as safe to hand over as cash."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Unique codes",
+        "description": "Codes are generated from a prefix, or entered manually."
+      },
+      {
+        "title": "Partial claims",
+        "description": "Wallet-style vouchers can be claimed over several visits, with the balance updating each time."
+      },
+      {
+        "title": "Pay with a voucher",
+        "description": "A voucher is a payment on a booking, including split payments."
+      },
+      {
+        "title": "Corrections on record",
+        "description": "Admins can correct a balance or void a claim, and the change is recorded."
+      }
+    ],
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Issue a voucher",
+        "description": "Choose a voucher type. A code is generated and an expiry date is set, 90 days from issue by default."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "Customer buys it",
+        "description": "The purchase can be paid by split payment, including from a membership wallet."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "Redeem at checkout",
+        "description": "Staff enter the code and claim the amount against the booking. Expired vouchers are refused."
+      },
+      {
+        "step": "04",
+        "icon": "check",
+        "title": "Track the balance",
+        "description": "Remaining balance and status update after each claim."
+      }
+    ],
+    "stopStart": {
+      "stop": [
+        "Paper vouchers nobody can verify",
+        "Unknown balances on gift cards",
+        "Vouchers redeemed twice",
+        "Expired vouchers being honoured by mistake"
+      ],
+      "start": [
+        "A code and balance for every voucher",
+        "A claim ledger for every redemption",
+        "Expiry enforced when a voucher is claimed",
+        "Admin corrections that leave a record"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "sub": "Answers to what owners ask before they switch.",
+      "items": [
+        {
+          "question": "Are these discount codes?",
+          "answer": "No. Vouchers are prepaid or gift vouchers with a value. For percentage promotions, see Campaigns."
+        },
+        {
+          "question": "Can a voucher be used more than once?",
+          "answer": "Wallet-style vouchers can be claimed in several visits until the balance is used."
+        },
+        {
+          "question": "How do I manage gift vouchers for a spa or salon in Nepal?",
+          "answer": "Issue a voucher with a generated or manual code and an expiry date, record how it was paid for, and have staff enter the code at checkout to claim the amount. Remaining balance and status update after each claim."
+        },
+        {
+          "question": "How long is a voucher valid?",
+          "answer": "By default, 90 days from issue, and expired vouchers are refused at checkout."
+        },
+        {
+          "question": "Can a voucher be part of a split payment?",
+          "answer": "Yes. A voucher is a payment on a booking, including a split payment alongside cash, card or a membership wallet."
+        },
+        {
+          "question": "What if a voucher balance is wrong?",
+          "answer": "Admins can correct a balance or void a claim, and the change is recorded."
+        },
+        {
+          "question": "How much does it cost?",
+          "answer": "Zennly is quoted per business, based on branches, team size and features. Book a 20-minute demo and you get a tailored quote within 24 hours."
+        }
+      ]
+    },
+    "bottomCta": {
+      "headline": "Vouchers without the paper trail problem.",
+      "subheadline": "See issuing, claiming and expiry in a live demo.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "memberships",
+      "packages",
+      "payment-tracking"
+    ],
+    "metaDescription": "Issue gift vouchers with unique codes, track balances, allow partial claims and expiry. Voucher software for spas and salons in Nepal.",
+    "seoTitle": "Gift Voucher Software Nepal for Spas & Salons | Zennly",
+    "heroMockup": {
+      "title": "Voucher claims",
+      "date": "Mar 1 · Downtown",
+      "rows": [
+        {
+          "avatar": "G",
+          "name": "GV-0012 · Lily Wong",
+          "service": "$35 left of $250",
+          "status": "Partial",
+          "done": false
+        },
+        {
+          "avatar": "G",
+          "name": "GV-0009 · Ben A.",
+          "service": "$125 · claimed in full",
+          "status": "Claimed",
+          "done": true
+        },
+        {
+          "avatar": "G",
+          "name": "GV-0007 · Chloe M.",
+          "service": "Expired Feb 28",
+          "status": "Expired",
+          "done": false
+        }
+      ]
+    },
+    "workflowHeading": "How a voucher runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One gift voucher, from the day it's bought to its last claim.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Dec 12",
+        "title": "A gift voucher is issued",
+        "body": "Rosa Garcia wants a $250 gift for her friend Lily. Front desk issues a gift voucher with its own code, valid for 90 days.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "Issue voucher",
+          "bannerTitle": "Gift for Lily Wong",
+          "bannerSub": "Bought by Rosa Garcia",
+          "fields": [
+            [
+              "Voucher type",
+              "Gift voucher"
+            ],
+            [
+              [
+                "Value",
+                "$250"
+              ],
+              [
+                "Expires",
+                "Mar 12"
+              ]
+            ],
+            [
+              "Code",
+              "GV-0012 (automatic)"
+            ]
+          ],
+          "submit": "Issue voucher"
+        }
+      },
+      {
+        "num": "02",
+        "time": "Dec 12",
+        "title": "Rosa pays two ways",
+        "body": "She pays $150 by card and $100 from her Deluxe membership. Both payments sit on the one voucher purchase.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "review",
+          "notif": "Voucher paid · GV-0012 · $250",
+          "notifTime": "4:40 PM",
+          "badge": "Paid",
+          "badgeClass": "completed",
+          "label": "Voucher purchase",
+          "rowLabel": "Card · Deluxe membership",
+          "rowValue": "$150 + $100",
+          "plainLabel": "Expires",
+          "plainValue": "Mar 12",
+          "button": "Confirm purchase"
+        }
+      },
+      {
+        "num": "03",
+        "time": "Jan 8",
+        "title": "Lily uses $120 of it",
+        "body": "Lily books a 60-minute Deep Tissue. At checkout, front desk enters GV-0012 and claims $120 against the booking.",
+        "status": "Completed",
+        "scene": {
+          "type": "receipt",
+          "successTitle": "Voucher claimed",
+          "badge": "Claimed",
+          "rows": [
+            [
+              "Booking",
+              "Deep Tissue · 60 min"
+            ],
+            [
+              "Paid with",
+              "Voucher GV-0012"
+            ],
+            [
+              "Balance before",
+              "$250"
+            ]
+          ],
+          "total": [
+            "Claimed",
+            "$120"
+          ],
+          "caption": "$130 left on the voucher"
+        }
+      },
+      {
+        "num": "04",
+        "time": "Feb 20",
+        "title": "The rest goes on a facial",
+        "body": "Lily comes back for a $95 facial. The voucher covers it, and the remaining balance drops to $35.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "live",
+          "label": "Partly claimed",
+          "time": "Feb 20",
+          "title": "GV-0012 · Lily Wong",
+          "sub": "$35 left · expires Mar 12",
+          "steps": [
+            [
+              "Issued",
+              "done"
+            ],
+            [
+              "Partly claimed",
+              "active"
+            ],
+            [
+              "Fully claimed",
+              ""
+            ]
+          ],
+          "caption": "The balance is always the ledger's answer."
+        }
+      },
+      {
+        "num": "05",
+        "time": "Mar 1",
+        "title": "Every claim is on the ledger",
+        "body": "Two claims, $215 used and $35 left with 11 days to go. Lily can check it herself, and admin corrections stay on record.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "report",
+          "title": "Voucher ledger",
+          "badge": "Partly claimed",
+          "badgeClass": "in-progress",
+          "sub": "GV-0012 · Lily Wong",
+          "banner": [
+            [
+              "2",
+              "claims"
+            ],
+            [
+              "$35",
+              "left"
+            ]
+          ],
+          "insightsLabel": "Claims",
+          "insights": [
+            [
+              "Jan 8 · Deep Tissue",
+              "$120"
+            ],
+            [
+              "Feb 20 · Facial",
+              "$95"
+            ],
+            [
+              "Expires",
+              "Mar 12"
+            ]
+          ],
+          "caption": "Corrections and voids are admin-only."
+        }
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "The balance, right in front of you.",
+        "summary": "Issue and redeem vouchers quickly, with the balance in front of you.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff at a salon reception desk",
+        "features": [
+          {
+            "title": "Enter the code",
+            "description": "Claim the amount against the booking."
+          },
+          {
+            "title": "Partial claims",
+            "description": "Use part of a voucher now, keep the rest for later."
+          },
+          {
+            "title": "Expiry enforced",
+            "description": "Expired vouchers are refused at claim."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Every voucher under control.",
+        "summary": "Keep vouchers under control without chasing paper.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Voucher types",
+            "description": "Prefix, standard price and category, set once."
+          },
+          {
+            "title": "Split payments",
+            "description": "Pay for a voucher with more than one tender."
+          },
+          {
+            "title": "A claim ledger",
+            "description": "Every redemption is an entry."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Know what's still outstanding.",
+        "summary": "Know how much prepaid value is outstanding.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing reports at a bright office desk",
+        "features": [
+          {
+            "title": "Balances you can trust",
+            "description": "Remaining balance and status for every voucher."
+          },
+          {
+            "title": "Admin corrections",
+            "description": "Correct a balance or void a claim, on record."
+          },
+          {
+            "title": "Customers can check",
+            "description": "Customers see their own vouchers."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Under the hood",
+      "headline": "Vouchers that behave like money.",
+      "stats": [
+        {
+          "tag": "Claims",
+          "value": "Append-only",
+          "label": "Every claim is a ledger entry"
+        },
+        {
+          "tag": "Expiry",
+          "value": "90 days",
+          "label": "Default expiry from the issue date"
+        },
+        {
+          "tag": "Payment",
+          "value": "Split",
+          "label": "Voucher purchases can be paid by split tender"
+        }
+      ],
+      "sub": "How it works inside the product."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once gift vouchers have a ledger.",
+      "quotes": [
+        {
+          "quote": "Holiday vouchers used to be a box of paper slips. Now every one has a code, and front desk sees the balance before charging anything.",
+          "author": "Owner",
+          "business": "Day spa, Austin"
+        },
+        {
+          "quote": "Clients split a voucher across two or three visits all the time. The balance just carries over, so nobody argues about what's left.",
+          "author": "Front-desk lead",
+          "business": "Salon, Denver"
+        },
+        {
+          "quote": "I finally know how much gift money we're holding that hasn't been used yet, branch by branch.",
+          "author": "Admin",
+          "business": "Multi-branch spa, Portland"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    }
+  },
+  {
+    "slug": "campaigns",
+    "name": "Campaigns",
+    "badge": "Promotions",
+    "hero": {
+      "eyebrow": "Campaigns",
+      "headline": "Run a promotion,<br> <span class=\"fd-hero__h1-accent\">and it shows up in booking.</span>",
+      "subheadline": "Set a percentage offer for chosen services and dates — Zennly applies it and banners it on booking.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-reports.png",
+      "imageAlt": "Campaign banner and discounted service prices",
+      "bg": "#F5E6C8"
+    },
+    "intro": {
+      "headline": "A promotion with a start date, an end date and a clear target.",
+      "body": "Pick the services, set the percentage and the dates, and it switches on and off by itself. Festival offers, wedding-season deals and slow-day promotions all need a start date, an end date and the right services. A campaign handles all three and shows the offer where customers book."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Percentage offers",
+        "description": "A campaign is a percentage discount, set once."
+      },
+      {
+        "title": "Date window",
+        "description": "It is live between the start and end dates, and only while switched on."
+      },
+      {
+        "title": "Chosen services",
+        "description": "Link specific services or whole categories, and a direct service link takes priority."
+      },
+      {
+        "title": "Online banner",
+        "description": "Your public booking site shows a banner and popup while the campaign is live."
+      }
+    ],
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Create the campaign",
+        "description": "Name it, set the percentage, write the message and optionally add a banner image."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "Choose what it covers",
+        "description": "Link the services or categories the offer applies to."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "It goes live",
+        "description": "Between the start and end dates, campaign prices flow into online booking."
+      },
+      {
+        "step": "04",
+        "icon": "check",
+        "title": "It ends on its own",
+        "description": "After the end date the campaign stops, with no one to remember to switch it off."
+      }
+    ],
+    "stopStart": {
+      "stop": [
+        "Offering ad-hoc discounts nobody recorded",
+        "Forgetting to end a promotion",
+        "Telling customers one price and charging another",
+        "Updating prices service by service"
+      ],
+      "start": [
+        "Percentage promotions on chosen services",
+        "Automatic start and end dates",
+        "Promotion prices in online booking",
+        "Manager-only control of campaigns"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "sub": "Answers to what owners ask before they switch.",
+      "items": [
+        {
+          "question": "Is this the same as discount approval?",
+          "answer": "No. A campaign is a planned promotion for a period. Discount approval is for individual requests at checkout, and managers approve those one by one."
+        },
+        {
+          "question": "Who can create a campaign?",
+          "answer": "Managers and admins."
+        },
+        {
+          "question": "How do I run a promotion that shows in online booking?",
+          "answer": "Create a campaign with a percentage, link the services or categories it covers and set the start and end dates. While it runs, campaign prices flow into online booking and a banner appears on your booking site."
+        },
+        {
+          "question": "Does a campaign switch off automatically?",
+          "answer": "Yes. After the end date it stops on its own, and it is live only while switched on."
+        },
+        {
+          "question": "Can I run a holiday or seasonal offer for specific services?",
+          "answer": "Yes. Link chosen services or whole categories, and set the dates for the holiday period."
+        },
+        {
+          "question": "Can a campaign apply to just one service?",
+          "answer": "Yes. A direct service link takes priority over a category link."
+        },
+        {
+          "question": "How much does it cost?",
+          "answer": "Zennly is quoted per business, based on branches, team size and features. Book a 20-minute demo and you get a tailored quote within 24 hours."
+        }
+      ]
+    },
+    "bottomCta": {
+      "headline": "Promotions that start and stop on schedule.",
+      "subheadline": "See a campaign go live on online booking.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "discount-management",
+      "booking",
+      "reports"
+    ],
+    "metaDescription": "Run dated percentage offers on chosen services and show them in online booking. Promotion software for spas and salons in Nepal.",
+    "seoTitle": "Spa & Salon Promotion & Offer Software Nepal | Zennly",
+    "heroMockup": {
+      "title": "Active campaigns",
+      "date": "Oct 4 · Online booking",
+      "rows": [
+        {
+          "avatar": "F",
+          "name": "Fall Offer · 15% off",
+          "service": "Massage category · Oct 1–15",
+          "status": "Live",
+          "done": true
+        },
+        {
+          "avatar": "W",
+          "name": "Weekday Facial · 10% off",
+          "service": "Facial · Mon–Thu",
+          "status": "Live",
+          "done": true
+        },
+        {
+          "avatar": "H",
+          "name": "Holiday Offer · 20% off",
+          "service": "Starts Dec 15",
+          "status": "Scheduled",
+          "done": false
+        }
+      ]
+    },
+    "workflowHeading": "How a campaign runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One promotion, from planning to the day it switches itself off.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Sep 22",
+        "title": "The manager plans a fall offer",
+        "body": "A manager sets up Fall Offer for all three branches: 15% off massages from Oct 1 to 15, with a short message and a banner.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "New campaign",
+          "bannerTitle": "Fall Offer",
+          "bannerSub": "Banner and popup on online booking",
+          "fields": [
+            [
+              "Name",
+              "Fall Offer"
+            ],
+            [
+              [
+                "Discount",
+                "15%"
+              ],
+              [
+                "Dates",
+                "Oct 1–15"
+              ]
+            ],
+            [
+              "Applies to",
+              "Massage category"
+            ]
+          ],
+          "submit": "Save campaign"
+        }
+      },
+      {
+        "num": "02",
+        "time": "Sep 22",
+        "title": "Massages are linked",
+        "body": "Linking the Massage category covers Deep Tissue, Swedish and Hot Stone in one step. A direct service link would take priority.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "review",
+          "notif": "Fall Offer · 15% · 3 services linked",
+          "notifTime": "3:15 PM",
+          "badge": "Scheduled",
+          "label": "Campaign targets",
+          "rowLabel": "Massage category",
+          "rowValue": "Deep Tissue, Swedish, Hot Stone",
+          "plainLabel": "Starts",
+          "plainValue": "Oct 1 · 12:00 AM",
+          "button": "Save targets"
+        }
+      },
+      {
+        "num": "03",
+        "time": "Oct 1",
+        "title": "The offer goes live",
+        "body": "At midnight on Oct 1 the banner appears on your online booking site, and massage prices drop by 15%.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "live",
+          "label": "Live now",
+          "time": "Oct 1",
+          "title": "Fall Offer · 15% off",
+          "sub": "Banner on online booking",
+          "steps": [
+            [
+              "Scheduled",
+              "done"
+            ],
+            [
+              "Live",
+              "active"
+            ],
+            [
+              "Ended",
+              ""
+            ]
+          ],
+          "caption": "Nobody has to switch it on."
+        }
+      },
+      {
+        "num": "04",
+        "time": "Oct 4",
+        "title": "Nicole books at the offer price",
+        "body": "Nicole K. books a 60-minute Deep Tissue online. She sees $102 instead of $120, and that's the price on her booking.",
+        "status": "Completed",
+        "scene": {
+          "type": "receipt",
+          "successTitle": "Booked at offer price",
+          "badge": "Offer applied",
+          "rows": [
+            [
+              "Service",
+              "Deep Tissue · 60 min"
+            ],
+            [
+              "Usual price",
+              "$120"
+            ],
+            [
+              "Campaign",
+              "Fall Offer · 15%"
+            ]
+          ],
+          "total": [
+            "Price",
+            "$102"
+          ],
+          "caption": "Same price online and at the desk"
+        }
+      },
+      {
+        "num": "05",
+        "time": "Oct 16",
+        "title": "It ends on its own",
+        "body": "After Oct 15 the banner disappears and massage prices go back to normal. Nobody had to remember to switch it off.",
+        "status": "Closed",
+        "scene": {
+          "type": "report",
+          "title": "Campaign ended",
+          "badge": "Closed",
+          "sub": "Fall Offer · Oct 1–15",
+          "banner": [
+            [
+              "84",
+              "bookings"
+            ],
+            [
+              "15%",
+              "offer"
+            ]
+          ],
+          "insightsLabel": "Afterwards",
+          "insights": [
+            [
+              "Banner",
+              "Removed"
+            ],
+            [
+              "Prices",
+              "Back to normal"
+            ],
+            [
+              "Switch-off",
+              "Automatic"
+            ]
+          ],
+          "caption": "Promotions stop when you said they would."
+        }
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "Always quote the right price.",
+        "summary": "Quote the right price without checking a note on the wall.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff at a salon reception desk",
+        "features": [
+          {
+            "title": "Offer prices applied",
+            "description": "Campaign prices show in booking."
+          },
+          {
+            "title": "No manual maths",
+            "description": "The percentage is applied for you."
+          },
+          {
+            "title": "Clear end dates",
+            "description": "You always know when an offer stops."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Promotions that run themselves.",
+        "summary": "Run promotions on chosen services without chasing staff.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Percentage offers",
+            "description": "Set once for the services you choose."
+          },
+          {
+            "title": "Date window",
+            "description": "Start and end dates are handled for you."
+          },
+          {
+            "title": "Manager-only",
+            "description": "Only managers and admins create campaigns."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "You set the offer and the dates.",
+        "summary": "Promote what you want, when you want, with control.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing reports at a bright office desk",
+        "features": [
+          {
+            "title": "Targeted offers",
+            "description": "Services or whole categories."
+          },
+          {
+            "title": "Online banner",
+            "description": "A banner and popup on your booking site."
+          },
+          {
+            "title": "Separate from discounts",
+            "description": "Planned promotions, apart from one-off discount requests."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Under the hood",
+      "headline": "Promotions with a clear start and end.",
+      "stats": [
+        {
+          "tag": "Targets",
+          "value": "2",
+          "label": "Services or categories, and a direct service link takes priority"
+        },
+        {
+          "tag": "Control",
+          "value": "Manager",
+          "label": "Only managers and admins can create campaigns"
+        },
+        {
+          "tag": "Timing",
+          "value": "Auto",
+          "label": "Live between the start and end dates, with no one switching it on or off"
+        }
+      ],
+      "sub": "How it works inside the product."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once promotions run themselves.",
+      "quotes": [
+        {
+          "quote": "Our last promotion ran two weeks past its end date because nobody remembered to change the prices back. That can't happen now.",
+          "author": "Owner",
+          "business": "Day spa, Austin"
+        },
+        {
+          "quote": "Clients see the offer price online and pay the same price at the desk. No more 'but the website said'.",
+          "author": "Front-desk lead",
+          "business": "Massage studio, Denver"
+        },
+        {
+          "quote": "I set the dates and the services once, and every branch runs the same offer on the same days.",
+          "author": "Admin",
+          "business": "Multi-branch spa, Portland"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    }
+  },
+  {
+    "slug": "outreach",
+    "name": "Customer Outreach",
+    "badge": "Customer Outreach",
+    "hero": {
+      "eyebrow": "Outreach",
+      "headline": "Bring customers back,<br> <span class=\"fd-hero__h1-accent\">without chasing them.</span>",
+      "subheadline": "Zennly re-engages customers who haven't visited, and asks for reviews — by email, SMS or WhatsApp.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-hero-dashboard.png",
+      "imageAlt": "Outreach rules and message queue",
+      "bg": "#E4EEDC"
+    },
+    "intro": {
+      "headline": "Messages that go out at the right moment, with your approval if you want it.",
+      "body": "Set a rule, write a template and choose whether messages send automatically or wait for review. Most salons and spas lose regulars quietly. Outreach finds customers who have stopped visiting and asks happy customers for a review, so repeat business does not depend on someone remembering to message."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Win-back messages",
+        "description": "Customers whose last completed booking is older than your chosen number of days are found every day."
+      },
+      {
+        "title": "Review requests",
+        "description": "A review request is queued after a booking is completed."
+      },
+      {
+        "title": "Templates",
+        "description": "Write subject and body once, with the customer's name filled in."
+      },
+      {
+        "title": "Review queue",
+        "description": "Choose automatic sending, or have staff approve and edit each message first."
+      },
+      {
+        "title": "Email, SMS and WhatsApp",
+        "description": "Send by email, or ask us to enable SMS and WhatsApp for your business."
+      }
+    ],
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Write a template",
+        "description": "Subject and body, with placeholders like the customer's name."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "Set a rule",
+        "description": "Choose the trigger, the timing and whether messages send automatically or go to a review queue."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "Zennly finds the customers",
+        "description": "Every day, customers past your lapsed-days limit are queued. Completed bookings queue a review request."
+      },
+      {
+        "step": "04",
+        "icon": "check",
+        "title": "Messages are sent",
+        "description": "Approved messages are sent by email, or by SMS or WhatsApp where enabled for your business, and the result is recorded."
+      }
+    ],
+    "stopStart": {
+      "stop": [
+        "Remembering to message lapsed customers",
+        "Asking for reviews by hand",
+        "Sending the same message to everyone",
+        "Messages going out nobody checked"
+      ],
+      "start": [
+        "Automatic win-back and review emails",
+        "A review queue when you want control",
+        "Templates your team writes",
+        "A record of every message sent"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "sub": "Answers to what owners ask before they switch.",
+      "items": [
+        {
+          "question": "Can Zennly send win-back messages by SMS or WhatsApp?",
+          "answer": "Yes. Zennly can send outreach by email, SMS and WhatsApp. Email is the default; ask in your demo and we will enable SMS and WhatsApp for your business."
+        },
+        {
+          "question": "Can I send review requests by SMS in Nepal?",
+          "answer": "Yes. SMS is available for review requests and win-back messages. Ask us to enable it for your business during your demo."
+        },
+        {
+          "question": "Can we approve messages before they go?",
+          "answer": "Yes. A rule can send automatically or put each message in a review queue for staff to approve or edit."
+        },
+        {
+          "question": "Who can change the rules?",
+          "answer": "Managers and admins."
+        },
+        {
+          "question": "How do I win back customers who stopped visiting my salon or spa?",
+          "answer": "Set a win-back rule with a number of lapsed days and a template. Each day Zennly finds customers whose last completed booking is older than that limit and queues an email, which you can approve first."
+        },
+        {
+          "question": "How do I get more Google reviews for a salon or spa?",
+          "answer": "A review request is queued after a booking is completed, using a template your team writes. You can send it automatically or approve each one first."
+        },
+        {
+          "question": "Can I write the email myself?",
+          "answer": "Yes. Write the subject and body once, with placeholders such as the customer's name."
+        },
+        {
+          "question": "Can I check messages before they are sent?",
+          "answer": "Yes. A rule can send automatically or put each message in a review queue for staff to approve or edit."
+        },
+        {
+          "question": "How much does it cost?",
+          "answer": "Zennly is quoted per business, based on branches, team size and features. Book a 20-minute demo and you get a tailored quote within 24 hours."
+        }
+      ]
+    },
+    "bottomCta": {
+      "headline": "Customers who come back, because you asked.",
+      "subheadline": "See win-back and review emails running on your customer list.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "reports",
+      "memberships",
+      "campaigns"
+    ],
+    "metaDescription": "Bring customers back and collect reviews with an approval queue, by email, or SMS and WhatsApp on request. Outreach for spas and salons in Nepal.",
+    "seoTitle": "Customer Win-Back & Review Requests Nepal | Zennly",
+    "heroMockup": {
+      "title": "Outreach queue",
+      "date": "Sep 8 · Email",
+      "rows": [
+        {
+          "avatar": "W",
+          "name": "Win-back · Mia Thompson",
+          "service": "Last visit 62 days ago",
+          "status": "In review",
+          "done": false
+        },
+        {
+          "avatar": "R",
+          "name": "Review request · S. Ross",
+          "service": "After completed booking",
+          "status": "Sent",
+          "done": true
+        },
+        {
+          "avatar": "W",
+          "name": "Win-back · Chloe M.",
+          "service": "Last visit 64 days ago",
+          "status": "Sent",
+          "done": true
+        }
+      ]
+    },
+    "workflowHeading": "How outreach runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One win-back email, from the rule to the review request after she comes back.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Aug 1",
+        "title": "The manager sets a win-back rule",
+        "body": "Customers who haven't visited in 60 days get a 'We miss you' email. Each one waits in a review queue before it goes.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "New outreach rule",
+          "bannerTitle": "Win back lapsed customers",
+          "bannerSub": "Set it once, it runs every morning.",
+          "fields": [
+            [
+              "Trigger",
+              "Win-back"
+            ],
+            [
+              [
+                "Lapsed after",
+                "60 days"
+              ],
+              [
+                "Channel",
+                "Email"
+              ]
+            ],
+            [
+              "Send mode",
+              "Review queue"
+            ]
+          ],
+          "submit": "Save rule"
+        }
+      },
+      {
+        "num": "02",
+        "time": "Sep 8, 7:00am",
+        "title": "Zennly finds Mia",
+        "body": "The morning scan finds 14 customers past 60 days, including Mia Thompson, last seen for a facial on Jul 8.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "report",
+          "title": "Daily scan",
+          "badge": "14 queued",
+          "badgeClass": "in-progress",
+          "sub": "Sep 8 · 7:00 AM",
+          "banner": [
+            [
+              "14",
+              "customers"
+            ],
+            [
+              "60+",
+              "days away"
+            ]
+          ],
+          "insightsLabel": "Longest away",
+          "insights": [
+            [
+              "Ben A.",
+              "71 days"
+            ],
+            [
+              "Chloe M.",
+              "64 days"
+            ],
+            [
+              "Mia Thompson",
+              "62 days"
+            ]
+          ],
+          "caption": "No list to build by hand."
+        }
+      },
+      {
+        "num": "03",
+        "time": "Sep 8, 9:00am",
+        "title": "Front desk checks the message",
+        "body": "Sophie B. opens the queue, adds a line about the Oct 1 Fall Offer and approves it. In automatic mode this step is skipped.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "review",
+          "notif": "We miss you, Mia",
+          "notifTime": "7:00 AM",
+          "badge": "In review",
+          "label": "Message queue",
+          "rowLabel": "Win-back · email",
+          "rowValue": "To Mia Thompson",
+          "plainLabel": "Edited by",
+          "plainValue": "Sophie B. · added Fall Offer",
+          "button": "Approve and send"
+        }
+      },
+      {
+        "num": "04",
+        "time": "Sep 8, 9:05am",
+        "title": "The email goes out",
+        "body": "The approved email is sent and the result is saved on Mia's record. Two days later she books a facial for Sep 14.",
+        "status": "Completed",
+        "scene": {
+          "type": "live",
+          "label": "Sent",
+          "time": "9:05 AM",
+          "title": "We miss you, Mia",
+          "sub": "Win-back · email",
+          "steps": [
+            [
+              "Queued",
+              "done"
+            ],
+            [
+              "Approved",
+              "done"
+            ],
+            [
+              "Sent",
+              "active"
+            ]
+          ],
+          "caption": "Every send has a record."
+        }
+      },
+      {
+        "num": "05",
+        "time": "Sep 14, 2:00pm",
+        "title": "A review request follows",
+        "body": "Her facial with Brooke R. is completed at 2:00 PM, and a review request is queued from your template.",
+        "status": "Completed",
+        "scene": {
+          "type": "receipt",
+          "successTitle": "Review request queued",
+          "badge": "Queued",
+          "rows": [
+            [
+              "Trigger",
+              "Completed booking"
+            ],
+            [
+              "Booking",
+              "Facial · Brooke R."
+            ],
+            [
+              "Channel",
+              "Email"
+            ]
+          ],
+          "total": [
+            "To",
+            "Mia Thompson"
+          ],
+          "caption": "Result recorded on her profile"
+        }
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "Every message, in view.",
+        "summary": "See what is going out to customers and help when a message needs editing.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff at a salon reception desk",
+        "features": [
+          {
+            "title": "Review queue",
+            "description": "Messages waiting for approval show up for staff."
+          },
+          {
+            "title": "Edit before sending",
+            "description": "Approve with edits or cancel."
+          },
+          {
+            "title": "Customer name filled in",
+            "description": "Templates personalise each message."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Automatic, or reviewed first.",
+        "summary": "Decide how much is automatic and how much is reviewed.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Rules and templates",
+            "description": "Write them once, change them any time."
+          },
+          {
+            "title": "Automatic or reviewed",
+            "description": "Choose per rule."
+          },
+          {
+            "title": "Manager-only",
+            "description": "Only managers and admins change rules."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Win back lapsed customers.",
+        "summary": "Bring lapsed customers back without a marketing team.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing reports at a bright office desk",
+        "features": [
+          {
+            "title": "Win-back emails",
+            "description": "Customers who have not visited in a while."
+          },
+          {
+            "title": "Review requests",
+            "description": "After a completed booking."
+          },
+          {
+            "title": "A record of every send",
+            "description": "The result of each message is stored."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Under the hood",
+      "headline": "Messages that send themselves.",
+      "stats": [
+        {
+          "tag": "Triggers",
+          "value": "2",
+          "label": "Live today: win-back and review request"
+        },
+        {
+          "tag": "Channel",
+          "value": "Email",
+          "label": "Email is live today"
+        },
+        {
+          "tag": "Modes",
+          "value": "2",
+          "label": "Send automatically, or hold each message in a review queue"
+        }
+      ],
+      "sub": "How it works inside the product."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once lapsed clients get a nudge.",
+      "quotes": [
+        {
+          "quote": "We never had time to call clients we hadn't seen in a while. Now the list builds itself every morning and we just approve the emails.",
+          "author": "Owner",
+          "business": "Day spa, Austin"
+        },
+        {
+          "quote": "I like seeing each message before it goes. Most days I add a line about what's new and send it.",
+          "author": "Front-desk lead",
+          "business": "Salon, Denver"
+        },
+        {
+          "quote": "Review requests go out after every completed visit, so our reviews finally keep up with how busy we are.",
+          "author": "Branch manager",
+          "business": "Massage studio, Portland"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    }
+  },
+  {
+    "slug": "payroll",
+    "name": "Payroll",
+    "badge": "Staff Payroll",
+    "hero": {
+      "eyebrow": "Payroll",
+      "headline": "Payroll for your therapists,<br> <span class=\"fd-hero__h1-accent\">calculated, not guessed.</span>",
+      "subheadline": "Each month, per branch, Zennly works out salary, deductions and commission from attendance and bookings.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-reports.png",
+      "imageAlt": "Monthly payroll run for a branch",
+      "bg": "#EAE6F2"
+    },
+    "intro": {
+      "headline": "From attendance and bookings to a finished payroll run.",
+      "body": "Set salary and commission once. Generate the month, review it, then lock it. Therapists in Nepal are often paid a salary plus commission. Payroll turns attendance and completed bookings into a finished monthly run per branch, so month-end stops being a weekend of spreadsheets."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Salary and commission",
+        "description": "Each therapist has a monthly salary and a commission rate."
+      },
+      {
+        "title": "Attendance deductions",
+        "description": "Absent days, half days and unpaid leave reduce pay by the day."
+      },
+      {
+        "title": "Commission from bookings",
+        "description": "Service commission comes from completed, paid bookings assigned to the therapist."
+      },
+      {
+        "title": "Draft, then final",
+        "description": "Review a draft run, then finalize it to lock the numbers."
+      }
+    ],
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Set compensation",
+        "description": "Enter each therapist's monthly salary and commission rate."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "Attendance is recorded",
+        "description": "Present, absent, half-day and leave statuses feed the calculation."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "Generate the run",
+        "description": "Pick the branch and month. Zennly calculates salary, deductions and commissions per therapist."
+      },
+      {
+        "step": "04",
+        "icon": "check",
+        "title": "Review and finalize",
+        "description": "Check the draft, regenerate if needed, then finalize to lock it."
+      }
+    ],
+    "stopStart": {
+      "stop": [
+        "Calculating commission in a spreadsheet",
+        "Disputes over attendance",
+        "Rerunning the month by hand",
+        "Changing numbers after payday"
+      ],
+      "start": [
+        "One payroll run per branch per month",
+        "Deductions and commission from your records",
+        "A draft you can review before it is final",
+        "A locked record once finalized"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "sub": "Answers to what owners ask before they switch.",
+      "items": [
+        {
+          "question": "Who can see payroll?",
+          "answer": "Payroll is limited to admins."
+        },
+        {
+          "question": "How is commission calculated?",
+          "answer": "Service commission is the therapist's commission rate applied to the value of their completed and paid bookings. Referral commission is added per booking."
+        },
+        {
+          "question": "Can a finalized run be changed?",
+          "answer": "No. Finalizing locks the run."
+        },
+        {
+          "question": "How do I calculate therapist commission and payroll per branch?",
+          "answer": "Set each therapist's salary and commission rate, record attendance, then pick the branch and month. Zennly calculates salary, absence deductions and commissions, you review the draft, and you finalise to lock it."
+        },
+        {
+          "question": "How are absences handled in payroll?",
+          "answer": "Absent days, half days and unpaid leave reduce pay by the day. Present and leave statuses feed the calculation."
+        },
+        {
+          "question": "Does commission include referrals?",
+          "answer": "Referral commission is added per booking on top of service commission."
+        },
+        {
+          "question": "Can I regenerate a draft payroll run?",
+          "answer": "Yes. Check the draft and regenerate if needed, then finalise to lock it."
+        },
+        {
+          "question": "How much does it cost?",
+          "answer": "Zennly is quoted per business, based on branches, team size and features. Book a 20-minute demo and you get a tailored quote within 24 hours."
+        }
+      ]
+    },
+    "bottomCta": {
+      "headline": "Month-end payroll without the spreadsheet.",
+      "subheadline": "See a payroll run from attendance to final.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "staff-management",
+      "role-based-access",
+      "reports"
+    ],
+    "metaDescription": "Calculate monthly salary, attendance deductions and therapist commission per branch without spreadsheets. Payroll for spas and salons in Nepal.",
+    "seoTitle": "Spa & Salon Payroll Software Nepal: Commission | Zennly",
+    "heroMockup": {
+      "title": "Payroll run",
+      "date": "July · Downtown",
+      "rows": [
+        {
+          "avatar": "E",
+          "name": "Emily C.",
+          "service": "$3,482 · 1 absent day, 52 bookings",
+          "status": "Draft",
+          "done": false
+        },
+        {
+          "avatar": "B",
+          "name": "Brooke R.",
+          "service": "$3,250 · salary plus commission",
+          "status": "Draft",
+          "done": false
+        },
+        {
+          "avatar": "A",
+          "name": "Amanda G.",
+          "service": "$3,140 · 2 absent days",
+          "status": "Draft",
+          "done": false
+        }
+      ]
+    },
+    "workflowHeading": "How payroll runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "One therapist's July at Downtown, from her pay settings to a locked run.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Jul 1",
+        "title": "Emily's pay is set once",
+        "body": "The admin enters Emily C.'s monthly salary of $2,800 and a 10% service commission. It's set once, not every month.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "Compensation",
+          "bannerTitle": "Emily C.",
+          "bannerSub": "Therapist · Downtown",
+          "fields": [
+            [
+              "Therapist",
+              "Emily C."
+            ],
+            [
+              [
+                "Monthly salary",
+                "$2,800"
+              ],
+              [
+                "Commission",
+                "10%"
+              ]
+            ],
+            [
+              "Referral commission",
+              "$10 per booking"
+            ]
+          ],
+          "submit": "Save"
+        }
+      },
+      {
+        "num": "02",
+        "time": "Jul 1–31",
+        "title": "Attendance is recorded",
+        "body": "Downtown's manager marks each day. Emily has one absent day and one sick day, which stays within her paid leave cap.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "review",
+          "notif": "Attendance saved · Emily C. · July",
+          "notifTime": "Jul 31",
+          "badge": "Recorded",
+          "badgeClass": "completed",
+          "label": "Attendance · July",
+          "rowLabel": "24 present · 26 working days",
+          "rowValue": "1 absent · 1 sick (paid)",
+          "plainLabel": "Leave",
+          "plainValue": "Within paid cap",
+          "button": "Save attendance"
+        }
+      },
+      {
+        "num": "03",
+        "time": "Aug 1",
+        "title": "The July run is generated",
+        "body": "The admin picks Downtown and July. Salary, deductions and commission are worked out for all 7 therapists in one draft.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "report",
+          "title": "July payroll",
+          "badge": "Draft",
+          "badgeClass": "pending",
+          "sub": "Downtown · 7 therapists",
+          "banner": [
+            [
+              "$24,960",
+              "total"
+            ],
+            [
+              "7",
+              "therapists"
+            ]
+          ],
+          "insightsLabel": "Breakdown",
+          "insights": [
+            [
+              "Salaries",
+              "$19,600"
+            ],
+            [
+              "Deductions",
+              "– $320"
+            ],
+            [
+              "Commission",
+              "+ $5,680"
+            ]
+          ],
+          "caption": "Regenerate the draft until it's right."
+        }
+      },
+      {
+        "num": "04",
+        "time": "Aug 1",
+        "title": "Emily's pay, line by line",
+        "body": "Commission comes from her 52 completed, paid bookings, plus $30 for 3 referrals. One absent day comes off her salary.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "receipt",
+          "successTitle": "Emily C. · July",
+          "badge": "Draft",
+          "rows": [
+            [
+              "Salary",
+              "$2,800"
+            ],
+            [
+              "Absent day",
+              "– $108"
+            ],
+            [
+              "Service commission",
+              "+ $760"
+            ],
+            [
+              "Referrals",
+              "+ $30"
+            ]
+          ],
+          "total": [
+            "Net pay",
+            "$3,482"
+          ],
+          "caption": "Net = salary – deductions + commission"
+        }
+      },
+      {
+        "num": "05",
+        "time": "Aug 5",
+        "title": "Finalized and locked",
+        "body": "The admin finalizes the July run. Once it's locked it can't be edited, so what was paid stays on record.",
+        "status": "Closed",
+        "scene": {
+          "type": "live",
+          "label": "Finalized",
+          "time": "Aug 5",
+          "title": "July · Downtown",
+          "sub": "$24,960 · locked",
+          "steps": [
+            [
+              "Generated",
+              "done"
+            ],
+            [
+              "Draft",
+              "done"
+            ],
+            [
+              "Finalized",
+              "active"
+            ]
+          ],
+          "caption": "A finalized run stays as it was."
+        }
+      }
+    ],
+    "roles": [
+      {
+        "persona": "Therapists & staff",
+        "headline": "Your attendance, recorded right.",
+        "summary": "See your own attendance and bookings recorded accurately.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff at a salon reception desk",
+        "features": [
+          {
+            "title": "Attendance statuses",
+            "description": "Present, absent, half-day and leave."
+          },
+          {
+            "title": "Bookings on record",
+            "description": "Completed, paid bookings feed commission."
+          },
+          {
+            "title": "Referrals credited",
+            "description": "Referral commission is added per booking."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Close the month without disputes.",
+        "summary": "Keep attendance and bookings clean so the month closes without disputes.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Attendance calendar",
+            "description": "Record each day's status."
+          },
+          {
+            "title": "Leave with paid caps",
+            "description": "Excess leave becomes unpaid."
+          },
+          {
+            "title": "Bookings assigned",
+            "description": "Commission follows the assigned therapist."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "One payroll run a month. Locked.",
+        "summary": "Run payroll once a month, per branch, and lock it.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing reports at a bright office desk",
+        "features": [
+          {
+            "title": "Admin-only",
+            "description": "Payroll is limited to admins."
+          },
+          {
+            "title": "Draft then final",
+            "description": "Review before you lock."
+          },
+          {
+            "title": "One run per branch per month",
+            "description": "No duplicates."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "Under the hood",
+      "headline": "Calculated, reviewed, then locked.",
+      "stats": [
+        {
+          "tag": "Run",
+          "value": "1",
+          "label": "One payroll run per branch per month"
+        },
+        {
+          "tag": "Access",
+          "value": "Admin",
+          "label": "Payroll is limited to admins"
+        },
+        {
+          "tag": "States",
+          "value": "2",
+          "label": "Draft until finalized, then locked"
+        }
+      ],
+      "sub": "How it works inside the product."
+    },
+    "socialProof": {
+      "eyebrow": "Social proof",
+      "headline": "What owners say once payroll stops being a weekend job.",
+      "quotes": [
+        {
+          "quote": "Month-end used to mean a weekend with a calculator and the booking book. Now I review the draft on the 1st and lock it.",
+          "author": "Owner",
+          "business": "Day spa, Austin"
+        },
+        {
+          "quote": "Therapists stopped questioning their commission. It comes straight from the bookings they completed and got paid for.",
+          "author": "Branch manager",
+          "business": "Massage studio, Denver"
+        },
+        {
+          "quote": "Once a run is finalized nobody can quietly change it. That alone settled a lot of arguments.",
+          "author": "Admin",
+          "business": "Multi-branch spa, Portland"
+        }
+      ],
+      "sub": "Feedback from owners and managers using the platform."
+    }
+  },
+  {
+    "slug": "ai-assistant",
+    "name": "AI Receptionist",
+    "badge": "AI Receptionist",
+    "hero": {
+      "eyebrow": "AI receptionist",
+      "headline": "Never miss a booking,<br> <span class=\"fd-hero__h1-accent\">even when nobody answers.</span>",
+      "subheadline": "An AI receptionist that answers calls and chats, so no enquiry is lost while your team is busy.",
+      "cta": "See it in a 20-minute demo →",
+      "image": "/assets/images/feat-hero-dashboard.png",
+      "imageAlt": "AI receptionist answering booking enquiries",
+      "bg": "#E4EEDC"
+    },
+    "intro": {
+      "headline": "An AI receptionist for businesses that cannot answer every call.",
+      "body": "In Nepal, most bookings still start with a phone call or a message. When the phone rings during a treatment, a class or a late evening, the customer often moves on to the next business. Zennly can provide an AI receptionist that answers calls and chat messages, handles the common questions and helps customers book, then places the request in your Zennly schedule. It is available on request and is set up with your own services, branches and rules."
+    },
+    "primaryFeatures": [
+      {
+        "title": "Calls and chat",
+        "description": "Answers customer questions and booking requests by phone call and by chat."
+      },
+      {
+        "title": "Always on",
+        "description": "Picks up outside opening hours and while your team is busy with customers."
+      },
+      {
+        "title": "Set up for your business",
+        "description": "Configured with your services, branches and rules during your demo."
+      },
+      {
+        "title": "Feeds your schedule",
+        "description": "Booking requests land in your Zennly schedule, where your team manages them."
+      },
+      {
+        "title": "Your team stays in control",
+        "description": "It covers the calls and chats you cannot take. It does not replace your reception."
+      },
+      {
+        "title": "Available on request",
+        "description": "Ask for it in your demo and we will set it up for your business."
+      }
+    ],
+    "howItWorks": [
+      {
+        "step": "01",
+        "icon": "tag",
+        "title": "Tell us about your business",
+        "description": "Share your branches, services, opening hours and the rules you want it to follow."
+      },
+      {
+        "step": "02",
+        "icon": "check",
+        "title": "We set it up with you",
+        "description": "We configure the assistant for your business and connect it to your Zennly schedule."
+      },
+      {
+        "step": "03",
+        "icon": "activity",
+        "title": "Customers call or chat",
+        "description": "The assistant answers questions and helps with booking requests, day and night."
+      },
+      {
+        "step": "04",
+        "icon": "check",
+        "title": "Bookings reach your schedule",
+        "description": "Requests appear in Zennly, where your team confirms and manages them as usual."
+      },
+      {
+        "step": "05",
+        "icon": "activity",
+        "title": "Review and refine",
+        "description": "Check how it is doing with our team and adjust it as your business changes."
+      }
+    ],
+    "stopStart": {
+      "stop": [
+        "Missed calls during treatments and classes",
+        "Lost bookings after closing",
+        "Reception tied to the phone all day",
+        "Customers who give up and book elsewhere",
+        "Repeating the same opening-hours answer"
+      ],
+      "start": [
+        "Every call and chat answered",
+        "Booking requests captured around the clock",
+        "Reception free for the customers in the room",
+        "Common questions answered without interrupting your team",
+        "Everything in one Zennly schedule"
+      ]
+    },
+    "objections": {
+      "headline": "Things we get asked.",
+      "sub": "Answers to what owners ask before they add it.",
+      "items": [
+        {
+          "question": "What is an AI receptionist for a spa or salon?",
+          "answer": "It is an AI assistant that answers customer calls and chat messages for your business and helps them book, so enquiries are not missed when your team is busy or closed."
+        },
+        {
+          "question": "Is an AI receptionist available in Nepal?",
+          "answer": "Zennly can provide an AI assistant for businesses in Nepal. It is available on request: ask for it in your demo and we will set it up for your business."
+        },
+        {
+          "question": "Why would a spa, salon or clinic need an AI receptionist?",
+          "answer": "Most bookings start with a call or a message, and those arrive while staff are with customers or after closing. An AI receptionist answers them so the booking is not lost to the next business."
+        },
+        {
+          "question": "Does it replace my reception team?",
+          "answer": "No. It covers calls and chats your team cannot take, and your team keeps control of the schedule in Zennly."
+        },
+        {
+          "question": "Where do the bookings go?",
+          "answer": "Booking requests land in your Zennly schedule, alongside every other booking, so your team manages everything in one place."
+        },
+        {
+          "question": "How do I get it?",
+          "answer": "Ask for it when you book a 20-minute demo. We set it up with your services, branches and rules."
+        },
+        {
+          "question": "Do I need Zennly booking software to use it?",
+          "answer": "The assistant is designed to work with your Zennly schedule. Book a demo to discuss your setup."
+        },
+        {
+          "question": "How much does it cost?",
+          "answer": "Zennly is quoted per business, based on branches, team size and features. Book a 20-minute demo and you get a tailored quote within 24 hours."
+        }
+      ]
+    },
+    "bottomCta": {
+      "headline": "Answer every enquiry, even after closing.",
+      "subheadline": "Ask about the AI receptionist in your 20-minute demo.",
+      "ctaLabel": "Book your live demo →",
+      "reassurance": "No commitment. We'll walk through it live with your branch setup."
+    },
+    "relatedFeatures": [
+      "booking",
+      "outreach",
+      "reports"
+    ],
+    "metaDescription": "An AI receptionist that answers calls and chats and helps customers book, so no enquiry goes unanswered. For spas, salons and clinics in Nepal, on request.",
+    "seoTitle": "AI Receptionist for Spas & Salons in Nepal | Zennly",
+    "roles": [
+      {
+        "persona": "Front-desk staff",
+        "headline": "More time with your customers.",
+        "summary": "Spend less time tied to the phone and more time with the customers in front of you.",
+        "icon": "users",
+        "image": "/assets/images/feat-role-frontdesk.jpg",
+        "imageAlt": "Front-desk staff at a salon reception desk",
+        "features": [
+          {
+            "title": "Fewer interruptions",
+            "description": "Calls and chats are handled while you are with a customer."
+          },
+          {
+            "title": "Requests land in the schedule",
+            "description": "Booking requests appear in Zennly, ready for your team to confirm."
+          },
+          {
+            "title": "Same questions, answered once",
+            "description": "Opening hours, services and availability stop eating your day."
+          }
+        ]
+      },
+      {
+        "persona": "Branch managers",
+        "headline": "Set how it speaks for your branch.",
+        "summary": "Decide how the assistant speaks for your branch, then review how it is doing.",
+        "icon": "layout",
+        "image": "/assets/images/feat-role-managers.jpg",
+        "imageAlt": "Branch manager reviewing the schedule on a tablet",
+        "features": [
+          {
+            "title": "Your services and branches",
+            "description": "Set up around what you actually offer and where."
+          },
+          {
+            "title": "Your rules",
+            "description": "Configured with our team in the demo, and adjustable later."
+          },
+          {
+            "title": "Review and refine",
+            "description": "Look at how it is doing and improve it with us."
+          }
+        ]
+      },
+      {
+        "persona": "Owners & admins",
+        "headline": "Every enquiry answered.",
+        "summary": "Stop losing enquiries you never knew you missed, across every branch.",
+        "icon": "bar-chart",
+        "image": "/assets/images/feat-role-owners.jpg",
+        "imageAlt": "Owner reviewing reports at a bright office desk",
+        "features": [
+          {
+            "title": "Cover after-hours enquiries",
+            "description": "Evening and early-morning calls no longer go unanswered."
+          },
+          {
+            "title": "One schedule across branches",
+            "description": "Requests flow into the same Zennly schedule as every other booking."
+          },
+          {
+            "title": "Available on request",
+            "description": "Switch it on for the businesses that need it, nothing to install."
+          }
+        ]
+      }
+    ],
+    "proof": {
+      "eyebrow": "At a glance",
+      "headline": "Built to cover the calls you cannot take.",
+      "stats": [
+        {
+          "tag": "Coverage",
+          "value": "24/7",
+          "label": "Answers outside opening hours and while your team is busy"
+        },
+        {
+          "tag": "Channels",
+          "value": "2",
+          "label": "Customer calls and chat messages"
+        },
+        {
+          "tag": "Schedule",
+          "value": "1",
+          "label": "Booking requests land in your Zennly schedule"
+        }
+      ],
+      "sub": "What you get when you ask for it in your demo."
+    },
+    "heroMockup": {
+      "title": "Enquiries",
+      "date": "Sample · Friday after closing",
+      "rows": [
+        {
+          "avatar": "C",
+          "name": "Call · Hannah L.",
+          "service": "Deep Tissue, Sat 2:00 PM · Downtown",
+          "status": "Requested",
+          "done": true
+        },
+        {
+          "avatar": "C",
+          "name": "Chat · Opening hours",
+          "service": "Asked about Sunday hours",
+          "status": "Answered",
+          "done": true
+        },
+        {
+          "avatar": "C",
+          "name": "Call · Facial enquiry",
+          "service": "9:10 PM · Midtown",
+          "status": "Captured",
+          "done": false
+        }
+      ]
+    },
+    "workflowHeading": "How the AI receptionist runs on <span class=\"fd-workflow__heading-accent\">Zennly.</span>",
+    "workflowSub": "A sample evening: one call after closing, to a confirmed booking the next morning.",
+    "workflow": [
+      {
+        "num": "01",
+        "time": "Setup",
+        "title": "We set it up with you",
+        "body": "In your demo we configure it with your three branches, your services, your opening hours and your booking rules.",
+        "status": "Pending",
+        "scene": {
+          "type": "form",
+          "head": "AI receptionist setup",
+          "bannerTitle": "Downtown, Midtown, Uptown",
+          "bannerSub": "Your services, hours and rules",
+          "fields": [
+            [
+              "Branches",
+              "3 locations"
+            ],
+            [
+              [
+                "Services",
+                "Your menu"
+              ],
+              [
+                "Channels",
+                "Calls and chat"
+              ]
+            ],
+            [
+              "Hours",
+              "9 AM–8 PM"
+            ]
+          ],
+          "submit": "Save setup"
+        }
+      },
+      {
+        "num": "02",
+        "time": "Fri, 8:40pm",
+        "title": "Hannah calls after closing",
+        "body": "Downtown closed at 8:00. Hannah L. calls about a massage for tomorrow, and the assistant answers instead of the phone ringing out.",
+        "status": "Confirmed",
+        "scene": {
+          "type": "live",
+          "label": "Incoming call",
+          "time": "8:40 PM",
+          "title": "Hannah L. · new caller",
+          "sub": "Downtown · after closing",
+          "steps": [
+            [
+              "Received",
+              "done"
+            ],
+            [
+              "Answered",
+              "done"
+            ],
+            [
+              "Understood",
+              "active"
+            ]
+          ],
+          "caption": "No missed call."
+        }
+      },
+      {
+        "num": "03",
+        "time": "Fri, 8:42pm",
+        "title": "It helps her pick a time",
+        "body": "It answers her question about Saturday hours and offers open times. She picks a 60-minute Deep Tissue at 2:00 PM.",
+        "status": "In-Progress",
+        "scene": {
+          "type": "review",
+          "notif": "Booking request · Deep Tissue · Sat 2:00 PM",
+          "notifTime": "8:42 PM",
+          "badge": "Needs confirming",
+          "label": "Enquiry",
+          "rowLabel": "Deep Tissue · 60 min",
+          "rowValue": "Sat · 2:00 PM · Downtown",
+          "plainLabel": "Source",
+          "plainValue": "Phone call · Hannah L.",
+          "button": "Request captured"
+        }
+      },
+      {
+        "num": "04",
+        "time": "Sat, 9:05am",
+        "title": "The team confirms it",
+        "body": "When Downtown opens, Sophie B. finds the request in the schedule beside every other booking and confirms it with Emily C.",
+        "status": "Completed",
+        "scene": {
+          "type": "receipt",
+          "successTitle": "Booking confirmed",
+          "badge": "Confirmed",
+          "rows": [
+            [
+              "Client",
+              "Hannah L."
+            ],
+            [
+              "Service",
+              "Deep Tissue · 60 min"
+            ],
+            [
+              "Source",
+              "AI receptionist · call"
+            ]
+          ],
+          "total": [
+            "Saturday",
+            "2:00 PM"
+          ],
+          "caption": "Your team stays in control."
+        }
+      }
+    ]
+  }
+]

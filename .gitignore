@@ -80,6 +80,13 @@ next-env.d.ts
 !/docs/*.md
 !/docs/known-issues/
 !/docs/known-issues/*.md
+# The absorbed web-zenly marketing docs, and that repo's retired deploy/ops files (Dockerfile,
+# nginx, compose, workflows, dev_tools, otp-service). Committed IN FULL rather than just *.md,
+# because once web-zenly is archived this is the only copy — the whole point of absorbing it was
+# that deleting that repo loses nothing. Non-.md files here are reference material, not build
+# inputs: nothing in this repo reads them.
+!/docs/marketing/
+!/docs/marketing/**
 # Supabase email templates live only in the dashboard — not in a migration, not in a restore, and
 # set per project by hand. Tracking the source makes them reviewable and re-pasteable; nothing
 # loads these files.
@@ -97,3 +104,7 @@ next-env.d.ts
 # what lets the existing pipeline build unchanged. Costs ~102MB and a binary diff on each
 # marketing refresh; the leaner fix (Actions fetches web-zenly and builds it) is sketched
 # on the wip/ghcr-pipeline branch, for when there is a staging environment to rehearse it.
+
+# marketing workspace (Eleventy) — generated build output; the SOURCE in marketing/src is committed
+marketing/_site/
+marketing/node_modules/

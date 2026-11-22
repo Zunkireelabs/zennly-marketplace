@@ -17,7 +17,8 @@
 //   node scripts/sync-businesses-site.mjs --if-missing  # no-op when the mirror exists
 //
 // Env:
-//   WEB_ZENLY_DIR — path to the web-zenly checkout (default: ../web-zenly)
+//   WEB_ZENLY_DIR — path to the marketing source (default: ./marketing, this repo's workspace;
+//                   falls back to ../web-zenly only if there is no in-repo copy)
 
 import { execSync } from "node:child_process";
 import {
@@ -41,9 +42,16 @@ const REPO_ROOT = path.resolve(__dirname, "..");
 // the sibling checkout without saying so. Load it explicitly; a real shell variable still wins.
 loadEnv({ path: path.join(REPO_ROOT, ".env"), override: false });
 
+// The marketing site's source now lives IN this repo, as the `marketing` npm workspace — it was
+// absorbed from the separate Zunkireelabs/web-zenly repo so that repo could be retired without
+// losing the only copy of the templates. `../web-zenly` is kept only as a fallback for a checkout
+// that still has the old sibling and no in-repo copy; WEB_ZENLY_DIR still overrides both.
+const IN_REPO_MARKETING_DIR = path.resolve(REPO_ROOT, "marketing");
 const WEB_ZENLY_DIR = process.env.WEB_ZENLY_DIR
   ? path.resolve(REPO_ROOT, process.env.WEB_ZENLY_DIR)
-  : path.resolve(REPO_ROOT, "..", "web-zenly");
+  : existsSync(path.join(IN_REPO_MARKETING_DIR, ".eleventy.js"))
+    ? IN_REPO_MARKETING_DIR
+    : path.resolve(REPO_ROOT, "..", "web-zenly");
 const SITE_DIR = path.join(WEB_ZENLY_DIR, "_site");
 const DEST_DIR = path.join(REPO_ROOT, "public", "businesses");
 const PREFIX = "/businesses";

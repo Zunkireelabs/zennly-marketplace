@@ -1,0 +1,250 @@
+---
+dateModified: "2026-11-04"
+layout: base.njk
+title: "Zennly Blog — Guides for Multi-Branch Spas & Salons" # SEOAI:TITLE
+metaDescription: "Guides on running multi-branch spas, salons and service businesses — booking, staff scheduling, payments and daily reconciliation." # SEOAI:METADESCRIPTION
+bodyClass: page--light-nav page--blog page--pink-cta page--flat-footer
+---
+{% from "schema/breadcrumb.njk" import breadcrumbSchema with context %}
+{{ breadcrumbSchema([{ name: "Home", url: "/" }, { name: "Blog", url: "/blog/" }]) }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "@id": "{{ site.url }}/blog/#blog",
+  "name": "Zennly Blog",
+  "url": "{{ site.url }}/blog/",
+  "description": "Guides for spas, salons, gyms, clinics and other appointment-based businesses in Nepal on booking, staff, payroll, discounts and running more than one branch.",
+  "inLanguage": "en",
+  "publisher": { "@id": "{{ site.url }}/#organization" },
+  "blogPost": [
+{%- for post in blogIndex %}
+    { "@type": "BlogPosting", "headline": {{ post.title | dump | safe }}, "url": "{{ site.url }}/blog/{{ post.slug }}/" }{{ "," if not loop.last }}
+{%- endfor %}
+  ]
+}
+</script>
+
+{% set featured = blogIndex.slice(0, 2) %}
+{% set rest = blogIndex.slice(2) %}
+{#- Category list is derived from the posts themselves, so a new or renamed
+    category can never go missing from the filter. -#}
+{% set tags = [] %}
+{%- for p in blogIndex %}{% if p.tag not in tags %}{% set tags = (tags.push(p.tag), tags) %}{% endif %}{% endfor %}
+{% set tags = tags | sort %}
+
+<main class="pg-page blog2">
+
+  <!-- ── DARK HERO + FEATURED ─────────────────────────────────────────── -->
+  <header class="blog2-hero">
+    <div class="blog2-hero__inner">
+      <h1 class="blog2-hero__h1">Guides for running a <em>multi-branch</em> service business</h1>
+      <p class="blog2-hero__sub">Honest, practical guides on the operational problems that show up once a spa, salon, gym or clinic has more than one branch &mdash; booking, staff, discounts and the daily close.</p>
+
+      <div class="blog2-featured">
+        <p class="blog2-featured__label">Latest guides</p>
+        <div class="blog2-featured__row">
+          {% for p in featured %}
+          <a href="/blog/{{ p.slug }}/" class="blog2-fcard">
+            <div class="blog2-fcard__media blog2-tone--{{ loop.index0 % 6 }}">
+              <span class="blog2-fcard__tag">{{ p.tag }}</span>
+              <div class="blog2-fcard__img-wrap">
+                {% image "/assets/images/" + p.image, "", { class: "blog2-fcard__img", loading: "eager" } %}
+              </div>
+            </div>
+            <div class="blog2-fcard__body">
+              <p class="blog2-fcard__meta">{{ p.date }} &middot; {{ p.read }}</p>
+              <h3 class="blog2-fcard__title">{{ p.title }}</h3>
+              <p class="blog2-fcard__excerpt">{{ p.excerpt }}</p>
+              <span class="blog2-fcard__btn">Read more &rarr;</span>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── ALL GUIDES ───────────────────────────────────────────────────── -->
+  <section class="section blog2-all">
+    <div class="section__inner">
+
+      <div class="blog2-controls">
+        <h2 class="blog2-controls__h2">All guides</h2>
+        <div class="blog2-controls__tools">
+          <label class="blog2-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="blog2-q" placeholder="Search guides&hellip;" aria-label="Search guides">
+          </label>
+          <select class="blog2-select" id="blog2-sort" aria-label="Sort by">
+            <option value="recent">Most recent</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+          <select class="blog2-select" id="blog2-cat" aria-label="Filter by category">
+            <option value="all">All categories</option>
+            {% for t in tags %}
+            <option value="{{ t }}">{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="blog2-grid" id="blog2-grid">
+        {% for p in rest %}
+        <a href="/blog/{{ p.slug }}/" class="blog2-card"
+           data-title="{{ p.title | lower }}" data-tag="{{ p.tag }}" data-idx="{{ loop.index0 }}">
+          <div class="blog2-card__media blog2-tone--{{ (loop.index0 + 2) % 6 }}">
+            <span class="blog2-card__tag">{{ p.tag }}</span>
+            <div class="blog2-card__img-wrap">
+              {% image "/assets/images/" + p.image, "", { class: "blog2-card__img", loading: "lazy" } %}
+            </div>
+          </div>
+          <div class="blog2-card__body">
+            <p class="blog2-card__meta">{{ p.date }} &middot; {{ p.read }}</p>
+            <h3 class="blog2-card__title">{{ p.title }}</h3>
+            <p class="blog2-card__excerpt">{{ p.excerpt }}</p>
+            <span class="blog2-card__link">Read more &rarr;</span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      <p class="blog2-empty" id="blog2-empty" hidden>No guides match that search.</p>
+
+      <nav class="blog2-pagination" id="blog2-pagination" aria-label="Guide pages"></nav>
+
+    </div>
+  </section>
+
+  <script>
+  (function () {
+    var grid = document.getElementById('blog2-grid');
+    if (!grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.blog2-card'));
+    var qInput = document.getElementById('blog2-q');
+    var sortSelect = document.getElementById('blog2-sort');
+    var catSelect = document.getElementById('blog2-cat');
+    var pager = document.getElementById('blog2-pagination');
+    var emptyMsg = document.getElementById('blog2-empty');
+    var PAGE_SIZE = 9;
+    var page = 1;
+
+    function render() {
+      var q = qInput.value.trim().toLowerCase();
+      var cat = catSelect.value;
+      var sort = sortSelect.value;
+
+      var matched = cards.filter(function (card) {
+        var haystack = card.dataset.title + ' ' + card.dataset.tag.toLowerCase();
+        var matchesQ = haystack.indexOf(q) !== -1;
+        var matchesCat = cat === 'all' || card.dataset.tag === cat;
+        return matchesQ && matchesCat;
+      });
+
+      matched.sort(function (a, b) {
+        var ai = parseInt(a.dataset.idx, 10);
+        var bi = parseInt(b.dataset.idx, 10);
+        return sort === 'oldest' ? bi - ai : ai - bi;
+      });
+
+      var totalPages = Math.max(1, Math.ceil(matched.length / PAGE_SIZE));
+      if (page > totalPages) page = totalPages;
+
+      var start = (page - 1) * PAGE_SIZE;
+      var visible = matched.slice(start, start + PAGE_SIZE);
+
+      cards.forEach(function (card) { card.style.display = 'none'; card.style.order = ''; });
+      visible.forEach(function (card, i) {
+        card.style.display = '';
+        card.style.order = i;
+        grid.appendChild(card);
+      });
+
+      emptyMsg.hidden = matched.length !== 0;
+      renderPager(totalPages);
+    }
+
+    function renderPager(totalPages) {
+      pager.innerHTML = '';
+      if (totalPages <= 1) return;
+
+      function makeBtn(label, targetPage, opts) {
+        opts = opts || {};
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'blog2-pagination__btn' + (opts.active ? ' is-active' : '');
+        btn.textContent = label;
+        btn.disabled = !!opts.disabled;
+        btn.addEventListener('click', function () {
+          page = targetPage;
+          render();
+          grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        return btn;
+      }
+
+      pager.appendChild(makeBtn('← Prev', page - 1, { disabled: page === 1 }));
+      for (var i = 1; i <= totalPages; i++) {
+        pager.appendChild(makeBtn(String(i), i, { active: i === page }));
+      }
+      pager.appendChild(makeBtn('Next →', page + 1, { disabled: page === totalPages }));
+    }
+
+    [qInput, sortSelect, catSelect].forEach(function (el) {
+      el.addEventListener('input', function () { page = 1; render(); });
+      el.addEventListener('change', function () { page = 1; render(); });
+    });
+
+    // Article breadcrumbs link to /blog/#<category>, e.g. /blog/#spa-wellness.
+    // Match that slug back to a category and pre-select it in the filter.
+    function slugify(s) { return s.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-'); }
+
+    function applyHash() {
+      var hash = (location.hash || '').replace(/^#/, '');
+      if (!hash) return false;
+      var opts = Array.prototype.slice.call(catSelect.options);
+      var hit = opts.filter(function (o) { return o.value !== 'all' && slugify(o.value) === hash; })[0];
+      if (!hit) return false;
+      catSelect.value = hit.value;
+      page = 1;
+      render();
+      return true;
+    }
+
+    if (applyHash()) {
+      document.querySelector('.blog2-all').scrollIntoView({ block: 'start' });
+    } else {
+      render();
+    }
+
+    window.addEventListener('hashchange', function () {
+      if (applyHash()) document.querySelector('.blog2-all').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  })();
+  </script>
+
+  <!-- ── BOTTOM CTA ───────────────────────────────────────────────────── -->
+  <section class="bottom-cta" id="demo">
+    <div class="bottom-cta__card bottom-cta__card--banner reveal">
+      <h2 class="bottom-cta__h2">Recognize any of these problems?</h2>
+      <p class="bottom-cta__sub">Book a 20-minute demo and we&rsquo;ll show you exactly how Zennly solves it for your branches.</p>
+      <a href="#try-free" class="bottom-cta__banner-btn" data-trial-open>Try a free demo &#8599;</a>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ───────────────────────────────────────────────────────── -->
+  {% include "_footer-v2.njk" %}
+
+
+<!-- SEOAI:FAQ:START --><!-- SEOAI:FAQ:END -->
+
+<!-- SEOAI:SCHEMA:START --><!-- SEOAI:SCHEMA:END -->
+
+<!-- SEOAI:INTERNALLINKS:START --><!-- SEOAI:INTERNALLINKS:END -->
+
+<!-- SEOAI:EXPANDEDCONTENT:START --><!-- SEOAI:EXPANDEDCONTENT:END -->
+
+<!-- SEOAI:QACONTENT:START --><!-- SEOAI:QACONTENT:END -->
+
+<!-- SEOAI:BREADCRUMBSCHEMA:START --><!-- SEOAI:BREADCRUMBSCHEMA:END -->
+</main>

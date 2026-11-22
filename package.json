@@ -2,6 +2,9 @@
   "name": "zen-marketplace",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "marketing"
+  ],
   "scripts": {
     "predev": "node scripts/sync-businesses-site.mjs --if-missing",
     "dev": "next dev -p 3001",
