@@ -65,6 +65,13 @@ jobs:
           NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN: ${{ vars.PROD_NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN }}
           BOOK_SPA_FUNCTIONS_URL: ${{ secrets.PROD_BOOK_SPA_FUNCTIONS_URL }}
           BOOK_SPA_MARKETPLACE_SECRET: ${{ secrets.PROD_BOOK_SPA_MARKETPLACE_SECRET }}
+          # Marketing "free demo" code flow (/api/otp/*). Server-only, so runtime-only — not a
+          # build arg. RESEND_API_KEY can be the SAME key already used for Supabase auth email:
+          # Resend verifies a DOMAIN, and zennly.io is already verified there (auth mail sends
+          # from it today), so one key covers info@zennly.io too. Until both are set,
+          # /api/otp/send answers 500 server-misconfigured rather than silently sending nothing.
+          RESEND_API_KEY: ${{ secrets.PROD_RESEND_API_KEY }}
+          OTP_SECRET: ${{ secrets.PROD_OTP_SECRET }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
@@ -104,6 +111,8 @@ jobs:
             NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN=$NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN
             BOOK_SPA_FUNCTIONS_URL=$BOOK_SPA_FUNCTIONS_URL
             BOOK_SPA_MARKETPLACE_SECRET=$BOOK_SPA_MARKETPLACE_SECRET
+            RESEND_API_KEY=$RESEND_API_KEY
+            OTP_SECRET=$OTP_SECRET
             ENVEOF
             chmod 600 .env
 

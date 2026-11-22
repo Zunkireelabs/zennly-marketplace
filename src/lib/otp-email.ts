@@ -15,8 +15,18 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 export const OTP_MISCONFIGURED_IN_PROD = process.env.NODE_ENV === "production" && !RESEND_API_KEY;
 const FROM = process.env.OTP_FROM || "Zennly <info@zennly.io>";
 const SITE_URL = (process.env.SITE_URL || "https://zennly.io").replace(/\/$/, "");
-const LOGO_WHITE_URL = `${SITE_URL}/assets/images/email-logo-white.png`;
-const PREVIEW_URL = `${SITE_URL}/assets/images/email-dashboard.png`;
+
+/**
+ * These two images live in the mirrored marketing site, so they are served under /businesses/.
+ * server.js could write `/assets/images/...` because web-zenly was the site root; here that path
+ * 308s to /businesses/assets/... via next.config's MOVED_MARKETING_PREFIXES. Verified both:
+ * /assets/images/email-logo-white.png → 308, /businesses/assets/images/email-logo-white.png → 200.
+ * Email clients are not browsers — image proxies (Gmail) and desktop clients handle redirects
+ * inconsistently, and a logo that silently fails to render is the kind of thing nobody notices
+ * until a prospect sees a broken email. Point at the final URL and skip the hop entirely.
+ */
+const LOGO_WHITE_URL = `${SITE_URL}/businesses/assets/images/email-logo-white.png`;
+const PREVIEW_URL = `${SITE_URL}/businesses/assets/images/email-dashboard.png`;
 
 function renderEmail(name: string, code: string, link: string): { html: string; text: string } {
   const first = (name || "").trim().split(/\s+/)[0].replace(/[<>&"']/g, "");
