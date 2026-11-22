@@ -13,7 +13,11 @@ import "server-only";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 export const OTP_MISCONFIGURED_IN_PROD = process.env.NODE_ENV === "production" && !RESEND_API_KEY;
-const FROM = process.env.OTP_FROM || "Zennly <info@zennly.io>";
+// Sender is noreply@ — owner's instruction, 2026-11-23. server.js defaulted to info@zennly.io,
+// which Resend would reject unless that exact sender is configured on the verified domain.
+// The footer's mailto: deliberately stays info@zennly.io: the envelope is unattended, so the
+// body still has to offer a human address for anyone who wants to reply.
+const FROM = process.env.OTP_FROM || "Zennly <noreply@zennly.io>";
 const SITE_URL = (process.env.SITE_URL || "https://zennly.io").replace(/\/$/, "");
 
 /**
