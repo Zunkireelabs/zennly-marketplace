@@ -76,7 +76,12 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          envs: NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_TRACK_EVENTS,DATABASE_URL,DIRECT_URL,SUPABASE_SERVICE_ROLE_KEY,NEXT_PUBLIC_BOOK_SPA_ENGINE_URL,NEXT_PUBLIC_BOOK_SPA_ENGINE_ANON_KEY,NEXT_PUBLIC_ENGINE_BOOKING,NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN,BOOK_SPA_FUNCTIONS_URL,BOOK_SPA_MARKETPLACE_SECRET
+          # appleboy/ssh-action forwards ONLY the variables named here — a step-level `env:` does
+          # not cross the SSH boundary on its own. Anything added to `env:` above and missed here
+          # arrives as an empty string in the remote script and is written blank into the runtime
+          # .env, with no error anywhere. That is exactly how RESEND_API_KEY and OTP_SECRET
+          # shipped empty and /api/otp/send answered 500 server-misconfigured in production.
+          envs: NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_TRACK_EVENTS,DATABASE_URL,DIRECT_URL,SUPABASE_SERVICE_ROLE_KEY,NEXT_PUBLIC_BOOK_SPA_ENGINE_URL,NEXT_PUBLIC_BOOK_SPA_ENGINE_ANON_KEY,NEXT_PUBLIC_ENGINE_BOOKING,NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN,BOOK_SPA_FUNCTIONS_URL,BOOK_SPA_MARKETPLACE_SECRET,RESEND_API_KEY,OTP_SECRET
           script: |
             set -e
             REPO="${{ github.event.repository.name }}"
