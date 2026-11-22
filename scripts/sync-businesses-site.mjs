@@ -351,6 +351,7 @@ function copyAndRewrite() {
 
 const skipBuild = process.argv.includes("--skip-build");
 const ifMissing = process.argv.includes("--if-missing");
+const allowDevOrigin = process.argv.includes("--allow-dev-origin");
 
 function mirrorIsPopulated() {
   return existsSync(DEST_DIR) && readdirSync(DEST_DIR).length > 0;
@@ -382,6 +383,29 @@ if (!sourceIsAvailable()) {
     `web-zenly source not found at ${missing} and public/businesses is empty, so there is ` +
       `nothing to serve under /businesses. Clone web-zenly as a sibling of this repo, set ` +
       `WEB_ZENLY_DIR to its path, or stage a prebuilt public/businesses/ into the build context.`
+  );
+}
+
+// public/businesses/ is a COMMITTED build artifact, so whoever runs this sync bakes their own
+// environment into the published site. On 2026-11-22 that happened: a mirror generated with
+// NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN=http://192.168.1.68:4028 was committed and deployed, putting
+// 221 copies of a private LAN address across all 110 pages — every "Login" button on the live
+// marketing site pointed at someone's laptop, and zero app.zennly.io URLs survived.
+//
+// The rewrite's original safety note reasoned only about production BUILDS having no override
+// set, which is true and beside the point: the danger is a LOCAL run whose output gets committed.
+// So refuse by default and make the dev case explicit. `predev` opts in because a mirror built
+// to look at on localhost is legitimately dev-flavoured; the bare `npm run sync:businesses` —
+// the command someone runs before committing a refresh — is the one that must not do this
+// silently.
+if (ENGINE_REWRITE_ACTIVE && !allowDevOrigin) {
+  throw new Error(
+    `Refusing to write the mirror: NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN is "${ENGINE_ORIGIN_OVERRIDE}", ` +
+      `so every https://app.zennly.io link (including staff "Login") would be rewritten to that ` +
+      `origin and baked into public/businesses/ — which is committed and deployed.\n` +
+      `  To refresh the mirror for COMMITTING: unset NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN for this ` +
+      `run, e.g. \`NEXT_PUBLIC_BOOKING_ENGINE_ORIGIN= npm run sync:businesses\`.\n` +
+      `  To build a dev-only mirror you will NOT commit: pass --allow-dev-origin.`
   );
 }
 

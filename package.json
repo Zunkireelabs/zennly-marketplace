@@ -6,7 +6,7 @@
     "marketing"
   ],
   "scripts": {
-    "predev": "node scripts/sync-businesses-site.mjs --if-missing",
+    "predev": "node scripts/sync-businesses-site.mjs --if-missing --allow-dev-origin",
     "dev": "next dev -p 3001",
     "prebuild": "node scripts/sync-businesses-site.mjs --if-missing",
     "build": "next build",
