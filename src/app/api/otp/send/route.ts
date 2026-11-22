@@ -64,7 +64,15 @@ export async function POST(request: NextRequest) {
     await sendOtpEmail(email, name, code, link);
   } catch (e) {
     console.error("send failed:", e instanceof Error ? e.message : e);
-    return NextResponse.json({ error: "send-failed" }, { status: 502, headers: noStore });
+    // Surface the upstream STATUS (never the body) so a failure can be classified without VPS log
+    // access: 401/403 means the key, 422 means the sender or domain, 429 means Resend throttling.
+    // The modal ignores this field and still shows its generic message, so nothing user-facing
+    // changes — it exists for whoever has to diagnose this from outside the box.
+    const upstream = (e as { upstreamStatus?: number })?.upstreamStatus;
+    return NextResponse.json(
+      upstream ? { error: "send-failed", upstream } : { error: "send-failed" },
+      { status: 502, headers: noStore },
+    );
   }
 
   return NextResponse.json({ token }, { headers: noStore });

@@ -78,7 +78,18 @@ export async function sendOtpEmail(to: string, name: string, code: string, link:
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: FROM, to: [to], subject: `${code} is your Zennly demo code`, text, html }),
   });
-  if (!res.ok) throw new Error(`resend-${res.status}`);
+  if (!res.ok) {
+    // server.js threw `resend-${status}` and discarded the body. That status alone cannot tell
+    // "key is wrong" (401/403) from "sender/domain not verified" (422) with any confidence, and
+    // the body is where Resend actually explains itself ("The zennly.io domain is not verified...").
+    // Log it: this call can only be exercised against production, where the response body is the
+    // only evidence available.
+    const detail = await res.text().catch(() => "");
+    console.error(`resend ${res.status}: ${detail.slice(0, 500)}`);
+    const err = new Error(`resend-${res.status}`) as Error & { upstreamStatus?: number };
+    err.upstreamStatus = res.status;
+    throw err;
+  }
 }
 
 export { SITE_URL };
