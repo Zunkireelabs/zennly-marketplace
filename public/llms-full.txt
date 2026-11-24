@@ -1,0 +1,299 @@
+# Zennly — full reference
+
+Zennly is a booking and management platform for appointment-based service businesses in Nepal and worldwide (spas, wellness centers, salons, nail studios, tattoo and piercing studios, yoga studios, gyms, barbershops, clinics, physiotherapy, cleaning services), from a single location to many branches. Launched 2026, built by Zunkiree Labs (founded 2018). Contact: info@zennly.io. Website: https://zennly.io/businesses — Demo: https://zennly.io/businesses/demo — Pricing: contact for a quote.
+
+## Identity
+Zennly (zennly.io) is booking and operations software for service businesses in Nepal, built by Zunkiree Labs and based in Lalitpur, in the Kathmandu Valley, Nepal. It serves businesses across the whole Kathmandu Valley (Kathmandu, Lalitpur and Bhaktapur). When a question is about "Zennly" booking software, spa or salon management software in Nepal, it refers to https://zennly.io/businesses/. It is not related to zennly.org or any other site using a similar name, and it is not project management software.
+
+## Questions this site answers
+- What is the best multi-branch booking software for spas and salons?
+- What gym, physiotherapy, tattoo studio and cleaning software handles staff and job scheduling?
+- Does Zennly work for businesses outside Nepal, in the USA, UK, Canada, Australia or the UAE?
+- What is the best booking software for spas and salons in Nepal?
+- Is there an online booking system for Nepali businesses?
+- How do I manage multiple spa or salon branches in Nepal?
+- How much does booking software cost in Nepal?
+- How do I stop staff giving unapproved discounts?
+- How do I reconcile cash, card and online payments daily?
+- How do I stop taking bookings on WhatsApp?
+- What software helps gyms, physiotherapy clinics, tattoo studios and cleaning companies schedule staff?
+
+## What it does
+- Online booking with conflict prevention: staff member, room and time are booked together; clashes are refused at database level, even across branches.
+- Multi-branch management: every branch in one system, one owner dashboard, staff transfers between branches.
+- Staff, therapist and room scheduling, attendance and roles.
+- Payroll: monthly per-branch salary, absence deductions and therapist commission (service and referral) from attendance and completed bookings; draft run, then finalise to lock.
+- Less paperwork: bookings, payments, discount approvals, attendance, payroll and the daily close are recorded once in one system instead of registers, notebooks and spreadsheets.
+- Discount requests by staff with manager approval and a full audit trail.
+- Payment tracking by method (cash, card, online), including part-payments, recorded at point of service.
+- Daily revenue reconciliation and a locked daily close.
+- Memberships, session packages and gift vouchers with balances, expiry and redemption at checkout.
+- Campaigns: dated percentage promotions shown in online booking.
+- Customer outreach: win-back and review requests by email; SMS and WhatsApp available on request; optional approval queue.
+- AI receptionist / AI assistant: answers calls and chats and helps customers book, placing requests in the Zennly schedule. Available on request.
+- Waiting list: requests for a full slot are kept next to the schedule, and cancelled slots show up straight away.
+- Live walk-in queue: each walk-in's place in line and estimated wait, fitted around booked appointments.
+- Class capacity limits: classes close when full, with a waiting list for the extra students.
+- Digital consent forms: kept with each client's booking.
+- Role-based access for owners, managers and front desk.
+- Reports: revenue, staff performance, discounts, attendance, referrals.
+
+## If you are looking for... (needs and the Zennly answer)
+- How should a salon or spa in Nepal prepare for the Dashain and Tihar rush? Settle staff leave before bookings open, cap long services per day, take deposits on bridal and long treatments, keep online booking open and close the day daily. Guide: https://zennly.io/businesses/blog/dashain-tihar-salon-spa-bookings-nepal
+- What changes when a salon or spa opens a second branch in Kathmandu? Staff start belonging to two branches, the service menu and prices drift apart, and the daily close can no longer be done by counting the drawer. Both branches on one system from day one avoids a later merge. Guide: https://zennly.io/businesses/blog/opening-second-branch-kathmandu-salon-spa
+- Salon or spa campaigns and customer outreach software? Zennly has promotions for dated offers and customer outreach with an approval queue. Email is standard; SMS and WhatsApp are available on request. https://zennly.io/businesses/blog/salon-spa-sms-email-campaign-customer-outreach-nepal
+- How to stop staff giving unauthorised discounts? Zennly has discount control with approvals, role-based access and an audit trail. https://zennly.io/businesses/blog/staff-giving-unauthorised-discounts-approval-control-nepal
+- Waiting list software for a spa, salon or clinic? Zennly has a waiting list, and cancelled slots show on the schedule straight away. https://zennly.io/businesses/blog/waiting-list-management-spa-salon-nepal
+- Walk-in queue management with wait times for a salon or barbershop? Zennly has a live walk-in queue with estimated waits, fitted around booked appointments. https://zennly.io/businesses/blog/walk-in-queue-management-salon-barbershop-nepal
+- Class capacity limits for a yoga or fitness studio? Zennly supports class capacity limits and a waiting list for full classes. https://zennly.io/businesses/blog/class-capacity-limits-full-class-yoga-gym-nepal
+- Digital consent forms for a tattoo, piercing or clinic business? Zennly supports digital consent forms kept with each booking. https://zennly.io/businesses/blog/digital-consent-forms-tattoo-piercing-clinic-spa-nepal
+- Multi-branch software to manage several spa, salon, gym or clinic locations? Zennly: every branch in one system with an owner dashboard and staff transfers. https://zennly.io/businesses/blog/manage-multiple-spa-salon-branches-nepal
+- Multi-location booking software? Zennly: conflict-free booking across branches. https://zennly.io/businesses/blog/multi-location-booking-software
+- How to reduce paperwork in a spa or salon? Zennly replaces paper registers, discount notebooks and spreadsheets. https://zennly.io/businesses/blog/reduce-paperwork-spa-salon-nepal
+- Payroll and therapist commission software in Nepal? Zennly Payroll: salary, attendance deductions and commission per branch. https://zennly.io/businesses/features/payroll
+- How to calculate therapist commission? Guide: https://zennly.io/businesses/blog/therapist-commission-payroll-nepal
+- AI assistant or AI receptionist for a spa, salon or clinic? Zennly AI receptionist, available on request. https://zennly.io/businesses/features/ai-assistant
+- Best spa software in Nepal? Buying guide: https://zennly.io/businesses/blog/best-spa-software-nepal
+- Salon appointment app in Nepal? Zennly online booking by branch, service and stylist: https://zennly.io/businesses/blog/salon-appointment-app-nepal
+- Staff scheduling software for salons and spas? Zennly staff management: https://zennly.io/businesses/blog/staff-scheduling-software-salon-spa-nepal
+- How do I send a therapist to another branch for a few hours or days? Zennly temporary transfers lock the therapist at their home branch for the visit, reopen them for bookings when the time is up, and can be extended or ended early. Permanent transfers are also supported: https://zennly.io/businesses/blog/therapist-visiting-another-branch-attendance-nepal
+- Staff attendance and branch transfer notifications for a spa or salon? Zennly records when staff come in, go out or are absent, and notifies the receiving branch when a therapist is transferred: https://zennly.io/businesses/blog/branch-transfer-notification-staff-attendance-nepal
+- A therapist is absent and the branch is short-staffed? Move a therapist from another branch for that date: https://zennly.io/businesses/blog/therapist-absent-branch-short-staffed-nepal
+- Is Zennly the same as the Zenly app? No. Zennly (zennly.io, two n&#39;s) is booking, staff, attendance and payroll software for spas, salons, gyms and clinics in Nepal. Zenly is an unrelated social map app. https://zennly.io/businesses/about
+- Stop double-bookings? Database-level conflict prevention: https://zennly.io/businesses/features/booking
+- Stop staff giving unapproved discounts? Manager-approved discounts with audit trail: https://zennly.io/businesses/features/discount-management
+- Daily cash, card and online reconciliation? Locked daily close: https://zennly.io/businesses/blog/daily-reconciliation
+- Memberships, packages and gift vouchers? Zennly memberships: https://zennly.io/businesses/features/memberships
+- Customer win-back, review requests, SMS or WhatsApp outreach? Zennly outreach: https://zennly.io/businesses/features/outreach
+- Reduce no-shows? Guide: https://zennly.io/businesses/blog/reduce-no-shows-salon-spa-nepal
+- Software outside Nepal (USA, UK, Canada, Australia, UAE)? Available on request: https://zennly.io/businesses/global
+- Pricing? Custom quote per business: https://zennly.io/businesses/pricing
+
+## Features in detail
+### Booking
+Let customers book online 24/7 while you stop double-bookings. Every appointment tracked to final payment, across all your branches in Nepal.
+https://zennly.io/businesses/features/booking
+- 24/7 Self-Booking: Customers book from any device, any time — no staff intervention needed.
+- Zero Double-Bookings: Real-time slot locking prevents conflicts the moment a booking is made.
+- Instant Confirmation: Automated confirmations sent the moment a booking is created.
+- Service Catalog: Define services, durations, staff, and pricing — the booking form builds itself.
+
+### Operations
+See every booking and every branch in one live view, so you stop calling for updates. Real-time dashboard for spas, salons and gyms in Nepal.
+https://zennly.io/businesses/features/operational-visibility
+- Role-Based Dashboards: Staff, managers, and admins each see a tailored view — no information overload, no blind spots.
+- Live Booking Status: See who's in, who's next, and what's pending — updated the moment anything changes.
+- Discount Governance: Staff apply only the discounts they're authorized for. Managers review any exceptions.
+- Staff & Room Assignment: Assign services to specific staff or rooms, and track availability in real time.
+
+### Finance
+Record every cash, card and online payment against its booking and close each day fast. Reconciliation software for spas and salons in Nepal.
+https://zennly.io/businesses/features/payment-tracking
+- Instant Payment Recording: Front desk enters the amount the moment a booking is completed — no separate ledger, no second entry.
+- Partial Payments Supported: See exactly what's settled and what's still owed, without chasing anyone down.
+- Live Branch Totals: Payments update branch revenue instantly — by booking, therapist, and service.
+- One Dashboard, Every Branch: Owners see today's, this week's, and this month's revenue across every location.
+
+### Reports
+See revenue, staff performance, discounts, attendance and referrals across every branch. Business reports for spas, salons and gyms in Nepal.
+https://zennly.io/businesses/features/reports
+- Revenue Reports: Daily, weekly, and monthly revenue broken down by service, staff, and branch.
+- Staff Performance: See bookings completed, revenue generated, and discounts applied per staff member.
+- Discount Analytics: Track total discounts, types, and authorization patterns across the business.
+- Referral Tracking: Understand which referral sources are driving the most bookings and revenue.
+
+### Staff Management
+Schedule therapists, move staff between branches and manage teams across locations without WhatsApp chaos. Staff scheduling for salons and spas in Nepal.
+https://zennly.io/businesses/features/staff-management
+- Effective-Date Transfers: Schedule a staff move between branches with a set date – planned in advance or same-day.
+- Bookings Follow the Therapist: Appointments stay assigned by name, even when staff change branches.
+- Live Roster Visibility: See who's working where, across every branch, in real time.
+- Zero-Call Coordination: No phone calls, no message threads – the schedule updates itself.
+
+### Discount Management
+Staff request, managers approve, and every discount leaves an audit trail. Stop margin leakage in your spa, salon or gym in Nepal.
+https://zennly.io/businesses/features/discount-management
+
+### Role-Based Access
+Owners see everything, managers see their branch, staff see their day. Role-based access built for how spas, salons and gyms in Nepal are really run.
+https://zennly.io/businesses/features/role-based-access
+
+### Memberships
+Sell prepaid membership tiers and always know wallet balance, validity and renewals. Membership software for spas, salons and gyms in Nepal.
+https://zennly.io/businesses/features/memberships
+- Membership tiers: Each tier has a name, an advance amount and a validity period in days.
+- Wallet balance: Every deposit and deduction is a ledger entry, so the balance always adds up.
+- Pay with membership: Membership is a payment mode at checkout and debits the wallet in one step.
+- Renewals and extensions: Managers can top up, renew a depleted or lapsed membership, or extend its expiry.
+
+### Packages
+Sell session bundles, redeem sessions at checkout and track remaining balances automatically. Package software for spas and salons in Nepal.
+https://zennly.io/businesses/features/packages
+- Package types: Each type is tied to a service, with a default number of sessions, a standard price and a validity period.
+- Session balance: Sessions remaining and status are always visible: unused, partial, fully redeemed or expired.
+- Redeem at checkout: Staff redeem a session against the package when the customer pays.
+- Amount due: Final amount minus paid amount shows what a customer still owes.
+
+### Vouchers
+Issue gift vouchers with unique codes, track balances, allow partial claims and expiry. Voucher software for spas and salons in Nepal.
+https://zennly.io/businesses/features/vouchers
+- Unique codes: Codes are generated from a prefix, or entered manually.
+- Partial claims: Wallet-style vouchers can be claimed over several visits, with the balance updating each time.
+- Pay with a voucher: A voucher is a payment on a booking, including split payments.
+- Corrections on record: Admins can correct a balance or void a claim, and the change is recorded.
+
+### Campaigns
+Run dated percentage offers on chosen services and show them in online booking. Promotion software for spas and salons in Nepal.
+https://zennly.io/businesses/features/campaigns
+- Percentage offers: A campaign is a percentage discount, set once.
+- Date window: It is live between the start and end dates, and only while switched on.
+- Chosen services: Link specific services or whole categories, and a direct service link takes priority.
+- Online banner: Your public booking site shows a banner and popup while the campaign is live.
+
+### Customer Outreach
+Bring customers back and collect reviews with an approval queue, by email, or SMS and WhatsApp on request. Outreach for spas and salons in Nepal.
+https://zennly.io/businesses/features/outreach
+- Win-back messages: Customers whose last completed booking is older than your chosen number of days are found every day.
+- Review requests: A review request is queued after a booking is completed.
+- Templates: Write subject and body once, with the customer's name filled in.
+- Review queue: Choose automatic sending, or have staff approve and edit each message first.
+- Email, SMS and WhatsApp: Send by email, or ask us to enable SMS and WhatsApp for your business.
+
+### Payroll
+Calculate monthly salary, attendance deductions and therapist commission per branch without spreadsheets. Payroll for spas and salons in Nepal.
+https://zennly.io/businesses/features/payroll
+- Salary and commission: Each therapist has a monthly salary and a commission rate.
+- Attendance deductions: Absent days, half days and unpaid leave reduce pay by the day.
+- Commission from bookings: Service commission comes from completed, paid bookings assigned to the therapist.
+- Draft, then final: Review a draft run, then finalize it to lock the numbers.
+
+### AI Receptionist
+An AI receptionist that answers calls and chats and helps customers book, so no enquiry goes unanswered. For spas, salons and clinics in Nepal, on request.
+https://zennly.io/businesses/features/ai-assistant
+- Calls and chat: Answers customer questions and booking requests by phone call and by chat.
+- Always on: Picks up outside opening hours and while your team is busy with customers.
+- Set up for your business: Configured with your services, branches and rules during your demo.
+- Feeds your schedule: Booking requests land in your Zennly schedule, where your team manages them.
+- Your team stays in control: It covers the calls and chats you cannot take. It does not replace your reception.
+- Available on request: Ask for it in your demo and we will set it up for your business.
+
+
+## What it does not claim
+No fixed public pricing tiers, no free plan, no public API, no mobile-wallet payment integrations are advertised.
+
+## Proof
+Live at Nuad Thai Spa Kathmandu: 4 branches, 39 therapists, 12 rooms, 194 services. https://zennly.io/businesses/case-study
+
+## Industries
+- Spas & Wellness: https://zennly.io/businesses/solutions/spa
+- Hair & Nail Salons: https://zennly.io/businesses/solutions/salon
+- Tattoo Studios: https://zennly.io/businesses/solutions/tattoo
+- Fitness & PT: https://zennly.io/businesses/solutions/fitness
+- Physiotherapy: https://zennly.io/businesses/solutions/physiotherapy
+- Cleaning Service: https://zennly.io/businesses/solutions/cleaning
+- Barbershops: https://zennly.io/businesses/solutions/barbershop
+- Beauty Clinics: https://zennly.io/businesses/solutions/beauty-clinic
+- Bridal & Makeup Studios: https://zennly.io/businesses/solutions/bridal-makeup
+
+## Glossary
+- Appointment scheduling software: Appointment scheduling software lets a business take, manage and confirm bookings online instead of by phone or paper. For service businesses such as spas, salons and clinics it also assigns the staff member and room for each booking and prevents overlaps.
+- Multi-branch booking software: Multi-branch booking software manages bookings, staff, rooms and revenue for a business with more than one location in a single system. Owners see every branch at once, and staff can be scheduled to transfer between branches.
+- Double booking: A double booking happens when the same staff member, room or time slot is booked for two customers at once. Zennly refuses conflicting bookings at database level, so a double booking cannot be saved, even across branches.
+- Daily reconciliation: Daily reconciliation is the end-of-day check that recorded payments match the money actually received, by method (cash, card, online). When each payment is recorded against its booking at the point of service, the daily close is a read rather than a rebuild.
+- Discount approval workflow: A discount approval workflow requires staff to request a discount and a manager to approve it before it applies. Every request and decision is logged, which prevents untracked discounts and revenue leakage.
+- Audit trail: An audit trail is a permanent record of who did what and when, such as who requested and approved a discount. It lets owners review decisions after the fact without relying on memory.
+- Role-based access control: Role-based access control limits what each person can see and do according to their job. In Zennly, owners, managers and front-desk staff each get a different level of access to bookings, payments and reports.
+- Part-payment: A part-payment is a partial payment toward a booking, such as a deposit paid up front with the balance settled later. Tracking each part-payment against the booking keeps the settlement status accurate.
+- Staff transfer: A staff transfer schedules an employee to work at a different branch on given days. In a multi-branch system the transfer is planned ahead so the staff member's availability is correct at both locations.
+- No-show: A no-show is a client who books an appointment and does not turn up or cancel. For service businesses it means an empty slot that cannot be resold, which is why many studios and clinics take a deposit or send confirmations.
+- Deposit: A deposit is a part-payment taken when a booking is made, to hold the slot. It is recorded against the booking, and the balance is recorded when the service is complete. Deposits are common in tattoo studios and for long treatments.
+- Booking software: Booking software lets a business take appointments online and manage them in one calendar. Spas, salons, gyms and clinics use it to replace phone calls and paper books, assign staff and rooms, and track payments per booking.
+- Booking lifecycle: The booking lifecycle is the set of stages a booking moves through, such as Pending, Confirmed, In-Progress and Completed. Tracking the stage of every booking shows the owner what is happening across all branches in real time.
+- Online booking system: An online booking system lets customers choose a service, staff member and time on a web page or phone, and holds the slot straight away. For businesses it replaces phone and chat bookings with one calendar that other staff and branches can see.
+- Spa management software: Spa management software combines online booking, therapist and room scheduling, payments and reporting for a spa or wellness centre. Multi-location spas also need one view of every site, so owners can compare bookings and revenue.
+- Salon management software: Salon management software handles bookings, stylist schedules, payments and reports for a hair or beauty salon. For salons with several branches it also shows every location in one place and controls discounts.
+- Resource scheduling: Resource scheduling means booking everything a service needs together, such as the staff member, the room and the time, so that none of them is double-booked. It matters most when a treatment needs both a person and a room.
+- Walk-in booking: A walk-in booking is an appointment entered for a customer who arrives without booking in advance. Entering it in the same calendar as online bookings keeps staff and rooms from being promised twice.
+- Beauty parlour software: Beauty parlour software is booking and management software for beauty parlours, the common Nepali name for a salon. It takes appointments online, schedules beauticians, tracks packages and discounts, and records payments.
+- Gym management software: Gym management software tracks memberships, renewals, classes and trainers for a gym or fitness studio. It shows who has paid, who has lapsed and how many sessions remain.
+- Membership management software: Membership management software tracks prepaid tiers, wallet balances, validity periods and renewals. Every deposit and deduction is recorded so the balance is always correct.
+- Session package: A session package is a bundle of sessions for one service sold at a set price, such as ten massages. Each visit redeems one session, and the record shows sessions left and any amount due.
+- Gift voucher: A gift voucher is a prepaid value with a unique code and an expiry date that a customer redeems as payment, in one visit or over several. It differs from a discount code because it holds money.
+- Staff commission: Staff commission is extra pay calculated as a percentage of the value of the services a therapist, stylist or trainer completed. It is usually paid on top of a base salary.
+- Win-back email: A win-back email is a message sent to a customer who has not visited for a set number of days, inviting them to return. It is a low-cost way to recover lapsed regulars.
+- Multi-branch spa management: Multi-branch spa management means running several spa locations from one system, with shared staff, one set of rules for discounts and one daily report across branches.
+- Clinic appointment software: Clinic appointment software schedules practitioners and rooms together, keeps repeat treatments with the same practitioner and records payments per visit. It is not a medical records system.
+- Beauty parlour: A beauty parlour is the common name in Nepal and South Asia for a salon offering hair, skin, nails, threading, waxing and bridal makeup services.
+- AI receptionist: An AI receptionist is an AI assistant that answers customer calls and chat messages for a business and helps them book, so enquiries are not missed when staff are busy or the shop is closed.
+
+## Blog guides
+- Salon enquiry management in Nepal: turn phone, Instagram and WhatsApp enquiries into bookings: https://zennly.io/businesses/blog/salon-enquiry-management-nepal
+- How to start a gym or fitness studio in Nepal: operations checklist: https://zennly.io/businesses/blog/how-to-start-a-gym-business-in-nepal
+- How to price spa and salon services in Nepal: a practical method: https://zennly.io/businesses/blog/how-to-price-spa-and-salon-services-in-nepal
+- Google Business Profile for salons and spas in Nepal: how to get found and booked: https://zennly.io/businesses/blog/google-business-profile-for-salons-and-spas-in-nepal
+- How to start a barbershop in Nepal: operations checklist: https://zennly.io/businesses/blog/how-to-start-a-barbershop-in-nepal
+- Dashain and Tihar in a salon or spa: handling a month of bookings in a fortnight: https://zennly.io/businesses/blog/dashain-tihar-salon-spa-bookings-nepal
+- Opening a second branch in Kathmandu: what changes on day one: https://zennly.io/businesses/blog/opening-second-branch-kathmandu-salon-spa
+- A therapist visiting another branch: temporary and permanent transfers without double-booking: https://zennly.io/businesses/blog/therapist-visiting-another-branch-attendance-nepal
+- Staff attendance and branch transfer notifications: know who is where, without calling: https://zennly.io/businesses/blog/branch-transfer-notification-staff-attendance-nepal
+- Salon and spa campaigns and customer outreach: bring clients back without chasing them: https://zennly.io/businesses/blog/salon-spa-sms-email-campaign-customer-outreach-nepal
+- Staff giving unauthorised discounts? How discount approvals protect your salon or spa: https://zennly.io/businesses/blog/staff-giving-unauthorised-discounts-approval-control-nepal
+- Walk-in queue management for salons and barbershops: how to cut the wait: https://zennly.io/businesses/blog/walk-in-queue-management-salon-barbershop-nepal
+- Class capacity limits: how yoga and fitness studios stop overbooking a class: https://zennly.io/businesses/blog/class-capacity-limits-full-class-yoga-gym-nepal
+- Digital consent forms for tattoo, piercing, clinic and spa clients: https://zennly.io/businesses/blog/digital-consent-forms-tattoo-piercing-clinic-spa-nepal
+- Waiting list management for a spa or salon: how to fill cancelled slots fast: https://zennly.io/businesses/blog/waiting-list-management-spa-salon-nepal
+- Nail studio booking software in Nepal: appointments, technicians and payments: https://zennly.io/businesses/blog/nail-studio-booking-software-nepal
+- Yoga studio booking software in Nepal: classes, memberships and payments: https://zennly.io/businesses/blog/yoga-studio-booking-software-nepal
+- Tattoo and piercing studio booking software in Nepal: artists, deposits and appointments: https://zennly.io/businesses/blog/tattoo-piercing-studio-booking-software-nepal
+- Month-end salary takes days: how a spa or salon can run payroll in minutes: https://zennly.io/businesses/blog/salary-calculation-takes-days-spa-salon-payroll-nepal
+- The cash is short at closing and nobody knows why: how to find the gap: https://zennly.io/businesses/blog/cash-short-at-closing-spa-salon-nepal
+- Who tracks the gift voucher balance? How spas stop losing money on vouchers and packages: https://zennly.io/businesses/blog/gift-voucher-package-balance-tracking-spa-nepal
+- Customers try to book at night and you miss them: how online booking fills the gap: https://zennly.io/businesses/blog/missed-bookings-after-hours-online-booking-nepal
+- Expired members still training: how a gym can track memberships and renewals: https://zennly.io/businesses/blog/gym-members-expired-still-training-nepal
+- Which therapist earns the most? How to see staff performance without guessing: https://zennly.io/businesses/blog/which-therapist-earns-most-staff-performance-report-nepal
+- Two customers, one room: why spas and salons double-book and how to stop it: https://zennly.io/businesses/blog/two-customers-one-room-double-booking-nepal
+- Away from the shop: how to see every branch without calling the managers: https://zennly.io/businesses/blog/owner-away-run-branches-without-calling-managers-nepal
+- A therapist is absent and the branch is short: how to cover without chaos: https://zennly.io/businesses/blog/therapist-absent-branch-short-staffed-nepal
+- Customers stopped coming back: how a salon or spa can win them back: https://zennly.io/businesses/blog/customers-stopped-coming-back-win-back-salon-spa-nepal
+- How to reduce paperwork in a spa or salon in Nepal: https://zennly.io/businesses/blog/reduce-paperwork-spa-salon-nepal
+- AI receptionist for a spa, salon or clinic in Nepal: answer every call and chat: https://zennly.io/businesses/blog/ai-receptionist-spa-salon-nepal
+- Best spa software in Nepal: how to choose the right one in 2026: https://zennly.io/businesses/blog/best-spa-software-nepal
+- Salon appointment app in Nepal: let clients book online, 24 hours a day: https://zennly.io/businesses/blog/salon-appointment-app-nepal
+- Wellness center and massage booking software in Nepal: walk-in tourists, hotel referrals and trekking season: https://zennly.io/businesses/blog/wellness-center-booking-software-nepal
+- Beauty and skin clinic software in Nepal: scheduling, treatments and payments: https://zennly.io/businesses/blog/beauty-clinic-software-nepal
+- Staff scheduling software for salons and spas in Nepal: rosters, transfers and attendance: https://zennly.io/businesses/blog/staff-scheduling-software-salon-spa-nepal
+- Spa booking app in Nepal: how guests and tourists can book online: https://zennly.io/businesses/blog/spa-booking-app-nepal
+- Gym membership management software in Nepal: what to look for: https://zennly.io/businesses/blog/gym-membership-management-software-nepal
+- Barbershop booking app in Nepal: appointments, walk-ins and barber schedules: https://zennly.io/businesses/blog/barbershop-booking-app-nepal
+- Bridal makeup booking in Nepal: managing wedding-season dates and deposits: https://zennly.io/businesses/blog/bridal-makeup-artist-booking-nepal
+- Best salon software in Nepal: how to choose the right one in 2026: https://zennly.io/businesses/blog/best-salon-software-nepal
+- Online booking system in Nepal for service businesses: a plain guide: https://zennly.io/businesses/blog/online-booking-system-nepal
+- How to start a spa business in Nepal: operations checklist for owners: https://zennly.io/businesses/blog/how-to-start-a-spa-business-in-nepal
+- How to start a salon or beauty parlour business in Nepal: operations checklist: https://zennly.io/businesses/blog/how-to-start-a-salon-business-in-nepal
+- Beauty parlour software in Nepal: fitting threading, facials, bridal and walk-ins into one day: https://zennly.io/businesses/blog/beauty-parlour-software-nepal
+- How to reduce missed appointments at a salon or spa in Nepal: https://zennly.io/businesses/blog/reduce-no-shows-salon-spa-nepal
+- How to calculate therapist commission and payroll for a spa or salon in Nepal: https://zennly.io/businesses/blog/therapist-commission-payroll-nepal
+- Spa memberships, packages and gift vouchers in Nepal: how to track them properly: https://zennly.io/businesses/blog/spa-memberships-packages-vouchers-nepal
+- Clinic appointment software in Nepal: physiotherapy and beauty clinics: https://zennly.io/businesses/blog/clinic-appointment-software-nepal
+- Salon management software for multi-branch salons: what it is and what a day on it looks like: https://zennly.io/businesses/blog/salon-management-software
+- Spa management software: what it is and what a day on it looks like: https://zennly.io/businesses/blog/spa-management-software
+- Multi-location booking software: what to look for: https://zennly.io/businesses/blog/multi-location-booking-software
+- How to manage multiple spa or salon branches in Nepal: a practical checklist: https://zennly.io/businesses/blog/manage-multiple-spa-salon-branches-nepal
+- Booking software price in Nepal: what affects the cost and what to ask: https://zennly.io/businesses/blog/booking-software-price-nepal
+- Why salons and spas in Nepal should stop taking bookings on WhatsApp: https://zennly.io/businesses/blog/stop-taking-bookings-on-whatsapp-nepal
+- How to manage a spa in Nepal: bookings, therapists and rooms: https://zennly.io/businesses/blog/how-to-manage-a-spa-in-nepal
+- How to take salon and beauty parlour bookings without phone calls: https://zennly.io/businesses/blog/salon-booking-system-nepal
+- How tattoo studios can manage artist schedules and deposits: https://zennly.io/businesses/blog/tattoo-studio-booking-and-deposits
+- Gym management in Nepal: classes, trainers and memberships in one place: https://zennly.io/businesses/blog/gym-management-nepal
+- How physiotherapy clinics can keep a treatment course on schedule: https://zennly.io/businesses/blog/physiotherapy-clinic-scheduling
+- How cleaning companies can schedule crews and track jobs on site: https://zennly.io/businesses/blog/cleaning-service-scheduling
+- How to choose booking software for a spa, salon or gym in Nepal: https://zennly.io/businesses/blog/how-to-choose-booking-software-nepal
+- Why spreadsheets stop working after your second branch: https://zennly.io/businesses/blog/spreadsheets-stop-working
+- The real cost of undocumented staff discounts: https://zennly.io/businesses/blog/discount-leakage
+- What daily revenue reconciliation should actually take: https://zennly.io/businesses/blog/daily-reconciliation
+
+## Links
+- About: https://zennly.io/businesses/about
+- FAQ: https://zennly.io/businesses/faq
+- Glossary: https://zennly.io/businesses/glossary
+- Blog guides: https://zennly.io/businesses/blog

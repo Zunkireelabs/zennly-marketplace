@@ -3,6 +3,7 @@ import path from "node:path";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE_OPTIONS, supabaseConfig } from "@/lib/supabase/config";
+import { isPortedBusinessesPath } from "@/lib/businesses-ported";
 
 const BUSINESSES_PREFIX = "/businesses";
 /** Where `public/` lives at runtime — the repo root in dev, the standalone dir in a container. */
@@ -38,6 +39,9 @@ function mirroredFile(urlPath: string): string | null {
 function handleBusinessesPath(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
   if (pathname !== BUSINESSES_PREFIX && !pathname.startsWith(`${BUSINESSES_PREFIX}/`)) return null;
+
+  // Ported pages are real Next routes: pass through (still never reaching the Supabase block below).
+  if (isPortedBusinessesPath(pathname)) return NextResponse.next();
 
   const hasExtension = /\.[^/.]+$/.test(pathname);
   if (hasExtension) return NextResponse.next();

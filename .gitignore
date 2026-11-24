@@ -108,3 +108,6 @@ next-env.d.ts
 # marketing workspace (Eleventy) — generated build output; the SOURCE in marketing/src is committed
 marketing/_site/
 marketing/node_modules/
+
+# SEO snapshots (scripts/snapshot-seo.py) - large, regenerated on demand
+/snapshots/

@@ -2436,12 +2436,15 @@
         if (lastFocus && lastFocus.focus) lastFocus.focus();
         postPartial();
       }
-      document.querySelectorAll('[data-trial-open]').forEach(function (a) {
-        a.addEventListener('click', function (e) {
-          e.preventDefault();
-          var m = document.getElementById('v2-nav-mobile-scrim'); if (m) m.click();
-          open();
-        });
+      // One delegated listener, not one per button: the homepage includes this script mid-page, so
+      // a querySelectorAll here only saw the buttons ABOVE it (header) and the bottom banner and
+      // footer "Try a free demo" buttons never got a handler.
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest && e.target.closest('[data-trial-open]');
+        if (!a) return;
+        e.preventDefault();
+        var m = document.getElementById('v2-nav-mobile-scrim'); if (m) m.click();
+        open();
       });
       modal.querySelectorAll('[data-trial-close]').forEach(function (el) { el.addEventListener('click', close); });
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('is-open')) close(); });

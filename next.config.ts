@@ -178,7 +178,22 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
   async redirects() {
-    return [...marketingRedirects, assetRedirect];
+    return [
+      // www.zennly.io served the whole site (Traefik routes both hosts to this app), so Google
+      // could index two copies. One permanent hop to the apex, path and query kept.
+      {
+        source: "/:path*",
+        has: [{ type: "host" as const, value: "www.zennly.io" }],
+        destination: "https://zennly.io/:path*",
+        permanent: true,
+      },
+      // Every mirrored page advertises its feed at /businesses/feed.xml (the sync script prefixes
+      // all root-absolute links), but the feed lives at the root with the other root SEO files
+      // (public/feed.xml, see scripts/sync-root-seo-files.mjs).
+      { source: "/businesses/feed.xml", destination: "/feed.xml", permanent: true },
+      ...marketingRedirects,
+      assetRedirect,
+    ];
   },
   async rewrites() {
     return bookingProxyRewrite;

@@ -213,3 +213,30 @@ model Event {
   @@index([event, at])
   @@map("events")
 }
+
+/// A signed-in person's personal invite code, made the first time they open /refer. The invite
+/// link is `/?ref=<code>`. Short and unguessable enough for a link; it is not a secret.
+model ReferralCode {
+  userId    String   @id @map("user_id") @db.Uuid
+  code      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("referral_codes")
+}
+
+/// One row per referred friend: who invited them, and when they made their first booking.
+/// `referredId` is unique, so a person can only ever be referred once.
+/// `bookedAt` is set when the friend's first booking is created; that is what earns the referrer
+/// a reward. `rewardedAt` is set by hand once the Zennly team has sent the reward (v1 is manual).
+model Referral {
+  id         String    @id @default(uuid()) @db.Uuid
+  referrerId String    @map("referrer_id") @db.Uuid
+  referredId String    @unique @map("referred_id") @db.Uuid
+  code       String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  bookedAt   DateTime? @map("booked_at")
+  rewardedAt DateTime? @map("rewarded_at")
+
+  @@index([referrerId])
+  @@map("referrals")
+}

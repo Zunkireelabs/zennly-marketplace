@@ -39,12 +39,20 @@ function listBusinessesUrls(): string[] {
   return urls;
 }
 
+// Studios come from the database. Without this Next builds the sitemap once at build time, when no
+// database is reachable, and ships it without a single studio URL. Hourly is fresh enough.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [collectionSlugs, providers] = await Promise.all([getCollectionSlugs(), getProviders()]);
 
   const marketplaceEntries: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/search`, changeFrequency: "daily", priority: 0.8 },
+    { url: `${SITE_URL}/about-us`, changeFrequency: "yearly", priority: 0.5 },
+    { url: `${SITE_URL}/refer`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
     ...collectionSlugs.map((slug) => ({
       url: `${SITE_URL}/collections/${slug}`,
       changeFrequency: "weekly" as const,

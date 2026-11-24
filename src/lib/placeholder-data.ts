@@ -25,6 +25,8 @@ export const promoBanners: {
   /** Optional: a banner with no honest, settled claim to make should omit this rather than invent one. */
   subcopy?: string;
   ctaLabel: string;
+  /** Where the banner goes. Never "#": a link to nowhere is a dead end for visitors and for search engines. */
+  href: string;
   tone: string;
   image: string;
   alt: string;
@@ -32,16 +34,20 @@ export const promoBanners: {
   {
     badge: "New here",
     headline: "First Visit, On Us",
-    ctaLabel: "Claim offer",
+    // The business demo is free ("Book a Free 20-Minute Demo" on /businesses/demo), so the claim is true.
+    subcopy: "Run a spa, salon or gym? Book a free 20-minute demo of Zennly.",
+    ctaLabel: "Book a free demo",
+    href: "/businesses/demo",
     tone: "linear-gradient(135deg, #d8c9b3, #a9875f)",
     image: "/images/promo/first-visit-banner.jpg",
     alt: "A relaxing spa scene with candles, soft towels, and fresh flowers",
   },
   {
     badge: "Referral",
-    headline: "Refer a Friend",
-    subcopy: "Give $15, get $15 — for every friend who books their first session.",
+    headline: "Refer a Friend, Get a Free Extra",
+    subcopy: "When a friend you invite makes their first booking, you get a free extra at a participating studio.",
     ctaLabel: "Get your link",
+    href: "/refer",
     tone: "linear-gradient(135deg, #c4d0d4, #7f97a1)",
     image:
       "https://images.pexels.com/photos/6299359/pexels-photo-6299359.jpeg?auto=compress&cs=tinysrgb&w=1600",

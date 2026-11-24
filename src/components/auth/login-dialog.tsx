@@ -378,6 +378,18 @@ function LoginForm({
               <GoogleMark />
               Continue with Google
             </button>
+
+            <p className="text-center text-xs text-muted-foreground">
+              By continuing you agree to our{" "}
+              <a href="/terms" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">
+                Terms
+              </a>{" "}
+              and{" "}
+              <a href="/privacy" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-foreground">
+                Privacy Policy
+              </a>
+              .
+            </p>
           </form>
         ) : linkMode ? (
           <div className="mt-6 flex flex-col gap-4">
