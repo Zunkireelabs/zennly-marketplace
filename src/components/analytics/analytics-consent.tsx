@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Script from "next/script";
 
 /**
@@ -28,6 +29,8 @@ export function AnalyticsConsent() {
   const [choice, setChoice] = useState<Choice | undefined>(undefined);
 
   useEffect(() => {
+    // Deliberate: localStorage only exists in the browser, so the choice can only be read after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChoice(readChoice());
   }, []);
 
@@ -63,9 +66,9 @@ gtag('config', '${GA_ID}');`}
         >
           <p className="text-muted-foreground">
             We use Google Analytics cookies to see how Zennly is used. Nothing loads unless you accept.{" "}
-            <a href="/privacy" className="underline underline-offset-2 hover:text-foreground">
+            <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
               Privacy Policy
-            </a>
+            </Link>
           </p>
           <div className="flex shrink-0 gap-2">
             <button

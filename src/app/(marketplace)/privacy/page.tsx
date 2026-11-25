@@ -13,6 +13,8 @@ export default function PrivacyPage() {
       <p>
         This policy is for shoppers using the Zennly marketplace at zennly.io: searching, saving studios, logging in
         and booking. Businesses that use Zennly&apos;s software are covered by a separate policy at{" "}
+        {/* Different root layout (marketing site), so a full page load is intended, as in the marketing nav. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className="underline" href="/businesses/privacy-policy">
           /businesses/privacy-policy
         </a>

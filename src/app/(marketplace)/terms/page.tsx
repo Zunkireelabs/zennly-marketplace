@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LegalList, LegalPage, LegalSection } from "@/components/legal/legal-page";
 
 export const metadata: Metadata = {
@@ -91,7 +92,7 @@ export default function TermsPage() {
 
       <LegalSection title="9. Privacy">
         <p>
-          How we handle your personal information is in the <a className="underline" href="/privacy">Privacy Policy</a>.
+          How we handle your personal information is in the <Link className="underline" href="/privacy">Privacy Policy</Link>.
         </p>
       </LegalSection>
 
