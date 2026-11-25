@@ -76,6 +76,9 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          # Default is 10m; the production image build now takes about that long and the action
+          # killed the deploy mid-way ("Run Command Timeout").
+          command_timeout: 30m
           # appleboy/ssh-action forwards ONLY the variables named here — a step-level `env:` does
           # not cross the SSH boundary on its own. Anything added to `env:` above and missed here
           # arrives as an empty string in the remote script and is written blank into the runtime
