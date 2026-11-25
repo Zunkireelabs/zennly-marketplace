@@ -28,18 +28,24 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=hosting"
-      # HTTPS router — serves both zennly.io and www.zennly.io identically
-      # (no canonical redirect between them, same pattern as edgexcrm's
-      # multi-host routers)
+      # HTTPS router. It still answers on both hosts, but www is sent to the plain domain with a
+      # permanent redirect (the -www middleware below), so Google sees one site and not two
+      # identical ones. Canonical tags and the sitemap already use https://zennly.io.
       - "traefik.http.routers.zennly-marketplace-app-prod.rule=Host(`zennly.io`) || Host(`www.zennly.io`)"
       - "traefik.http.routers.zennly-marketplace-app-prod.entrypoints=websecure"
       - "traefik.http.routers.zennly-marketplace-app-prod.tls=true"
       - "traefik.http.routers.zennly-marketplace-app-prod.tls.certresolver=letsencrypt"
-      # HTTP -> HTTPS redirect
+      - "traefik.http.routers.zennly-marketplace-app-prod.middlewares=zennly-marketplace-app-prod-www"
+      # HTTP -> HTTPS redirect. The www rule runs first, so http://www.zennly.io/x reaches
+      # https://zennly.io/x in one hop instead of two.
       - "traefik.http.routers.zennly-marketplace-app-prod-http.rule=Host(`zennly.io`) || Host(`www.zennly.io`)"
       - "traefik.http.routers.zennly-marketplace-app-prod-http.entrypoints=web"
-      - "traefik.http.routers.zennly-marketplace-app-prod-http.middlewares=zennly-marketplace-app-prod-redirect"
+      - "traefik.http.routers.zennly-marketplace-app-prod-http.middlewares=zennly-marketplace-app-prod-www,zennly-marketplace-app-prod-redirect"
       - "traefik.http.middlewares.zennly-marketplace-app-prod-redirect.redirectscheme.scheme=https"
+      # www -> plain domain, permanent (301), path and query kept. Compose writes a literal dollar as "$$".
+      - "traefik.http.middlewares.zennly-marketplace-app-prod-www.redirectregex.regex=^https?://www\\.zennly\\.io/(.*)"
+      - "traefik.http.middlewares.zennly-marketplace-app-prod-www.redirectregex.replacement=https://zennly.io/$${1}"
+      - "traefik.http.middlewares.zennly-marketplace-app-prod-www.redirectregex.permanent=true"
       # Service port
       - "traefik.http.services.zennly-marketplace-app-prod.loadbalancer.server.port=3000"
 

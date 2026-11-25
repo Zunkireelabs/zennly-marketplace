@@ -11,6 +11,7 @@
     "prebuild": "node scripts/sync-businesses-site.mjs --if-missing",
     "build": "next build",
     "sync:businesses": "node scripts/sync-businesses-site.mjs",
+    "sync:root-seo": "node scripts/sync-root-seo-files.mjs",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate && node scripts/copy-maplibre-worker.mjs",

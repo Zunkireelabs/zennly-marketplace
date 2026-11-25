@@ -1,4 +1,5 @@
 import { DemoPill } from "@/components/ui/demo-pill";
+import { studioSummary } from "@/lib/seo/studio-summary";
 import Link from "next/link";
 import type { Provider } from "@/lib/providers";
 import { isEngineActive } from "@/lib/booking/engine-flag";
@@ -76,6 +77,8 @@ export function Overview({ provider }: { provider: Provider }) {
         </div>
         <SaveShare slug={provider.slug} name={provider.name} />
       </div>
+
+      <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-foreground/80">{studioSummary(provider)}</p>
 
       {(provider.isRecommended || provider.isNew) && (
         <p className="mt-4 flex gap-2">

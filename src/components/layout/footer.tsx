@@ -1,26 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
-import { MARKETING_ABOUT, MARKETING_SITE_HOME } from "@/lib/marketing-links";
+import { MARKETING_SITE_HOME } from "@/lib/marketing-links";
 
-// Discover links are placeholders for future /search?modality= filters, unrelated to the
-// marketing site — left as "#" (out of this sweep's scope: it's an internal-routing gap, not
-// a stale marketing link). "Careers" has no destination yet; also left as "#".
+// Every footer link goes somewhere real: a "#" link is a dead end for visitors and gives search
+// engines nothing to follow. Discover links open a search for that kind of treatment (free-text
+// "what"), Recovery has its own collection. Careers is not listed until there is a page for it.
 const FOOTER_COLUMNS = [
   {
     title: "Discover",
     links: [
-      { label: "Massage", href: "#" },
-      { label: "Facials", href: "#" },
-      { label: "Yoga & Movement", href: "#" },
-      { label: "Recovery", href: "#" },
+      { label: "Massage", href: "/search?what=Massage" },
+      { label: "Facials", href: "/search?what=Facial" },
+      { label: "Yoga & Movement", href: "/search?what=Yoga" },
+      { label: "Recovery", href: "/collections/recovery-rituals" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About", href: MARKETING_ABOUT },
+      { label: "About", href: "/about-us" },
       { label: "For Businesses", href: MARKETING_SITE_HOME },
-      { label: "Careers", href: "#" },
+      { label: "Terms", href: "/terms" },
+      { label: "Privacy", href: "/privacy" },
     ],
   },
 ];

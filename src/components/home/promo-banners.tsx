@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { promoBanners } from "@/lib/placeholder-data";
+
+// A real <Link> that animates, so the banner navigates client-side like every other internal link.
+const MotionLink = motion.create(Link);
 
 const EASE_STANDARD = [0.16, 1, 0.3, 1] as const;
 const AUTO_ADVANCE_MS = 5000;
@@ -30,9 +34,9 @@ export function PromoBanners() {
     <section className="mx-auto max-w-7xl px-6 pt-16">
       <div className="relative overflow-hidden rounded-[var(--radius-lg)] border border-border bg-muted">
         <AnimatePresence mode="wait" initial={false}>
-          <motion.a
+          <MotionLink
             key={banner.headline}
-            href="#"
+            href={banner.href}
             drag={reduceMotion ? false : "x"}
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.4}
@@ -77,7 +81,7 @@ export function PromoBanners() {
             <span className="inline-flex shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors duration-200 group-hover:bg-primary-hover sm:mr-12">
               {banner.ctaLabel}
             </span>
-          </motion.a>
+          </MotionLink>
         </AnimatePresence>
 
         {promoBanners.length > 1 && (
