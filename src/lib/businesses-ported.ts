@@ -121,6 +121,14 @@ export const BUSINESSES_PORTED_PATHS: ReadonlySet<string> = new Set([
   "/businesses/solutions/spa",
   "/businesses/solutions/tattoo",
   "/businesses/terms-of-service",
+  "/businesses/blog/glp-1-and-fitness-how-wellness-studios-can-respond",
+  "/businesses/blog/ai-and-tech-in-fitness-operations-where-small-studios-should-start",
+  "/businesses/blog/longevity-goes-mainstream-what-it-means-for-wellness-studios",
+  "/businesses/blog/boutique-and-hybrid-fitness-is-growing-what-it-means-for-studios",
+  "/businesses/blog/fitness-chains-keep-expanding-what-small-wellness-studios-can-learn",
+  "/businesses/blog/can-salon-software-help-with-appointment-scheduling",
+  "/businesses/blog/benefits-of-salon-management-software-for-wellness-studios",
+  "/businesses/blog/how-a-salon-management-system-improves-day-to-day-operations-zennly",
 ]);
 
 export function isPortedBusinessesPath(pathname: string): boolean {
